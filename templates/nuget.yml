@@ -1,178 +1,178 @@
 parameters:
   - name: sonarCloudOrganizationName
-    displayName: "Organization name for SonarCloud"
+    displayName: 'Organization name for SonarCloud'
     type: string
-    default: "N/A"
+    default: 'N/A'
   - name: sourceBranch
-    displayName: "Name of the main branch"
+    displayName: 'Name of the main branch'
     type: string
-    default: "master"
+    default: 'master'
   - name: buildConfiguration
-    displayName: "Build Configuration"
+    displayName: 'Build Configuration'
     type: string
-    default: "N/A"
+    default: 'N/A'
   - name: artifactPackDirectory
-    displayName: "Pipeline Artifact publishing directory"
+    displayName: 'Pipeline Artifact publishing directory'
     type: string
-    default: "N/A"
+    default: 'N/A'
   - name: internalFeed
-    displayName: "internal dotnet artifact feed"
+    displayName: 'internal dotnet artifact feed'
     type: string
-    default: "N/A"
+    default: 'N/A'
 
 stages:
   - stage: Build
-    displayName: "Build"
+    displayName: 'Build'
     variables:
-      versionSuffix: ""
+      versionSuffix: ''
     jobs:
       - job: Build
-        displayName: "Build"
+        displayName: 'Build'
         steps:
           - task: Bash@3
-            displayName: "Set Version Suffix"
+            displayName: 'Set Version Suffix'
             condition: and(succeeded(), ne(variables['Build.SourceBranch'], 'refs/heads/${{ parameters.sourceBranch }}'))
             inputs:
-              targetType: "inline"
+              targetType: 'inline'
               script: |
                 echo "##vso[task.setvariable variable=versionSuffix]ci-$BUILD_BUILDNUMBER"
 
           - task: SonarCloudPrepare@1
-            displayName: "Prepare analysis on SonarCloud"
+            displayName: 'Prepare analysis on SonarCloud'
             inputs:
-              SonarCloud: "SonarCloud"
-              organization: "${{ parameters.sonarCloudOrganizationName }}"
-              scannerMode: "MSBuild"
-              projectKey: "$(Build.DefinitionName)"
-              projectName: "$(Build.DefinitionName)"
+              SonarCloud: 'SonarCloud'
+              organization: '${{ parameters.sonarCloudOrganizationName }}'
+              scannerMode: 'MSBuild'
+              projectKey: '$(Build.DefinitionName)'
+              projectName: '$(Build.DefinitionName)'
               extraProperties: |
                 sonar.cs.opencover.reportsPaths="$(Agent.TempDirectory)/**/coverage.opencover.xml"
                 sonar.coverage.exclusions="tools/build/*"
 
           - task: UseDotNet@2
-            displayName: "Use .NET Core SDK"
+            displayName: 'Use .NET Core SDK'
             inputs:
-              packageType: "sdk"
-              version: "3.x"
+              packageType: 'sdk'
+              version: '3.x'
 
           - task: DotNetCoreCLI@2
-            displayName: "dotnet restore from both Nuget and Azure Artifacts feeds"
+            displayName: 'dotnet restore from both Nuget and Azure Artifacts feeds'
             condition: and(ne(variables['Build.SourceBranch'], 'refs/heads/${{ parameters.sourceBranch }}'), ne(variables['Build.Reason'], 'PullRequest'))
             inputs:
-              command: "restore"
-              projects: "**/*.csproj"
-              feedsToUse: "select"
-              vstsFeed: "${{ parameters.internalFeed }}"
+              command: 'restore'
+              projects: '**/*.csproj'
+              feedsToUse: 'select'
+              vstsFeed: '${{ parameters.internalFeed }}'
 
           - task: DotNetCoreCLI@2
-            displayName: "dotnet restore only from NuGet feed"
+            displayName: 'dotnet restore only from NuGet feed'
             condition: or(eq(variables['Build.SourceBranch'], 'refs/heads/${{ parameters.sourceBranch }}'), eq(variables['Build.Reason'], 'PullRequest'))
             inputs:
-              command: "restore"
-              projects: "**/*.csproj"
-              feedsToUse: "select"
+              command: 'restore'
+              projects: '**/*.csproj'
+              feedsToUse: 'select'
 
           - task: DotNetCoreCLI@2
-            displayName: "dotnet build"
+            displayName: 'dotnet build'
             inputs:
-              command: "build"
-              projects: "**/*.csproj"
-              arguments: "--configuration ${{ parameters.buildConfiguration }} /p:VersionSuffix=$(versionSuffix)"
+              command: 'build'
+              projects: '**/*.csproj'
+              arguments: '--configuration ${{ parameters.buildConfiguration }} /p:VersionSuffix=$(versionSuffix)'
 
           - task: DotNetCoreCLI@2
-            displayName: "dotnet test"
+            displayName: 'dotnet test'
             inputs:
-              command: "test"
-              projects: "**/*[Tt]ests/*.csproj"
+              command: 'test'
+              projects: '**/*[Tt]ests/*.csproj'
               arguments: '--configuration ${{ parameters.buildConfiguration }} --settings $(System.DefaultWorkingDirectory)/CodeCoverage.runsettings --collect:"XPlat Code Coverage" -- RunConfiguration.DisableAppDomain=true'
 
           - task: DotNetCoreCLI@2
-            displayName: "Install ReportGenerator tool"
+            displayName: 'Install ReportGenerator tool'
             inputs:
-              command: "custom"
-              custom: "tool"
-              arguments: "install --tool-path . dotnet-reportgenerator-globaltool"
+              command: 'custom'
+              custom: 'tool'
+              arguments: 'install --tool-path . dotnet-reportgenerator-globaltool'
 
           - script: ./reportgenerator -reports:$(Agent.TempDirectory)/**/coverage.cobertura.xml -targetdir:$(Build.SourcesDirectory)/coverlet/reports -reporttypes:"Cobertura"
-            displayName: "Create reports"
+            displayName: 'Create reports'
 
           - task: PublishCodeCoverageResults@1
-            displayName: "Publish code coverage"
+            displayName: 'Publish code coverage'
             inputs:
-              codeCoverageTool: "Cobertura"
-              summaryFileLocation: "$(Build.SourcesDirectory)/coverlet/reports/Cobertura.xml"
+              codeCoverageTool: 'Cobertura'
+              summaryFileLocation: '$(Build.SourcesDirectory)/coverlet/reports/Cobertura.xml'
 
           # Temp solution because of issue with SonarCloud
           - task: UseDotNet@2
-            displayName: "Use .NET Core SDK 2.2.x for SonarCloud"
+            displayName: 'Use .NET Core SDK 2.2.x for SonarCloud'
             inputs:
-              packageType: "sdk"
-              version: "2.2.x"
+              packageType: 'sdk'
+              version: '2.2.x'
 
           - task: SonarCloudAnalyze@1
-            displayName: "Run Code Analysis"
+            displayName: 'Run Code Analysis'
 
           - task: SonarCloudPublish@1
-            displayName: "Publish Quality Gate Result"
+            displayName: 'Publish Quality Gate Result'
             inputs:
-              pollingTimeoutSec: "300"
+              pollingTimeoutSec: '300'
 
           - task: sonarcloud-buildbreaker@2
-            displayName: "Break build on quality gate failure"
+            displayName: 'Break build on quality gate failure'
             inputs:
-              SonarCloud: "SonarCloud"
-              organization: "${{ parameters.sonarCloudOrganizationName }}"
+              SonarCloud: 'SonarCloud'
+              organization: '${{ parameters.sonarCloudOrganizationName }}'
 
           - task: DotNetCoreCLI@2
-            displayName: "Pack .NET Core NuGet packages"
+            displayName: 'Pack .NET Core NuGet packages'
             inputs:
-              command: "pack"
-              packagesToPack: "**/*.csproj"
-              buildProperties: "VersionSuffix=$(versionSuffix)"
-              packDirectory: "$(Build.ArtifactStagingDirectory)/${{ parameters.artifactPackDirectory }}"
-              versioningScheme: "off"
+              command: 'pack'
+              packagesToPack: '**/*.csproj'
+              buildProperties: 'VersionSuffix=$(versionSuffix)'
+              packDirectory: '$(Build.ArtifactStagingDirectory)/${{ parameters.artifactPackDirectory }}'
+              versioningScheme: 'off'
 
           - task: PublishPipelineArtifact@1
-            displayName: "Publish Pipeline Artifact: NuGet Packages"
+            displayName: 'Publish Pipeline Artifact: NuGet Packages'
             inputs:
-              path: "$(Build.ArtifactStagingDirectory)/${{ parameters.artifactPackDirectory }}"
-              artifact: "NuGet Packages"
+              path: '$(Build.ArtifactStagingDirectory)/${{ parameters.artifactPackDirectory }}'
+              artifact: 'NuGet Packages'
 
   - stage: Artifacts
-    displayName: "Artifacts"
+    displayName: 'Artifacts'
     dependsOn: Build
     jobs:
       - deployment: Publish
-        displayName: "Publish packages"
-        environment: "Artifacts"
+        displayName: 'Publish packages'
+        environment: 'Artifacts'
         strategy:
           runOnce:
             deploy:
               steps:
                 - task: NuGetCommand@2
-                  displayName: "Push package in Artifacts"
+                  displayName: 'Push package in Artifacts'
                   inputs:
-                    command: "push"
-                    packagesToPush: "$(Pipeline.Workspace)/**/*.nupkg;!$(Pipeline.Workspace)/**/*.symbols.nupkg"
-                    nuGetFeedType: "internal"
-                    publishVstsFeed: "${{ parameters.internalFeed }}"
+                    command: 'push'
+                    packagesToPush: '$(Pipeline.Workspace)/**/*.nupkg;!$(Pipeline.Workspace)/**/*.symbols.nupkg'
+                    nuGetFeedType: 'internal'
+                    publishVstsFeed: '${{ parameters.internalFeed }}'
 
   - stage: NuGet
-    displayName: "NuGet"
+    displayName: 'NuGet'
     dependsOn: Artifacts
     condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/${{ parameters.sourceBranch }}'))
     jobs:
       - deployment: Publish
-        displayName: "Publish packages"
-        environment: "NuGet"
+        displayName: 'Publish packages'
+        environment: 'NuGet'
         strategy:
           runOnce:
             deploy:
               steps:
                 - task: NuGetCommand@2
-                  displayName: "NuGet push"
+                  displayName: 'NuGet push'
                   inputs:
-                    command: "push"
-                    packagesToPush: "$(Pipeline.Workspace)/**/*.nupkg;!$(Pipeline.Workspace)/**/*.symbols.nupkg"
-                    nuGetFeedType: "external"
-                    publishFeedCredentials: "NuGet"
+                    command: 'push'
+                    packagesToPush: '$(Pipeline.Workspace)/**/*.nupkg;!$(Pipeline.Workspace)/**/*.symbols.nupkg'
+                    nuGetFeedType: 'external'
+                    publishFeedCredentials: 'NuGet'
