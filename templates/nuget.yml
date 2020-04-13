@@ -129,14 +129,14 @@ stages:
               command: "pack"
               packagesToPack: "**/*.csproj"
               buildProperties: 'VersionSuffix="$(versionSuffix)"'
-              packDirectory: '${{ parameters.packDirectory }}'
+              packDirectory: '$(Build.ArtifactStagingDirectory)/packages'
               nobuild: true
               versioningScheme: "off"
 
           - task: PublishPipelineArtifact@1
             displayName: "Publish Pipeline Artifact: NuGet Packages"
             inputs:
-              path: '${{ parameters.packDirectory }}'
+              path: '$(Build.ArtifactStagingDirectory)/packages'
               artifact: "NuGet Packages"
 
   - stage: Artifacts
