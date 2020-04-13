@@ -102,26 +102,26 @@ stages:
               codeCoverageTool: "Cobertura"
               summaryFileLocation: "$(Build.SourcesDirectory)/coverlet/reports/Cobertura.xml"
 
-          # # Temp solution because of issue with SonarCloud
-          # - task: UseDotNet@2
-          #   displayName: "Use .NET Core SDK 2.2.x for SonarCloud"
-          #   inputs:
-          #     packageType: "sdk"
-          #     version: "2.2.x"
+          # Temp solution because of issue with SonarCloud
+          - task: UseDotNet@2
+            displayName: "Use .NET Core SDK 2.2.x for SonarCloud"
+            inputs:
+              packageType: "sdk"
+              version: "2.2.x"
 
-          # - task: SonarCloudAnalyze@1
-          #   displayName: "Run Code Analysis"
+          - task: SonarCloudAnalyze@1
+            displayName: "Run Code Analysis"
 
-          # - task: SonarCloudPublish@1
-          #   displayName: "Publish Quality Gate Result"
-          #   inputs:
-          #     pollingTimeoutSec: "300"
+          - task: SonarCloudPublish@1
+            displayName: "Publish Quality Gate Result"
+            inputs:
+              pollingTimeoutSec: "300"
 
-          # - task: sonarcloud-buildbreaker@2
-          #   displayName: "Break build on quality gate failure"
-          #   inputs:
-          #     SonarCloud: "SonarCloud"
-          #     organization: "${{ parameters.sonarCloudOrganizationName }}"
+          - task: sonarcloud-buildbreaker@2
+            displayName: "Break build on quality gate failure"
+            inputs:
+              SonarCloud: "SonarCloud"
+              organization: "${{ parameters.sonarCloudOrganizationName }}"
 
           - task: DotNetCoreCLI@2
             displayName: "Pack .NET Core NuGet packages"
@@ -129,14 +129,14 @@ stages:
               command: "pack"
               packagesToPack: "**/*.csproj"
               buildProperties: 'VersionSuffix="$(versionSuffix)"'
-              packDirectory: "$(Build.ArtifactStagingDirectory)/${{ parameters.packDirectory }}"
+              packDirectory: "${{ parameters.packDirectory }}"
               nobuild: true
               versioningScheme: "off"
 
           - task: PublishPipelineArtifact@1
             displayName: "Publish Pipeline Artifact: NuGet Packages"
             inputs:
-              path: "$(Build.ArtifactStagingDirectory)/${{ parameters.packDirectory }}"
+              path: "${{ parameters.packDirectory }}"
               artifact: "NuGet Packages"
 
   - stage: Artifacts
