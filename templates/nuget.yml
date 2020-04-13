@@ -1,24 +1,36 @@
 parameters:
+  - name: vmImage
+    displayName: 'vmImage'
+    type: string
+    default: 'ubuntu-latest'
+
   - name: sonarCloudOrganizationName
     displayName: 'Organization name for SonarCloud'
     type: string
     default: 'N/A'
+
   - name: sourceBranch
     displayName: 'Name of the main branch'
     type: string
     default: 'master'
+
   - name: buildConfiguration
     displayName: 'Build Configuration'
     type: string
     default: 'N/A'
+
   - name: artifactPackDirectory
     displayName: 'Pipeline Artifact publishing directory'
     type: string
     default: 'N/A'
+
   - name: internalFeed
     displayName: 'internal dotnet artifact feed'
     type: string
     default: 'N/A'
+
+pool:
+  vmImage: ${{ parameters.vmImage }}
 
 stages:
   - stage: Build
@@ -143,7 +155,7 @@ stages:
     dependsOn: Build
     jobs:
       - deployment: Publish
-        displayName: 'Publish packages'
+        displayName: 'Publish packages in Artifacts'
         environment: 'Artifacts'
         strategy:
           runOnce:
