@@ -2,7 +2,7 @@ parameters:
   - name: sonarCloudOrganizationName
     displayName: "Organization name for SonarCloud"
     type: string
-    default: ""
+    default: "N/A"
   - name: sourceBranch
     displayName: "Name of the main branch"
     type: string
@@ -10,11 +10,15 @@ parameters:
   - name: buildConfiguration
     displayName: "Build Configuration"
     type: string
-    default: ""
+    default: "N/A"
   - name: packDirectory
     displayName: "Pipeline Artifact publishing directory"
     type: string
-    default: ""
+    default: "N/A"
+  - name: internalFeed
+    displayName: "internal dotnet artifact feed"
+    type: string
+    default: "N/A"
 
 stages:
   - stage: Build
@@ -58,7 +62,7 @@ stages:
               command: "restore"
               projects: "**/*.csproj"
               feedsToUse: "select"
-              vstsFeed: "19324bbd-9baf-4407-b86d-3e7f0d145399/1574777e-9941-4b90-baa9-d9938266ac24"
+              vstsFeed: "${{ parameters.internalFeed }}"
 
           - task: DotNetCoreCLI@2
             displayName: "dotnet restore only from NuGet feed"
@@ -152,12 +156,12 @@ stages:
                     command: "push"
                     packagesToPush: "$(Pipeline.Workspace)/**/*.nupkg;!$(Pipeline.Workspace)/**/*.symbols.nupkg"
                     nuGetFeedType: "internal"
-                    publishVstsFeed: "19324bbd-9baf-4407-b86d-3e7f0d145399/1574777e-9941-4b90-baa9-d9938266ac24"
+                    publishVstsFeed: "${{ parameters.internalFeed }}"
 
   - stage: NuGet
     displayName: "NuGet"
     dependsOn: Artifacts
-    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/${{ parameters.sourceBranch }}'))
     jobs:
       - deployment: Publish
         displayName: "Publish packages"
