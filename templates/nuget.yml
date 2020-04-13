@@ -130,7 +130,6 @@ stages:
               packagesToPack: "**/*.csproj"
               buildProperties: 'VersionSuffix="$(versionSuffix)"'
               packDirectory: '$(Build.ArtifactStagingDirectory)/packages'
-              nobuild: true
               versioningScheme: "off"
 
           - task: PublishPipelineArtifact@1
