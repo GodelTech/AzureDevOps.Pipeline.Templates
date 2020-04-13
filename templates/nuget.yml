@@ -29,14 +29,13 @@ parameters:
     type: string
     default: 'N/A'
 
-pool:
-  vmImage: ${{ parameters.vmImage }}
-
 stages:
   - stage: Build
     displayName: 'Build'
     variables:
       versionSuffix: ''
+    pool:
+      vmImage: ${{ parameters.vmImage }}
     jobs:
       - job: Build
         displayName: 'Build'
@@ -153,6 +152,8 @@ stages:
   - stage: Artifacts
     displayName: 'Artifacts'
     dependsOn: Build
+    pool:
+      vmImage: ${{ parameters.vmImage }}
     jobs:
       - deployment: Publish
         displayName: 'Publish packages in Artifacts'
@@ -173,6 +174,8 @@ stages:
     displayName: 'NuGet'
     dependsOn: Artifacts
     condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/${{ parameters.sourceBranch }}'))
+    pool:
+      vmImage: ${{ parameters.vmImage }}
     jobs:
       - deployment: Publish
         displayName: 'Publish packages'
