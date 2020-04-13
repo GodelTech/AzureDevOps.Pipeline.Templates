@@ -77,14 +77,14 @@ stages:
             inputs:
               command: "build"
               projects: "**/*.csproj"
-              arguments: '--configuration ${{ parameters.buildConfiguration }} /p:VersionSuffix="$(versionSuffix)"'
+              arguments: '--configuration Release /p:VersionSuffix="$(versionSuffix)"'
 
           - task: DotNetCoreCLI@2
             displayName: "dotnet test"
             inputs:
               command: "test"
               projects: "**/*[Tt]ests/*.csproj"
-              arguments: '--configuration ${{ parameters.buildConfiguration }} --settings $(System.DefaultWorkingDirectory)/CodeCoverage.runsettings --collect:"XPlat Code Coverage" -- RunConfiguration.DisableAppDomain=true'
+              arguments: '--configuration Release --settings $(System.DefaultWorkingDirectory)/CodeCoverage.runsettings --collect:"XPlat Code Coverage" -- RunConfiguration.DisableAppDomain=true'
 
           - task: DotNetCoreCLI@2
             displayName: "Install ReportGenerator tool"
