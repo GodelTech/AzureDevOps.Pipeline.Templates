@@ -11,7 +11,7 @@ parameters:
     displayName: "Build Configuration"
     type: string
     default: "N/A"
-  - name: packDirectory
+  - name: artifactPackDirectory
     displayName: "Pipeline Artifact publishing directory"
     type: string
     default: "N/A"
@@ -77,14 +77,14 @@ stages:
             inputs:
               command: "build"
               projects: "**/*.csproj"
-              arguments: '--configuration Release /p:VersionSuffix="$(versionSuffix)"'
+              arguments: '--configuration ${{ parameters.buildConfiguration }} /p:VersionSuffix="$(versionSuffix)"'
 
           - task: DotNetCoreCLI@2
             displayName: "dotnet test"
             inputs:
               command: "test"
               projects: "**/*[Tt]ests/*.csproj"
-              arguments: '--configuration Release --settings $(System.DefaultWorkingDirectory)/CodeCoverage.runsettings --collect:"XPlat Code Coverage" -- RunConfiguration.DisableAppDomain=true'
+              arguments: '--configuration ${{ parameters.buildConfiguration }} --settings $(System.DefaultWorkingDirectory)/CodeCoverage.runsettings --collect:"XPlat Code Coverage" -- RunConfiguration.DisableAppDomain=true'
 
           - task: DotNetCoreCLI@2
             displayName: "Install ReportGenerator tool"
@@ -129,13 +129,13 @@ stages:
               command: "pack"
               packagesToPack: "**/*.csproj"
               buildProperties: 'VersionSuffix="$(versionSuffix)"'
-              packDirectory: '$(Build.ArtifactStagingDirectory)/packages'
+              packDirectory: '$(Build.ArtifactStagingDirectory)/${{ parameters.artifactPackDirectory }}'
               versioningScheme: "off"
 
           - task: PublishPipelineArtifact@1
             displayName: "Publish Pipeline Artifact: NuGet Packages"
             inputs:
-              path: '$(Build.ArtifactStagingDirectory)/packages'
+              path: '$(Build.ArtifactStagingDirectory)/${{ parameters.artifactPackDirectory }}'
               artifact: "NuGet Packages"
 
   - stage: Artifacts
@@ -150,7 +150,7 @@ stages:
             deploy:
               steps:
                 - task: NuGetCommand@2
-                  displayName: "NuGet push"
+                  displayName: "Push package in Artifacts"
                   inputs:
                     command: "push"
                     packagesToPush: "$(Pipeline.Workspace)/**/*.nupkg;!$(Pipeline.Workspace)/**/*.symbols.nupkg"
