@@ -30,7 +30,7 @@ parameters:
     default: 'N/A'
 
   - name: codeCoverageSettingsFileName
-    displayName: 'The Name of the CodeCoverage.runsettings file'
+    displayName: 'The Name of the code coverage settings file'
     type: string
     default: 'CodeCoverage.runsettings'
 
