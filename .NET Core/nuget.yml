@@ -9,7 +9,7 @@ parameters:
     type: string
     default: 'N/A'
 
-  - name: sourceBranch
+  - name: defaultBranch
     displayName: 'Name of the main branch'
     type: string
     default: 'master'
@@ -29,6 +29,11 @@ parameters:
     type: string
     default: 'N/A'
 
+  - name: codeCoverageSettingsFileName
+    displayName: 'The Name of the CodeCoverage.runsettings file'
+    type: string
+    default: 'CodeCoverage.runsettings'
+
 stages:
   - stage: Build
     displayName: 'Build'
@@ -42,7 +47,7 @@ stages:
         steps:
           - task: Bash@3
             displayName: 'Set Version Suffix'
-            condition: and(succeeded(), ne(variables['Build.SourceBranch'], 'refs/heads/${{ parameters.sourceBranch }}'))
+            condition: and(succeeded(), ne(variables['Build.SourceBranch'], 'refs/heads/${{ parameters.defaultBranch }}'))
             inputs:
               targetType: 'inline'
               script: |
@@ -67,8 +72,8 @@ stages:
               version: '3.x'
 
           - task: DotNetCoreCLI@2
-            displayName: 'dotnet restore from both Nuget and Azure Artifacts feeds'
-            condition: and(ne(variables['Build.SourceBranch'], 'refs/heads/${{ parameters.sourceBranch }}'), ne(variables['Build.Reason'], 'PullRequest'))
+            displayName: 'dotnet restore from both NuGet and Azure Artifacts feeds'
+            condition: and(ne(variables['Build.SourceBranch'], 'refs/heads/${{ parameters.defaultBranch }}'), ne(variables['Build.Reason'], 'PullRequest'))
             inputs:
               command: 'restore'
               projects: '**/*.csproj'
@@ -77,7 +82,7 @@ stages:
 
           - task: DotNetCoreCLI@2
             displayName: 'dotnet restore only from NuGet feed'
-            condition: or(eq(variables['Build.SourceBranch'], 'refs/heads/${{ parameters.sourceBranch }}'), eq(variables['Build.Reason'], 'PullRequest'))
+            condition: or(eq(variables['Build.SourceBranch'], 'refs/heads/${{ parameters.defaultBranch }}'), eq(variables['Build.Reason'], 'PullRequest'))
             inputs:
               command: 'restore'
               projects: '**/*.csproj'
@@ -95,7 +100,7 @@ stages:
             inputs:
               command: 'test'
               projects: '**/*[Tt]ests/*.csproj'
-              arguments: '--configuration ${{ parameters.buildConfiguration }} --settings $(System.DefaultWorkingDirectory)/CodeCoverage.runsettings --collect:"XPlat Code Coverage" -- RunConfiguration.DisableAppDomain=true'
+              arguments: '--configuration ${{ parameters.buildConfiguration }} --settings $(System.DefaultWorkingDirectory)/${{ parameters.codeCoverageSettingsFileName }} --collect:"XPlat Code Coverage" -- RunConfiguration.DisableAppDomain=true'
 
           - task: DotNetCoreCLI@2
             displayName: 'Install ReportGenerator tool'
@@ -173,7 +178,7 @@ stages:
   - stage: NuGet
     displayName: 'NuGet'
     dependsOn: Artifacts
-    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/${{ parameters.sourceBranch }}'))
+    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/${{ parameters.defaultBranch }}'))
     pool:
       vmImage: ${{ parameters.vmImage }}
     jobs:
