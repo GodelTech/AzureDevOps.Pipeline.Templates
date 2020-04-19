@@ -95,7 +95,7 @@ stages:
             inputs:
               command: 'test'
               projects: '**/*[Tt]ests/*.csproj'
-              arguments: '--configuration ${{ parameters.buildConfiguration }} /p:settings $(System.DefaultWorkingDirectory)/CodeCoverage.runsettings --collect:"XPlat Code Coverage" -- RunConfiguration.DisableAppDomain=true'
+              arguments: '--configuration ${{ parameters.buildConfiguration }} --settings $(System.DefaultWorkingDirectory)/CodeCoverage.runsettings --collect:"XPlat Code Coverage" -- RunConfiguration.DisableAppDomain=true'
 
           - task: DotNetCoreCLI@2
             displayName: 'Install ReportGenerator tool'
@@ -141,6 +141,7 @@ stages:
               packagesToPack: '**/*.csproj'
               buildProperties: 'VersionSuffix=$(versionSuffix)'
               packDirectory: '$(Build.ArtifactStagingDirectory)/${{ parameters.artifactPackDirectory }}'
+              nobuild: true
               versioningScheme: 'off'
 
           - task: PublishPipelineArtifact@1
