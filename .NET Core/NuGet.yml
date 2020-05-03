@@ -25,7 +25,7 @@ parameters:
     default: 'N/A'
 
   - name: internalFeed
-    displayName: 'internal dotnet artifact feed'
+    displayName: 'Internal dotnet artifact feed'
     type: string
     default: 'N/A'
 
@@ -33,6 +33,11 @@ parameters:
     displayName: 'The Name of the code coverage settings file'
     type: string
     default: 'CodeCoverage.runsettings'
+
+  - name: IncludeSonarcloudBuildBreaker
+    displayName: 'Does Sonarcloud build breaker turn on?'
+    type: boolean
+    default: true
 
 stages:
   - stage: Build
@@ -135,6 +140,7 @@ stages:
 
           - task: sonarcloud-buildbreaker@2
             displayName: 'Break build on quality gate failure'
+            condition: eq(${{ parameters.IncludeSonarcloudBuildBreaker }}, true)
             inputs:
               SonarCloud: 'SonarCloud'
               organization: '${{ parameters.sonarCloudOrganizationName }}'
