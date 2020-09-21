@@ -34,7 +34,7 @@ parameters:
     type: string
     default: 'CodeCoverage.runsettings'
 
-  - name: IncludeSonarcloudBuildBreaker
+  - name: includeSonarcloudBuildBreaker
     displayName: 'Does Sonarcloud build breaker turn on?'
     type: boolean
     default: true
@@ -140,7 +140,7 @@ stages:
 
           - task: sonarcloud-buildbreaker@2
             displayName: 'Break build on quality gate failure'
-            condition: eq(${{ parameters.IncludeSonarcloudBuildBreaker }}, true)
+            condition: eq(${{ parameters.includeSonarcloudBuildBreaker }}, true)
             inputs:
               SonarCloud: 'SonarCloud'
               organization: '${{ parameters.sonarCloudOrganizationName }}'
