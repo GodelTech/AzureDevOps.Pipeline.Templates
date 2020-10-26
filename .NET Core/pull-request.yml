@@ -1,0 +1,20 @@
+parameters:
+  vmImage: 'ubuntu-latest'
+  buildConfiguration: 'N/A'
+  codeCoverageSettingsFileName: 'CodeCoverage.runsettings'
+  nugetConfigPath: ''
+
+stages:
+- stage: Build
+  displayName: 'Build'
+  pool:
+    vmImage: ${{ parameters.vmImage }}
+  jobs:
+  - job: Build
+    displayName: 'Build'
+    steps:
+      - templates: 'build.yml'
+        parameters:
+          buildConfiguration: ${{ parameters.buildConfiguration }}
+          codeCoverageSettingsFileName: ${{ parameters.codeCoverageSettingsFileName }}
+          nugetConfigPath: ${{ parameters.nugetConfigPath }}
