@@ -13,7 +13,7 @@ steps:
 
 - task: DotNetCoreCLI@2
   displayName: 'dotnet restore with NuGet config'
-  condition: and(succeeded(), ne('${{ parameters.nugetConfigPath }}', '')
+  condition: and(succeeded(), ne('${{ parameters.nugetConfigPath }}', ''))
   inputs:
     command: 'restore'
     projects: '**/*.csproj'
@@ -22,7 +22,7 @@ steps:
 
 - task: DotNetCoreCLI@2
   displayName: 'dotnet restore only from NuGet feed'
-  condition: and(succeeded(), eq('${{ parameters.nugetConfigPath }}', '')
+  condition: and(succeeded(), eq('${{ parameters.nugetConfigPath }}', ''))
   inputs:
     command: 'restore'
     projects: '**/*.csproj'
