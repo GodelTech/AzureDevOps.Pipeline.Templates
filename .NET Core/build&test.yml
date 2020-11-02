@@ -1,5 +1,4 @@
 parameters:
-  defaultBranch: 'master'
   buildConfiguration: 'N/A'
   codeCoverageSettingsFileName: 'CodeCoverage.runsettings'
   nugetConfigPath: ''
