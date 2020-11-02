@@ -1,0 +1,58 @@
+parameters:
+  buildConfiguration: 'N/A'
+  codeCoverageSettingsFileName: 'CodeCoverage.runsettings'
+  nugetConfigPath: ''
+
+steps:
+- task: UseDotNet@2
+  displayName: 'Use .NET Core SDK'
+  inputs:
+    packageType: 'sdk'
+    version: '3.x'
+
+- task: DotNetCoreCLI@2
+  displayName: 'dotnet restore with NuGet config'
+  condition: and(succeeded(), ne('${{ parameters.nugetConfigPath }}', ''))
+  inputs:
+    command: 'restore'
+    projects: '**/*.csproj'
+    feedsToUse: 'config'
+    nugetConfigPath: '${{ parameters.nugetConfigPath }}'
+
+- task: DotNetCoreCLI@2
+  displayName: 'dotnet restore only from NuGet feed'
+  condition: and(succeeded(), eq('${{ parameters.nugetConfigPath }}', ''))
+  inputs:
+    command: 'restore'
+    projects: '**/*.csproj'
+    feedsToUse: 'select'
+
+- task: DotNetCoreCLI@2
+  displayName: 'dotnet build'
+  inputs:
+    command: 'build'
+    projects: '**/*.csproj'
+    arguments: '--configuration ${{ parameters.buildConfiguration }}'
+
+- task: DotNetCoreCLI@2
+  displayName: 'dotnet test'
+  inputs:
+    command: 'test'
+    projects: '**/*[Tt]ests/*.csproj'
+    arguments: '--configuration ${{ parameters.buildConfiguration }} --settings $(System.DefaultWorkingDirectory)/${{ parameters.codeCoverageSettingsFileName }} --collect:"XPlat Code Coverage" -- RunConfiguration.DisableAppDomain=true'
+
+- task: DotNetCoreCLI@2
+  displayName: 'Install ReportGenerator tool'
+  inputs:
+    command: 'custom'
+    custom: 'tool'
+    arguments: 'install --tool-path . dotnet-reportgenerator-globaltool'
+
+- script: ./reportgenerator -reports:$(Agent.TempDirectory)/**/coverage.cobertura.xml -targetdir:$(Build.SourcesDirectory)/coverlet/reports -reporttypes:"Cobertura"
+  displayName: 'Create reports'
+
+- task: PublishCodeCoverageResults@1
+  displayName: 'Publish code coverage'
+  inputs:
+    codeCoverageTool: 'Cobertura'
+    summaryFileLocation: '$(Build.SourcesDirectory)/coverlet/reports/Cobertura.xml'
