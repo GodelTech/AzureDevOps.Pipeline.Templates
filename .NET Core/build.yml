@@ -33,7 +33,7 @@ steps:
   inputs:
     command: 'build'
     projects: '**/*.csproj'
-    arguments: '--configuration ${{ parameters.buildConfiguration }} /p:VersionSuffix=$(versionSuffix)'
+    arguments: '--configuration ${{ parameters.buildConfiguration }}
 
 - task: DotNetCoreCLI@2
   displayName: 'dotnet test'
