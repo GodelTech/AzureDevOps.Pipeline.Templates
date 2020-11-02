@@ -10,7 +10,7 @@ parameters:
     default: 'CodeCoverage.runsettings'
   - name: nugetConfigPath
     type: string
-    default: 'CodeCoverage.runsettings'
+    default: ''
 
 stages:
 - stage: Build
