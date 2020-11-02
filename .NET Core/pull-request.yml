@@ -13,7 +13,7 @@ stages:
   - job: Build
     displayName: 'Build'
     steps:
-      - templates: 'build.yml'
+      - templates: build.yml
         parameters:
           buildConfiguration: ${{ parameters.buildConfiguration }}
           codeCoverageSettingsFileName: ${{ parameters.codeCoverageSettingsFileName }}
