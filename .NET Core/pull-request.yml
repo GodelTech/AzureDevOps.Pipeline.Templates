@@ -1,11 +1,16 @@
 parameters:
   - name: vmImage
-    displayName: 'vmImage'
     type: string
     default: 'ubuntu-latest'
-  buildConfiguration: 'N/A'
-  codeCoverageSettingsFileName: 'CodeCoverage.runsettings'
-  nugetConfigPath: ''
+  - name: buildConfiguration
+    type: string
+    default: 'N/A'
+  - name: codeCoverageSettingsFileName
+    type: string
+    default: 'CodeCoverage.runsettings'
+  - name: nugetConfigPath
+    type: string
+    default: 'CodeCoverage.runsettings'
 
 stages:
 - stage: Build
