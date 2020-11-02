@@ -1,5 +1,8 @@
 parameters:
-  vmImage: 'ubuntu-latest'
+  - name: vmImage
+    displayName: 'vmImage'
+    type: string
+    default: 'ubuntu-latest'
   buildConfiguration: 'N/A'
   codeCoverageSettingsFileName: 'CodeCoverage.runsettings'
   nugetConfigPath: ''
