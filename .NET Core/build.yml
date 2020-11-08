@@ -1,6 +1,6 @@
 parameters:
   buildConfiguration: 'N/A'
-  codeCoverageSettingsFileName: 'CodeCoverage.runsettings'
+  codeCoverageSettingsFullPath: 'CodeCoverage.runsettings'
   nugetConfigPath: ''
 
 steps:
@@ -39,7 +39,7 @@ steps:
   inputs:
     command: 'test'
     projects: '**/*[Tt]ests/*.csproj'
-    arguments: '--configuration ${{ parameters.buildConfiguration }} --settings $(System.DefaultWorkingDirectory)/${{ parameters.codeCoverageSettingsFileName }} --collect:"XPlat Code Coverage" -- RunConfiguration.DisableAppDomain=true'
+    arguments: '--configuration ${{ parameters.buildConfiguration }} --settings $(System.DefaultWorkingDirectory)/${{ parameters.codeCoverageSettingsFullPath }} --collect:"XPlat Code Coverage" -- RunConfiguration.DisableAppDomain=true'
 
 - task: DotNetCoreCLI@2
   displayName: 'Install ReportGenerator tool'
