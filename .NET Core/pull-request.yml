@@ -5,7 +5,7 @@ parameters:
   - name: buildConfiguration
     type: string
     default: 'N/A'
-  - name: codeCoverageSettingsFileName
+  - name: codeCoverageSettingsFullPath
     type: string
     default: 'CodeCoverage.runsettings'
   - name: nugetConfigPath
@@ -24,5 +24,5 @@ stages:
       - template: 'build.yml'
         parameters:
           buildConfiguration: ${{ parameters.buildConfiguration }}
-          codeCoverageSettingsFileName: ${{ parameters.codeCoverageSettingsFileName }}
+          codeCoverageSettingsFullPath: ${{ parameters.codeCoverageSettingsFullPath }}
           nugetConfigPath: ${{ parameters.nugetConfigPath }}
