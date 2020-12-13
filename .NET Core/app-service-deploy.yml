@@ -1,15 +1,32 @@
 parameters:
-  stageName: 'N/A'
-  environment: 'N/A'
-  dependsOn: 'N/A'
-  appName: 'N/A'
-  azureSubscription: 'N/A'
-  resourceGroupName: 'N/A'
+- name: vmImage
+  type: string
+  default: 'ubuntu-latest'
+- name: stageName
+  type: string
+  default: 'N/A'
+- name: environment
+  type: string
+  default: 'N/A'
+- name: dependsOn
+  type: string
+  default: 'N/A'
+- name: appName
+  type: string
+  default: 'N/A'
+- name: azureSubscription
+  type: string
+  default: 'N/A'
+- name: resourceGroupName
+  type: string
+  default: 'N/A'
 
 steps:
 - stage: ${{ parameters.stageName }}
   displayName: '${{ parameters.stageName }} stage'
   dependsOn: ${{ parameters.dependsOn }}
+  pool:
+    vmImage: ${{ parameters.vmImage }}
   jobs:
   - deployment: Deploy
     displayName: 'Deploy'
