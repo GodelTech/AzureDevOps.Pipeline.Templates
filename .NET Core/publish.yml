@@ -5,10 +5,13 @@ parameters:
 - name: buildConfiguration
   type: string
   default: 'Release'
+- name: stageName
+  type: string
+  default: 'N/A'
 
 stages:
-- stage: Publish
-  displayName: 'Publish stage'
+- stage: ${{ parameters.stageName }}
+  displayName: '${{ parameters.stageName }} stage'
   pool:
     vmImage: ${{ parameters.vmImage }}
   jobs:
