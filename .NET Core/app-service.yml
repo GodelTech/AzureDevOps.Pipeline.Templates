@@ -6,7 +6,7 @@ parameters:
   appName: 'N/A'
   azureSubscription: 'N/A'
   resourceGroupName: 'N/A'
-  appSettings: {}
+  appSettings: ''
 
 stages:
 - stage: ${{ parameters.stageName }}
