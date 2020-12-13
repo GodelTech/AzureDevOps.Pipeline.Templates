@@ -21,7 +21,7 @@ parameters:
   type: string
   default: 'N/A'
 
-steps:
+stages:
 - stage: ${{ parameters.stageName }}
   displayName: '${{ parameters.stageName }} stage'
   dependsOn: ${{ parameters.dependsOn }}
