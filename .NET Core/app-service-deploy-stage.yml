@@ -6,12 +6,9 @@ parameters:
   appName: 'N/A'
   azureSubscription: 'N/A'
   resourceGroupName: 'N/A'
-  appSettings: |
-      []
-  generalSettings: |
-      []
-  connectionStrings: |
-      []
+  appSettings: ''
+  generalSettings: ''
+  connectionStrings: ''
 
 stages:
 - stage: ${{ parameters.stageName }}
