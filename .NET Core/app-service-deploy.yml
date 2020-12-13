@@ -1,4 +1,5 @@
 parameters:
+  stageName: 'N/A'
   environment: 'N/A'
   dependsOn: 'N/A'
   appName: 'N/A'
@@ -6,8 +7,8 @@ parameters:
   resourceGroupName: 'N/A'
 
 steps:
-- stage: ${{ parameters.environment }}Deploy
-  displayName: '${{ parameters.environment }} deploy stage'
+- stage: ${{ parameters.stageName }}
+  displayName: '${{ parameters.stageName }} stage'
   dependsOn: ${{ parameters.dependsOn }}
   jobs:
   - deployment: Deploy
