@@ -1,13 +1,7 @@
 parameters:
-- name: vmImage
-  type: string
-  default: 'ubuntu-latest'
-- name: buildConfiguration
-  type: string
-  default: 'Release'
-- name: stageName
-  type: string
-  default: 'N/A'
+  vmImage: 'ubuntu-latest'
+  buildConfiguration: 'Release'
+  stageName: 'N/A'
 
 stages:
 - stage: ${{ parameters.stageName }}
