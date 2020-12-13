@@ -1,0 +1,47 @@
+parameters:
+  environment: 'N/A'
+  dependsOn: 'N/A'
+  appName: 'N/A'
+  azureSubscription: 'N/A'
+  resourceGroupName: 'N/A'
+
+steps:
+- stage: ${{ parameters.environment }}Deploy
+  displayName: '${{ parameters.environment }} deploy stage'
+  dependsOn: ${{ parameters.dependsOn }}
+  jobs:
+  - deployment: Deploy
+    displayName: 'Deploy'
+    environment: ${{ parameters.environment }}
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - task: AzureAppServiceSettings@1
+            displayName: 'Replace values in appsettings.json'
+            inputs:
+              azureSubscription: ${{ parameters.azureSubscription }}
+              appName: ${{ parameters.appName }}
+              resourceGroupName: ${{ parameters.resourceGroupName }}
+              appSettings: |
+                [
+                  {
+                    "name": "TestVariable",
+                    "value": "test upated",
+                    "slotSetting": false
+                  },
+                  {
+                    "name": "ApiSecurityConfig__Audience",
+                    "value": "news Updated",
+                    "slotSetting": false
+                  }
+                ]
+
+          - task: AzureRmWebAppDeployment@4
+            displayName: 'Deploy in App Services'
+            inputs:
+              ConnectionType: 'AzureRM'
+              azureSubscription: ${{ parameters.azureSubscription }}
+              appType: 'apiApp'
+              WebAppName: ${{ parameters.appName }}
+              packageForLinux: '$(Pipeline.Workspace)/**/*.zip'

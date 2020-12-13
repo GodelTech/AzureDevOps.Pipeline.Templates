@@ -1,0 +1,30 @@
+parameters:
+- name: vmImage
+  type: string
+  default: 'ubuntu-latest'
+- name: buildConfiguration
+  type: string
+  default: 'Release'
+
+stages:
+- stage: Publish
+  displayName: 'Publish stage'
+  pool:
+    vmImage: ${{ parameters.vmImage }}
+  jobs:
+  - job: Publish
+    displayName: 'Publish'
+    steps:
+    - task: DotNetCoreCLI@2
+      displayName: 'Publish application'
+      inputs:
+        command: 'publish'
+        publishWebProjects: true
+        arguments: '--configuration ${{ parameters.buildConfiguration }} --output $(Build.ArtifactStagingDirectory)'
+        zipAfterPublish: true
+
+    - task: PublishBuildArtifacts@1
+      displayName: 'Publish artifacts'
+      inputs:
+        pathtoPublish: '$(Build.ArtifactStagingDirectory)'
+        artifactName: 'artifact'
