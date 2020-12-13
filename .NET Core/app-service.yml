@@ -6,6 +6,7 @@ parameters:
   appName: 'N/A'
   azureSubscription: 'N/A'
   resourceGroupName: 'N/A'
+  appSettings: {}
 
 stages:
 - stage: ${{ parameters.stageName }}
@@ -27,19 +28,7 @@ stages:
               azureSubscription: ${{ parameters.azureSubscription }}
               appName: ${{ parameters.appName }}
               resourceGroupName: ${{ parameters.resourceGroupName }}
-              appSettings: |
-                [
-                  {
-                    "name": "TestVariable",
-                    "value": "test upated",
-                    "slotSetting": false
-                  },
-                  {
-                    "name": "ApiSecurityConfig__Audience",
-                    "value": "news Updated",
-                    "slotSetting": false
-                  }
-                ]
+              appSettings: ${{ parameters.appSettings }}
 
           - task: AzureRmWebAppDeployment@4
             displayName: 'Deploy in App Services'
