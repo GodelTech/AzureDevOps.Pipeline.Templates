@@ -6,9 +6,12 @@ parameters:
   appName: 'N/A'
   azureSubscription: 'N/A'
   resourceGroupName: 'N/A'
-  appSettings: ''
-  generalSettings: ''
-  connectionStrings: ''
+  appSettings: |
+      []
+  generalSettings: |
+      []
+  connectionStrings: |
+      []
 
 stages:
 - stage: ${{ parameters.stageName }}
@@ -31,6 +34,8 @@ stages:
               appName: ${{ parameters.appName }}
               resourceGroupName: ${{ parameters.resourceGroupName }}
               appSettings: ${{ parameters.appSettings }}
+              generalSettings: ${{ parameters.generalSettings }}
+              connectionStrings: ${{ parameters.connectionStrings }}
 
           - task: AzureRmWebAppDeployment@4
             displayName: 'Deploy in App Services'
