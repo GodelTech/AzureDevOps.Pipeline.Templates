@@ -16,6 +16,10 @@ stages:
   dependsOn: ${{ parameters.dependsOn }}
   pool:
     vmImage: ${{ parameters.vmImage }}
+  variables:
+    hasAppSettings: ${{ne('${{ parameters.appSettings }}', '')}}
+    hasGeneralSettings: ${{ne('${{ parameters.generalSettings }}', '')}}
+    hasConnectionStrings: ${{ne('${{ parameters.connectionStrings }}', '')}}
   jobs:
   - deployment: Deploy
     displayName: 'Deploy'
@@ -26,6 +30,7 @@ stages:
           steps:
           - task: AzureAppServiceSettings@1
             displayName: 'Replace values in appsettings.json'
+            condition: or(${{variables.hasAppSettings}}, ${{variables.hasGeneralSettings}}, ${{variables.hasConnectionStrings}})
             inputs:
               azureSubscription: ${{ parameters.azureSubscription }}
               appName: ${{ parameters.appName }}
