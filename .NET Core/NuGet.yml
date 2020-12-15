@@ -50,6 +50,11 @@ stages:
       - job: Build
         displayName: 'Build'
         steps:
+          - task: UseGitVersion@5
+            displayName: GitVersion
+            inputs:
+              versionSpec: '5.x'
+
           - task: Bash@3
             displayName: 'Set Version Suffix'
             condition: and(succeeded(), ne(variables['Build.SourceBranch'], 'refs/heads/${{ parameters.defaultBranch }}'))
@@ -98,7 +103,7 @@ stages:
             inputs:
               command: 'build'
               projects: '**/*.csproj'
-              arguments: '--configuration ${{ parameters.buildConfiguration }} /p:VersionSuffix=$(versionSuffix)'
+              arguments: '--configuration ${{ parameters.buildConfiguration }} /p:Version=$(GitVersion.SemVer)'
 
           - task: DotNetCoreCLI@2
             displayName: 'dotnet test'
@@ -150,9 +155,9 @@ stages:
             inputs:
               command: 'pack'
               packagesToPack: '**/*.csproj'
-              buildProperties: 'VersionSuffix=$(versionSuffix)'
               packDirectory: '$(Build.ArtifactStagingDirectory)/${{ parameters.artifactPackDirectory }}'
-              versioningScheme: 'off'
+              versioningScheme: byEnvVar
+              versionEnvVar: GitVersion.SemVer
 
           - task: PublishPipelineArtifact@1
             displayName: 'Publish Pipeline Artifact: NuGet Packages'
