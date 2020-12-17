@@ -18,8 +18,8 @@ stages:
   pool:
     vmImage: ${{ parameters.vmImage }}
   variables:
-    hasAppSettings: ${{ne('${{ parameters.appSettings }}', '')}}
-    hasGeneralSettings: ${{ne('${{ parameters.generalSettings }}', '')}}
+    hasAppSettings: ne('${{ parameters.appSettings }}', '')
+    hasGeneralSettings: ne('${{ parameters.generalSettings }}', '')
     hasConnectionStrings: ${{ne('${{ parameters.connectionStrings }}', '')}}
   jobs:
   - deployment: Deploy
@@ -34,9 +34,9 @@ stages:
             inputs:
               targetType: 'inline'
               script: |
-                echo "##vso[task.logissue type=warning]hasAppSettings: ${{variables.hasAppSettings}}"
-                echo "##vso[task.logissue type=warning]hasGeneralSettings: ${{variables.hasGeneralSettings}}"
-                echo "##vso[task.logissue type=warning]hasConnectionStrings:${{variables.hasConnectionStrings}}"
+                echo "##vso[task.logissue type=warning]hasAppSettings: ${{ parameters.appSettings }} => ${{variables.hasAppSettings}}"
+                echo "##vso[task.logissue type=warning]hasGeneralSettings: ${{ parameters.generalSettings }} => ${{variables.hasGeneralSettings}}"
+                echo "##vso[task.logissue type=warning]hasConnectionStrings: ${{ parameters.connectionStrings }} => ${{variables.hasConnectionStrings}}"
 
           - task: AzureAppServiceSettings@1
             displayName: 'Replace config values'
