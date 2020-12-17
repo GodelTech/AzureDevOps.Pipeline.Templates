@@ -1,6 +1,7 @@
 parameters:
   vmImage: 'ubuntu-latest'
   stageName: 'N/A'
+  stageDisplayName: '${{ parameters.stageName }}'
   environment: 'N/A'
   dependsOn: 'N/A'
   appName: 'N/A'
@@ -12,7 +13,7 @@ parameters:
 
 stages:
 - stage: ${{ parameters.stageName }}
-  displayName: '${{ parameters.stageName }} stage'
+  displayName: '${{ parameters.stageDisplayName }}'
   dependsOn: ${{ parameters.dependsOn }}
   pool:
     vmImage: ${{ parameters.vmImage }}
@@ -28,8 +29,17 @@ stages:
       runOnce:
         deploy:
           steps:
+          - task: Bash@3
+            displayName: 'Variables'
+            inputs:
+              targetType: 'inline'
+              script: |
+                echo "##vso[task.logissue type=warning]hasAppSettings: ${{variables.hasAppSettings}}"
+                echo "##vso[task.logissue type=warning]hasGeneralSettings: ${{variables.hasGeneralSettings}}"
+                echo "##vso[task.logissue type=warning]hasConnectionStrings:${{variables.hasConnectionStrings}}"
+
           - task: AzureAppServiceSettings@1
-            displayName: 'Replace values in appsettings.json'
+            displayName: 'Replace config values'
             condition: or(${{variables.hasAppSettings}}, ${{variables.hasGeneralSettings}}, ${{variables.hasConnectionStrings}})
             inputs:
               azureSubscription: ${{ parameters.azureSubscription }}
