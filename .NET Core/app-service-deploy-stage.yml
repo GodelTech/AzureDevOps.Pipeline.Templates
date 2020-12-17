@@ -1,7 +1,7 @@
 parameters:
   vmImage: 'ubuntu-latest'
   stageName: 'N/A'
-  stageDisplayName: '${{ parameters.stageName }}'
+  stageDisplayName: 'N/A'
   environment: 'N/A'
   dependsOn: 'N/A'
   appName: 'N/A'
