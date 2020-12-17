@@ -20,7 +20,7 @@ stages:
   variables:
     hasAppSettings: ne(${{ parameters.appSettings }}, '')
     hasGeneralSettings: ne(eq(${{ parameters.generalSettings }}, ''))
-    hasConnectionStrings: ${{ne(eq(${{ parameters.connectionStrings }}, ''))}}
+    hasConnectionStrings: ne(eq(${{ parameters.connectionStrings }}, ''))
   jobs:
   - deployment: Deploy
     displayName: 'Deploy'
