@@ -40,7 +40,7 @@ stages:
 
           - task: AzureAppServiceSettings@1
             displayName: 'Replace config values'
-            condition: or(${{variables.hasAppSettings}}, ${{variables.hasGeneralSettings}}, ${{variables.hasConnectionStrings}})
+            condition: and(${{variables.hasAppSettings}}, ${{variables.hasGeneralSettings}}, ${{variables.hasConnectionStrings}})
             inputs:
               azureSubscription: ${{ parameters.azureSubscription }}
               appName: ${{ parameters.appName }}
