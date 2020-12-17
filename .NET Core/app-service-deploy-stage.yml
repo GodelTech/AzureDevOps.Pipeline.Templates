@@ -19,8 +19,8 @@ stages:
     vmImage: ${{ parameters.vmImage }}
   variables:
     hasAppSettings: ne(${{ parameters.appSettings }}, '')
-    hasGeneralSettings: ne(eq(${{ parameters.generalSettings }}, ''))
-    hasConnectionStrings: ne(eq(${{ parameters.connectionStrings }}, ''))
+    hasGeneralSettings: ne('${{ parameters.generalSettings }}', '')
+    hasConnectionStrings: eq('${{ parameters.connectionStrings }}', '')
   jobs:
   - deployment: Deploy
     displayName: 'Deploy'
