@@ -7,9 +7,9 @@ parameters:
   appName: 'N/A'
   azureSubscription: 'N/A'
   resourceGroupName: 'N/A'
-  appSettings: ''
-  generalSettings: ''
-  connectionStrings: ''
+  appSettings: 'N/A'
+  generalSettings: 'N/A'
+  connectionStrings: 'N/A'
 
 stages:
 - stage: ${{ parameters.stageName }}
@@ -18,9 +18,9 @@ stages:
   pool:
     vmImage: ${{ parameters.vmImage }}
   variables:
-    hasAppSettings: ne('${{ parameters.appSettings }}', '')
-    hasGeneralSettings: ne('${{ parameters.generalSettings }}', '')
-    hasConnectionStrings: eq('${{ parameters.connectionStrings }}', '')
+    hasAppSettings: ne('${{ parameters.appSettings }}', 'N/A')
+    hasGeneralSettings: ne('${{ parameters.generalSettings }}', 'N/A')
+    hasConnectionStrings: eq('${{ parameters.connectionStrings }}', 'N/A')
   jobs:
   - deployment: Deploy
     displayName: 'Deploy'
