@@ -19,7 +19,7 @@ stages:
     vmImage: ${{ parameters.vmImage }}
   jobs:
   - deployment: Deploy
-    displayName: 'Deploy'
+    displayName: 'Deploy job'
     environment: ${{ parameters.environment }}
     strategy:
       runOnce:
