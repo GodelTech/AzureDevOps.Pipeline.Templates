@@ -17,10 +17,10 @@ stages:
   dependsOn: ${{ parameters.dependsOn }}
   pool:
     vmImage: ${{ parameters.vmImage }}
-  variables:
-    hasAppSettings: ne('${{ parameters.appSettings }}', '')
-    hasGeneralSettings: ne('${{ parameters.generalSettings }}', '')
-    hasConnectionStrings: eq('${{ parameters.connectionStrings }}', '')
+  # variables:
+  #   hasAppSettings: ne('${{ parameters.appSettings }}', '')
+  #   hasGeneralSettings: ne('${{ parameters.generalSettings }}', '')
+  #   hasConnectionStrings: eq('${{ parameters.connectionStrings }}', '')
   jobs:
   - deployment: Deploy
     displayName: 'Deploy'
@@ -29,18 +29,18 @@ stages:
       runOnce:
         deploy:
           steps:
-          - task: Bash@3
-            displayName: 'Variables'
-            inputs:
-              targetType: 'inline'
-              script: |
-                echo "##vso[task.logissue type=warning]hasAppSettings: ${{ parameters.appSettings }} => ${{variables.hasAppSettings}}"
-                echo "##vso[task.logissue type=warning]hasGeneralSettings: ${{ parameters.generalSettings }} => ${{variables.hasGeneralSettings}}"
-                echo "##vso[task.logissue type=warning]hasConnectionStrings: ${{ parameters.connectionStrings }} => ${{variables.hasConnectionStrings}}"
+          # - task: Bash@3
+          #   displayName: 'Variables'
+          #   inputs:
+          #     targetType: 'inline'
+          #     script: |
+          #       echo "##vso[task.logissue type=warning]hasAppSettings: ${{ parameters.appSettings }} => ${{variables.hasAppSettings}}"
+          #       echo "##vso[task.logissue type=warning]hasGeneralSettings: ${{ parameters.generalSettings }} => ${{variables.hasGeneralSettings}}"
+          #       echo "##vso[task.logissue type=warning]hasConnectionStrings: ${{ parameters.connectionStrings }} => ${{variables.hasConnectionStrings}}"
 
           - task: AzureAppServiceSettings@1
             displayName: 'Replace config values'
-            condition: or(${{variables.hasAppSettings}}, ${{variables.hasGeneralSettings}}, ${{variables.hasConnectionStrings}})
+            condition: ne('${{ parameters.appSettings }}', '')
             inputs:
               azureSubscription: ${{ parameters.azureSubscription }}
               appName: ${{ parameters.appName }}
