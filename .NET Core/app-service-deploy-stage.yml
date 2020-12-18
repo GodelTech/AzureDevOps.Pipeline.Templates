@@ -18,9 +18,9 @@ stages:
   pool:
     vmImage: ${{ parameters.vmImage }}
   variables:
-    hasAppSettings: $[ne('${{ parameters.appSettings }}', '')]
-    hasGeneralSettings: $[ne('${{ parameters.generalSettings }}', '')]
-    hasConnectionStrings: $[eq('${{ parameters.connectionStrings }}', '')]
+    hasAppSettings: ne('${{ parameters.appSettings }}', '')
+    hasGeneralSettings: ne('${{ parameters.generalSettings }}', '')
+    hasConnectionStrings: eq('${{ parameters.connectionStrings }}', '')
   jobs:
   - deployment: Deploy
     displayName: 'Deploy'
@@ -40,7 +40,7 @@ stages:
 
           - task: AzureAppServiceSettings@1
             displayName: 'Replace config values'
-            condition: or(variables.hasAppSettings, variables.hasGeneralSettings, variables.hasConnectionStrings)
+            condition: or(${{variables.hasAppSettings}}, ${{variables.hasGeneralSettings}}, ${{variables.hasConnectionStrings}})
             inputs:
               azureSubscription: ${{ parameters.azureSubscription }}
               appName: ${{ parameters.appName }}
