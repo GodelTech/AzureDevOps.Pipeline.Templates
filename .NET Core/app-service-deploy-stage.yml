@@ -1,7 +1,7 @@
 parameters:
   vmImage: 'ubuntu-latest'
   stageName: 'N/A'
-  stageDisplayName: 'N/A'
+  stageDisplayName: 'Deploy stage'
   environment: 'N/A'
   dependsOn: 'N/A'
   appName: 'N/A'
@@ -17,10 +17,6 @@ stages:
   dependsOn: ${{ parameters.dependsOn }}
   pool:
     vmImage: ${{ parameters.vmImage }}
-  # variables:
-  #   hasAppSettings: ne('${{ parameters.appSettings }}', '')
-  #   hasGeneralSettings: ne('${{ parameters.generalSettings }}', '')
-  #   hasConnectionStrings: eq('${{ parameters.connectionStrings }}', '')
   jobs:
   - deployment: Deploy
     displayName: 'Deploy'
@@ -29,18 +25,9 @@ stages:
       runOnce:
         deploy:
           steps:
-          # - task: Bash@3
-          #   displayName: 'Variables'
-          #   inputs:
-          #     targetType: 'inline'
-          #     script: |
-          #       echo "##vso[task.logissue type=warning]hasAppSettings: ${{ parameters.appSettings }} => ${{variables.hasAppSettings}}"
-          #       echo "##vso[task.logissue type=warning]hasGeneralSettings: ${{ parameters.generalSettings }} => ${{variables.hasGeneralSettings}}"
-          #       echo "##vso[task.logissue type=warning]hasConnectionStrings: ${{ parameters.connectionStrings }} => ${{variables.hasConnectionStrings}}"
-
           - task: AzureAppServiceSettings@1
             displayName: 'Replace config values'
-            condition: or(ne('${{ parameters.appSettings }}', ''), eq('${{ parameters.generalSettings }}', ''))
+            condition: or(ne('${{ parameters.appSettings }}', ''), ne('${{ parameters.generalSettings }}', ''), ne('${{ parameters.connectionStrings }}', ''))
             inputs:
               azureSubscription: ${{ parameters.azureSubscription }}
               appName: ${{ parameters.appName }}
