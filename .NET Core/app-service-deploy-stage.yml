@@ -18,9 +18,9 @@ stages:
   pool:
     vmImage: ${{ parameters.vmImage }}
   variables:
-    hasAppSettings: ${{ne('${{ parameters.appSettings }}', 'N/A')}}
-    hasGeneralSettings: ${{ne('${{ parameters.generalSettings }}', 'N/A')}}
-    hasConnectionStrings: ${{eq('${{ parameters.connectionStrings }}', 'N/A')}}
+    hasAppSettings: ${{ne(${{ parameters.appSettings }}, 'N/A')}}
+    hasGeneralSettings: ${{ne(${{ parameters.generalSettings }}, 'N/A')}}
+    hasConnectionStrings: ${{eq(${{ parameters.connectionStrings }}, 'N/A')}}
   jobs:
   - deployment: Deploy
     displayName: 'Deploy'
