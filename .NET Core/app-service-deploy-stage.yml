@@ -3,28 +3,39 @@ parameters:
   stageName: 'N/A'
   stageDisplayName: 'Deploy stage'
   environment: 'N/A'
-  dependsOn: 'N/A'
+  stageDependsOn: 'N/A'
   appName: 'N/A'
   azureSubscription: 'N/A'
   resourceGroupName: 'N/A'
   appSettings: ''
   generalSettings: ''
   connectionStrings: ''
+  connectionStringForMigration: 'N/A'
+  projectArtifactName: 'package'
+  migrationArtifactName: 'migration'
 
 stages:
 - stage: ${{ parameters.stageName }}
   displayName: '${{ parameters.stageDisplayName }}'
-  dependsOn: ${{ parameters.dependsOn }}
-  pool:
-    vmImage: ${{ parameters.vmImage }}
+  dependsOn: ${{ parameters.stageDependsOn }}
   jobs:
   - deployment: Deploy
     displayName: 'Deploy job'
+    pool:
+      vmImage: ${{ parameters.vmImage }}
     environment: ${{ parameters.environment }}
     strategy:
       runOnce:
         deploy:
           steps:
+          - download: none
+
+          - task: DownloadPipelineArtifact@2
+            inputs:
+              artifact: ${{ parameters.projectArtifactName }}
+              patterns: '**/*.zip'
+              path: $(Pipeline.Workspace)/${{ parameters.projectArtifactName }}
+
           - task: AzureAppServiceSettings@1
             displayName: 'Replace config values'
             condition: or(ne('${{ parameters.appSettings }}', ''), ne('${{ parameters.generalSettings }}', ''), ne('${{ parameters.connectionStrings }}', ''))
@@ -43,4 +54,34 @@ stages:
               azureSubscription: ${{ parameters.azureSubscription }}
               appType: 'apiApp'
               WebAppName: ${{ parameters.appName }}
-              packageForLinux: '$(Pipeline.Workspace)/**/*.zip'
+              packageForLinux: '$(Pipeline.Workspace)/${{ parameters.projectArtifactName }}/*.zip'
+
+  - deployment: ApplyMigration
+    displayName: 'Apply sql migration script'
+    dependsOn:
+    - Deploy
+    pool:
+      vmImage: windows-latest
+    environment:
+      name: ${{ parameters.environment }}
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - download: none
+
+          - task: DownloadPipelineArtifact@2
+            inputs:
+              artifact: ${{ parameters.migrationArtifactName }}
+              patterns: '**/*.sql'
+              path: $(Pipeline.Workspace)/${{ parameters.migrationArtifactName }}
+
+          - task: SqlAzureDacpacDeployment@1
+            displayName: 'Apply migration script'
+            inputs:
+              azureSubscription: ${{ parameters.azureSubscription }}
+              AuthenticationType: 'connectionString'
+              ConnectionString: ${{ parameters.connectionStringForMigration }}
+              deployType: 'SqlTask'
+              SqlFile: '$(Pipeline.Workspace)/${{ parameters.migrationArtifactName }}/*.sql'
+              IpDetectionMethod: 'AutoDetect'
