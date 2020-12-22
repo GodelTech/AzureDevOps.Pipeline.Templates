@@ -3,23 +3,24 @@ parameters:
   stageName: 'N/A'
   stageDisplayName: 'Deploy stage'
   environment: 'N/A'
-  dependsOn: 'N/A'
+  stageDependsOn: 'N/A'
   appName: 'N/A'
   azureSubscription: 'N/A'
   resourceGroupName: 'N/A'
   appSettings: ''
   generalSettings: ''
   connectionStrings: ''
+  connectionStringForMigration: 'N/A'
 
 stages:
 - stage: ${{ parameters.stageName }}
   displayName: '${{ parameters.stageDisplayName }}'
-  dependsOn: ${{ parameters.dependsOn }}
-  pool:
-    vmImage: ${{ parameters.vmImage }}
+  dependsOn: ${{ parameters.stageDependsOn }}
   jobs:
   - deployment: Deploy
     displayName: 'Deploy job'
+    pool:
+      vmImage: ${{ parameters.vmImage }}
     environment: ${{ parameters.environment }}
     strategy:
       runOnce:
@@ -44,3 +45,25 @@ stages:
               appType: 'apiApp'
               WebAppName: ${{ parameters.appName }}
               packageForLinux: '$(Pipeline.Workspace)/**/*.zip'
+
+  - deployment: ApplyMigration
+    displayName: 'Sql migration job'
+    dependsOn:
+    - Deploy
+    pool:
+      vmImage: windows-latest
+    environment:
+      name: ${{ parameters.environment }}
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - task: SqlAzureDacpacDeployment@1
+            displayName: 'Apply migration script'
+            inputs:
+              azureSubscription: ${{ parameters.azureSubscription }}
+              AuthenticationType: 'connectionString'
+              ConnectionString: ${{ parameters.connectionStringForMigration }}
+              deployType: 'SqlTask'
+              SqlFile: '$(Pipeline.Workspace)/**/*.sql'
+              IpDetectionMethod: 'AutoDetect'
