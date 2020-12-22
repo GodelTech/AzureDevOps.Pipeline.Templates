@@ -56,11 +56,13 @@ stages:
       vmImage: windows-latest
     environment:
       name: ${{ parameters.environment }}
+    variables:
+      migrationArtifacts: $(Pipeline.Workspace)/${{ parameters.migrationArtifactName }}
     strategy:
       runOnce:
         deploy:
           steps:
-          - ${{ each artifact in Pipeline.Workspace/parameters.migrationArtifactName }}:
+          - ${{ each artifact in migrationArtifacts }}:
             - script: echo ${{ artifact }}
             - task: SqlAzureDacpacDeployment@1
               displayName: 'Apply migration script'
