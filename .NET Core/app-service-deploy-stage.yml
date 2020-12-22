@@ -56,20 +56,26 @@ stages:
       vmImage: windows-latest
     environment:
       name: ${{ parameters.environment }}
-    variables:
-      migrationArtifacts: $(Pipeline.Workspace)/${{ parameters.migrationArtifactName }}
     strategy:
       runOnce:
         deploy:
           steps:
-          - ${{ each artifact in migrationArtifacts }}:
-            - script: echo ${{ artifact }}
-            - task: SqlAzureDacpacDeployment@1
-              displayName: 'Apply migration script'
-              inputs:
-                azureSubscription: ${{ parameters.azureSubscription }}
-                AuthenticationType: 'connectionString'
-                ConnectionString: ${{ parameters.connectionStringForMigration }}
-                deployType: 'SqlTask'
-                SqlFile: '$(Pipeline.Workspace)/${{ parameters.migrationArtifactName }}/${{ artifact }}'
-                IpDetectionMethod: 'AutoDetect'
+          - powershell: |
+              $ourfiles = Get-Content "$(Pipeline.Workspace)/${{ parameters.migrationArtifactName }}"
+              Write-Output $ourfiles
+
+              $CharArray =$ourfiles.Split(" ")
+              $CharArray
+              Write-Output $CharArray
+
+          # - ${{ each artifact in migrationArtifacts }}:
+          #   - script: echo ${{ artifact }}
+          #   - task: SqlAzureDacpacDeployment@1
+          #     displayName: 'Apply migration script'
+          #     inputs:
+          #       azureSubscription: ${{ parameters.azureSubscription }}
+          #       AuthenticationType: 'connectionString'
+          #       ConnectionString: ${{ parameters.connectionStringForMigration }}
+          #       deployType: 'SqlTask'
+          #       SqlFile: '$(Pipeline.Workspace)/${{ parameters.migrationArtifactName }}/${{ artifact }}'
+          #       IpDetectionMethod: 'AutoDetect'
