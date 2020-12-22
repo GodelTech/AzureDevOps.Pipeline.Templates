@@ -2,15 +2,20 @@ parameters:
   vmImage: 'ubuntu-latest'
   buildConfiguration: 'Release'
   stageName: 'N/A'
+  migrationsProjectPath: 'N/A'
+  dbContextName: 'N/A'
+  projectArtifactName: 'package'
+  migrationArtifactName: 'migration'
+  migrationScriptName: 'migration.sql'
 
 stages:
 - stage: ${{ parameters.stageName }}
   displayName: '${{ parameters.stageName }} stage'
-  pool:
-    vmImage: ${{ parameters.vmImage }}
   jobs:
   - job: Publish
     displayName: 'Publish job'
+    pool:
+      vmImage: ${{ parameters.vmImage }}
     steps:
     - task: DotNetCoreCLI@2
       displayName: 'Publish application'
@@ -24,4 +29,35 @@ stages:
       displayName: 'Publish artifacts'
       inputs:
         pathtoPublish: '$(Build.ArtifactStagingDirectory)'
-        artifactName: 'artifact'
+        artifactName: ${{ parameters.projectArtifactName }}
+
+  - job: MigrationBuild
+    displayName: Migration script job
+    pool:
+      vmImage: windows-latest
+    steps:
+    - task: DotNetCoreCLI@2
+      displayName: 'Initialize EntityFrameworkCore'
+      inputs:
+        command: custom
+        custom: tool
+        arguments: 'install --global dotnet-ef'
+
+    - task: DotNetCoreCLI@2
+      displayName: 'Create migration script'
+      inputs:
+        command: custom
+        custom: ef
+        arguments: 'migrations script --verbose --project ${{ parameters.migrationsProjectPath }} --context ${{ parameters.dbContextName }} -i -o ${{ parameters.migrationScriptName }}'
+
+    - task: CopyFiles@2
+      displayName: 'Copy migration script to $(Build.ArtifactStagingDirectory)'
+      inputs:
+        Contents: 'migration.sql'
+        TargetFolder: '$(Build.ArtifactStagingDirectory)'
+
+    - task: PublishBuildArtifacts@1
+      displayName: 'Publish migration script in artifacts'
+      inputs:
+        pathtoPublish: '$(Build.ArtifactStagingDirectory)'
+        artifactName: ${{ parameters.migrationArtifactName }}
