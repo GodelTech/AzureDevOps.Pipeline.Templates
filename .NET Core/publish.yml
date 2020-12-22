@@ -44,7 +44,7 @@ stages:
 
     - ${{ each dbContext in parameters.dbContexts }}:
       - task: DotNetCoreCLI@2
-        displayName: 'Create migration script'
+        displayName: 'Create ${{ dbContext }}.sql migration script'
         inputs:
           command: custom
           custom: ef
@@ -57,7 +57,7 @@ stages:
           TargetFolder: '$(Build.ArtifactStagingDirectory)'
 
     - task: PublishBuildArtifacts@1
-      displayName: 'Publish migration script in artifact ${{ parameters.migrationArtifactName }}'
+      displayName: 'Publish scripts in artifact ${{ parameters.migrationArtifactName }}'
       inputs:
         pathtoPublish: '$(Build.ArtifactStagingDirectory)'
         artifactName: ${{ parameters.migrationArtifactName }}

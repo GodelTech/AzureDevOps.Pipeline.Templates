@@ -11,6 +11,8 @@ parameters:
   generalSettings: ''
   connectionStrings: ''
   connectionStringForMigration: 'N/A'
+  projectArtifactName: 'package'
+  migrationArtifactName: 'migration'
 
 stages:
 - stage: ${{ parameters.stageName }}
@@ -44,7 +46,7 @@ stages:
               azureSubscription: ${{ parameters.azureSubscription }}
               appType: 'apiApp'
               WebAppName: ${{ parameters.appName }}
-              packageForLinux: '$(Pipeline.Workspace)/**/*.zip'
+              packageForLinux: '$(Pipeline.Workspace)/${{ parameters.projectArtifactName }}/*.zip'
 
   - deployment: ApplyMigration
     displayName: 'Sql migration job'
@@ -58,12 +60,14 @@ stages:
       runOnce:
         deploy:
           steps:
-          - task: SqlAzureDacpacDeployment@1
-            displayName: 'Apply migration script'
-            inputs:
-              azureSubscription: ${{ parameters.azureSubscription }}
-              AuthenticationType: 'connectionString'
-              ConnectionString: ${{ parameters.connectionStringForMigration }}
-              deployType: 'SqlTask'
-              SqlFile: '$(Pipeline.Workspace)/**/*.sql'
-              IpDetectionMethod: 'AutoDetect'
+          - ${{ each artifact in Pipeline.Workspace/parameters.migrationArtifactName }}:
+            - script: echo ${{ artifact }}
+            - task: SqlAzureDacpacDeployment@1
+              displayName: 'Apply migration script'
+              inputs:
+                azureSubscription: ${{ parameters.azureSubscription }}
+                AuthenticationType: 'connectionString'
+                ConnectionString: ${{ parameters.connectionStringForMigration }}
+                deployType: 'SqlTask'
+                SqlFile: '$(Pipeline.Workspace)/${{ parameters.migrationArtifactName }}/${{ artifact }}'
+                IpDetectionMethod: 'AutoDetect'
