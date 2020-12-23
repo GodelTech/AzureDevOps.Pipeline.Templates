@@ -54,6 +54,8 @@ stages:
     # - Deploy
     pool:
       vmImage: windows-latest
+    variables:
+      myArtifacts: []
     environment:
       name: ${{ parameters.environment }}
     strategy:
@@ -66,10 +68,10 @@ stages:
               Write-Host $_.FullName
               }
 
-          - script: echo '11111111111'
-
-          - ${{ each artifact in Get-ChildItem $(Pipeline.Workspace)/${{ parameters.migrationArtifactName }} }}:
-            - script: echo ${{ artifact.FullName }}
+          - script: echo "##vso[task.setvariable variable=myArtifacts]Get-ChildItem $(Pipeline.Workspace)/${{ parameters.migrationArtifactName }}"
+          - script: echo "1111111111"
+          - ${{ each myArtifact in myArtifacts }}:
+            - script: echo ${{ myArtifact.FullName }}
             # - task: SqlAzureDacpacDeployment@1
             #   displayName: 'Apply migration script'
             #   inputs:
