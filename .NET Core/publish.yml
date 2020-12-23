@@ -5,7 +5,7 @@ parameters:
   migrationsProjectPath: 'N/A'
   dbContexts: []
   projectArtifactName: 'package'
-  migrationArtifactName: 'migration'
+  migrationArtifactName: 'migrations'
 
 stages:
 - stage: ${{ parameters.stageName }}

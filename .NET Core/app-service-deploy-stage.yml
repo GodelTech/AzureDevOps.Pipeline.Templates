@@ -12,46 +12,46 @@ parameters:
   connectionStrings: ''
   connectionStringForMigration: 'N/A'
   projectArtifactName: 'package'
-  migrationArtifactName: 'migration'
+  migrationArtifactName: 'migrations'
 
 stages:
 - stage: ${{ parameters.stageName }}
   displayName: '${{ parameters.stageDisplayName }}'
   dependsOn: ${{ parameters.stageDependsOn }}
   jobs:
-  - deployment: Deploy
-    displayName: 'Deploy job'
-    pool:
-      vmImage: ${{ parameters.vmImage }}
-    environment: ${{ parameters.environment }}
-    strategy:
-      runOnce:
-        deploy:
-          steps:
-          - task: AzureAppServiceSettings@1
-            displayName: 'Replace config values'
-            condition: or(ne('${{ parameters.appSettings }}', ''), ne('${{ parameters.generalSettings }}', ''), ne('${{ parameters.connectionStrings }}', ''))
-            inputs:
-              azureSubscription: ${{ parameters.azureSubscription }}
-              appName: ${{ parameters.appName }}
-              resourceGroupName: ${{ parameters.resourceGroupName }}
-              appSettings: ${{ parameters.appSettings }}
-              generalSettings: ${{ parameters.generalSettings }}
-              connectionStrings: ${{ parameters.connectionStrings }}
+  # - deployment: Deploy
+  #   displayName: 'Deploy job'
+  #   pool:
+  #     vmImage: ${{ parameters.vmImage }}
+  #   environment: ${{ parameters.environment }}
+  #   strategy:
+  #     runOnce:
+  #       deploy:
+  #         steps:
+  #         - task: AzureAppServiceSettings@1
+  #           displayName: 'Replace config values'
+  #           condition: or(ne('${{ parameters.appSettings }}', ''), ne('${{ parameters.generalSettings }}', ''), ne('${{ parameters.connectionStrings }}', ''))
+  #           inputs:
+  #             azureSubscription: ${{ parameters.azureSubscription }}
+  #             appName: ${{ parameters.appName }}
+  #             resourceGroupName: ${{ parameters.resourceGroupName }}
+  #             appSettings: ${{ parameters.appSettings }}
+  #             generalSettings: ${{ parameters.generalSettings }}
+  #             connectionStrings: ${{ parameters.connectionStrings }}
 
-          - task: AzureRmWebAppDeployment@4
-            displayName: 'Deploy in App Services'
-            inputs:
-              ConnectionType: 'AzureRM'
-              azureSubscription: ${{ parameters.azureSubscription }}
-              appType: 'apiApp'
-              WebAppName: ${{ parameters.appName }}
-              packageForLinux: '$(Pipeline.Workspace)/${{ parameters.projectArtifactName }}/*.zip'
+  #         - task: AzureRmWebAppDeployment@4
+  #           displayName: 'Deploy in App Services'
+  #           inputs:
+  #             ConnectionType: 'AzureRM'
+  #             azureSubscription: ${{ parameters.azureSubscription }}
+  #             appType: 'apiApp'
+  #             WebAppName: ${{ parameters.appName }}
+  #             packageForLinux: '$(Pipeline.Workspace)/${{ parameters.projectArtifactName }}/*.zip'
 
   - deployment: ApplyMigration
     displayName: 'Sql migration job'
-    dependsOn:
-    - Deploy
+    # dependsOn:
+    # - Deploy
     pool:
       vmImage: windows-latest
     environment:
@@ -61,12 +61,11 @@ stages:
         deploy:
           steps:
           - powershell: |
-              $ourfiles = Get-Content "$(Pipeline.Workspace)/${{ parameters.migrationArtifactName }}"
-              Write-Output $ourfiles
-
-              $CharArray =$ourfiles.Split(" ")
-              $CharArray
-              Write-Output $CharArray
+              Get-ChildItem $(Pipeline.Workspace)/${{ parameters.migrationArtifactName }} |
+              ForEach-Object{
+              $content = Get-Content $_.FullName
+              Write-Host $content
+              }
 
           # - ${{ each artifact in migrationArtifacts }}:
           #   - script: echo ${{ artifact }}
