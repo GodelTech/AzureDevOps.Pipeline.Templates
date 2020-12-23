@@ -65,7 +65,7 @@ stages:
           - powershell: |
               Get-ChildItem $(Pipeline.Workspace)/${{ parameters.migrationArtifactName }} |
               ForEach-Object{
-              Write-Host $_.FullName
+              Write-Host $_.Name
               }
 
           # - script: echo "##vso[task.setvariable variable=myArtifacts]Get-ChildItem $(Pipeline.Workspace)/${{ parameters.migrationArtifactName }}"
