@@ -63,18 +63,19 @@ stages:
           - powershell: |
               Get-ChildItem $(Pipeline.Workspace)/${{ parameters.migrationArtifactName }} |
               ForEach-Object{
-              $content = Get-Content $_.FullName
-              Write-Host $content
+              Write-Host $_.FullName
               }
 
-          # - ${{ each artifact in migrationArtifacts }}:
-          #   - script: echo ${{ artifact }}
-          #   - task: SqlAzureDacpacDeployment@1
-          #     displayName: 'Apply migration script'
-          #     inputs:
-          #       azureSubscription: ${{ parameters.azureSubscription }}
-          #       AuthenticationType: 'connectionString'
-          #       ConnectionString: ${{ parameters.connectionStringForMigration }}
-          #       deployType: 'SqlTask'
-          #       SqlFile: '$(Pipeline.Workspace)/${{ parameters.migrationArtifactName }}/${{ artifact }}'
-          #       IpDetectionMethod: 'AutoDetect'
+          - script: echo '11111111111'
+
+          - ${{ each artifact in Get-ChildItem $(Pipeline.Workspace)/${{ parameters.migrationArtifactName }} }}:
+            - script: echo ${{ artifact.FullName }}
+            # - task: SqlAzureDacpacDeployment@1
+            #   displayName: 'Apply migration script'
+            #   inputs:
+            #     azureSubscription: ${{ parameters.azureSubscription }}
+            #     AuthenticationType: 'connectionString'
+            #     ConnectionString: ${{ parameters.connectionStringForMigration }}
+            #     deployType: 'SqlTask'
+            #     SqlFile: '$(Pipeline.Workspace)/${{ parameters.migrationArtifactName }}/${{ artifact }}'
+            #     IpDetectionMethod: 'AutoDetect'
