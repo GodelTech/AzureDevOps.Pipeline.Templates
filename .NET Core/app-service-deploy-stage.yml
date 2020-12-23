@@ -55,7 +55,7 @@ stages:
     pool:
       vmImage: windows-latest
     variables:
-      myArtifacts: []
+      myArtifacts: ''
     environment:
       name: ${{ parameters.environment }}
     strategy:
