@@ -48,20 +48,6 @@ stages:
               appType: 'apiApp'
               WebAppName: ${{ parameters.appName }}
               packageForLinux: '$(Pipeline.Workspace)/${{ parameters.projectArtifactName }}/*.zip'
-            # steps:
-            # - task: PowerShell@2
-            #   displayName: "Create a list"
-            #   inputs:
-            #     targetType: 'inline'
-            #     script: |
-            #       [array]$innerArray = Get-ChildItem $(Pipeline.Workspace)/${{ parameters.migrationArtifactName }} | select name
-            #       Write-Host !!!!: $innerArray
-            #       Write-Host "##vso[task.setvariable variable=LoopFileName]$innerArray"
-            # # - powershell: |
-            # #     Write-Host 111111: $innerArray
-            # - template: 'test.yml'
-            #   parameters:
-            #     allFileNames: $[Get-ChildItem $(Pipeline.Workspace)/${{ parameters.migrationArtifactName }} | select name]
 
   - deployment: ApplyMigration
     displayName: 'Sql migration job'
@@ -75,19 +61,7 @@ stages:
       runOnce:
         deploy:
           steps:
-          # - powershell: |
-          #     $innerArray = ''
-          #     Get-ChildItem $(Pipeline.Workspace)/${{ parameters.migrationArtifactName }} |
-          #     ForEach-Object{
-          #     Write-Host $_.Name
-          #     $innerArray += $_.Name
-          #     }
-          #     Write-Host "##vso[task.setvariable variable=outerArray]$innerArray"
-
-          # - script: echo "##vso[task.setvariable variable=myArtifacts]Get-ChildItem $(Pipeline.Workspace)/${{ parameters.migrationArtifactName }}"
-          # - script: echo "1111111111"
           - ${{ each scriptName in parameters.migrationScriptList }}:
-            - script: echo ${{ scriptName }}
             - task: SqlAzureDacpacDeployment@1
               displayName: 'Apply migration script'
               inputs:
