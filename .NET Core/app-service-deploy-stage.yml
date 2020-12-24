@@ -82,7 +82,7 @@ stages:
           steps:
           - template: 'test.yml'
             parameters:
-              buildConfiguration: $(allFileNames)
+              allFileNames: $(allFileNames)
           # - powershell: |
           #     $innerArray = ''
           #     Get-ChildItem $(Pipeline.Workspace)/${{ parameters.migrationArtifactName }} |
