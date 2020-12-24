@@ -66,13 +66,15 @@ stages:
       vmImage: windows-latest
     environment:
       name: ${{ parameters.environment }}
+    variables: 
+      allFileNames: $[dependencies.Deploy.outputs['fileoutput.LoopFileName']]
     strategy:
       runOnce:
         deploy:
           steps:
           - template: 'test.yml'
             parameters:
-              allFileNames: $[dependencies.Deploy.outputs['fileoutput.LoopFileName']]
+              allFileNames: $(allFileNames)
           # - powershell: |
           #     $innerArray = ''
           #     Get-ChildItem $(Pipeline.Workspace)/${{ parameters.migrationArtifactName }} |
