@@ -79,7 +79,10 @@ stages:
     strategy:
       runOnce:
         deploy:
-          # steps:
+          steps:
+          - template: 'test.yml'
+            parameters:
+              buildConfiguration: $(allFileNames)
           # - powershell: |
           #     $innerArray = ''
           #     Get-ChildItem $(Pipeline.Workspace)/${{ parameters.migrationArtifactName }} |
@@ -91,8 +94,8 @@ stages:
 
           # - script: echo "##vso[task.setvariable variable=myArtifacts]Get-ChildItem $(Pipeline.Workspace)/${{ parameters.migrationArtifactName }}"
           # - script: echo "1111111111"
-          - ${{ each myArtifact in allFileNames }}:
-            - script: echo ${{ myArtifact }}
+          # - ${{ each myArtifact in allFileNames }}:
+          #   - script: echo ${{ myArtifact }}
             # - task: SqlAzureDacpacDeployment@1
             #   displayName: 'Apply migration script'
             #   inputs:
