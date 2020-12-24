@@ -66,13 +66,14 @@ stages:
               Get-ChildItem $(Pipeline.Workspace)/${{ parameters.migrationArtifactName }} |
               ForEach-Object{
               Write-Host $_.Name
+              Write-Host $_
               $migrationArtifacts += $_.Name
               }
 
           # - script: echo "##vso[task.setvariable variable=myArtifacts]Get-ChildItem $(Pipeline.Workspace)/${{ parameters.migrationArtifactName }}"
           # - script: echo "1111111111"
-          - ${{ each myArtifact in migrationArtifacts }}:
-            - script: echo ${{ myArtifact }}
+          # - ${{ each myArtifact in migrationArtifacts }}:
+          - script: echo $(migrationArtifacts)
             # - task: SqlAzureDacpacDeployment@1
             #   displayName: 'Apply migration script'
             #   inputs:
