@@ -19,14 +19,14 @@ stages:
   displayName: '${{ parameters.stageDisplayName }}'
   dependsOn: ${{ parameters.stageDependsOn }}
   jobs:
-  # - deployment: Deploy
-  #   displayName: 'Deploy job'
-  #   pool:
-  #     vmImage: ${{ parameters.vmImage }}
-  #   environment: ${{ parameters.environment }}
-  #   strategy:
-  #     runOnce:
-  #       deploy:
+  - deployment: Deploy
+    displayName: 'Deploy job'
+    pool:
+      vmImage: ${{ parameters.vmImage }}
+    environment: ${{ parameters.environment }}
+    strategy:
+      runOnce:
+        deploy:
   #         steps:
   #         - task: AzureAppServiceSettings@1
   #           displayName: 'Replace config values'
@@ -47,34 +47,51 @@ stages:
   #             appType: 'apiApp'
   #             WebAppName: ${{ parameters.appName }}
   #             packageForLinux: '$(Pipeline.Workspace)/${{ parameters.projectArtifactName }}/*.zip'
+            steps:
+            - task: PowerShell@2
+              displayName: "Create a list"
+              inputs:
+                targetType: 'inline'
+                script: |
+                    $FileNames = '"test1","test2","test3","test4"'
+                        Write-Host "##vso[task.setvariable variable=LoopFileName;isOutput=true]$FileNames"
+
+                    $innerArray = ''
+                    Get-ChildItem $(Pipeline.Workspace)/${{ parameters.migrationArtifactName }} |
+                    ForEach-Object{
+                    Write-Host $_.Name
+                    $innerArray += $_.Name
+                    }
+                    Write-Host !!!!: $innerArray
+                    Write-Host "##vso[task.setvariable variable=LoopFileName;isOutput=true]$innerArray"
+              name: fileoutput
 
   - deployment: ApplyMigration
     displayName: 'Sql migration job'
-    # dependsOn:
-    # - Deploy
+    dependsOn:
+    - Deploy
     pool:
       vmImage: windows-latest
     environment:
       name: ${{ parameters.environment }}
-    variables:
-      outerArray:
-        - '1'
+    variables: 
+      allFileNames: $[dependencies.Deploy.outputs['fileoutput.LoopFileName']]
     strategy:
       runOnce:
         deploy:
-          steps:
-          - powershell: |
-              $innerArray = ''
-              Get-ChildItem $(Pipeline.Workspace)/${{ parameters.migrationArtifactName }} |
-              ForEach-Object{
-              Write-Host $_.Name
-              $innerArray += $_.Name
-              }
-              Write-Host "##vso[task.setvariable variable=outerArray]$innerArray"
+          # steps:
+          # - powershell: |
+          #     $innerArray = ''
+          #     Get-ChildItem $(Pipeline.Workspace)/${{ parameters.migrationArtifactName }} |
+          #     ForEach-Object{
+          #     Write-Host $_.Name
+          #     $innerArray += $_.Name
+          #     }
+          #     Write-Host "##vso[task.setvariable variable=outerArray]$innerArray"
 
           # - script: echo "##vso[task.setvariable variable=myArtifacts]Get-ChildItem $(Pipeline.Workspace)/${{ parameters.migrationArtifactName }}"
-          - script: echo "1111111111"
-          - ${{ each myArtifact in outerArray }}:
+          # - script: echo "1111111111"
+          - ${{ each myArtifact in allFileNames }}:
             - script: echo ${{ myArtifact }}
             # - task: SqlAzureDacpacDeployment@1
             #   displayName: 'Apply migration script'
