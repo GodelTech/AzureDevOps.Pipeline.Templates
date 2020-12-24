@@ -55,9 +55,7 @@ stages:
     pool:
       vmImage: windows-latest
     variables:
-    - name: migrationArtifacts
-      type: object
-      default: []
+      migrationArtifacts: ''
     environment:
       name: ${{ parameters.environment }}
     strategy:
