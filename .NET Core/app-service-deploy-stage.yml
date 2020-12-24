@@ -56,8 +56,11 @@ stages:
                   [array]$innerArray = Get-ChildItem $(Pipeline.Workspace)/${{ parameters.migrationArtifactName }} | select name
                   Write-Host !!!!: $innerArray
                   Write-Host "##vso[task.setvariable variable=LoopFileName]$innerArray"
-            - powershell: |
-                Write-Host 111111: $(LoopFileName)
+            # - powershell: |
+            #     Write-Host 111111: $innerArray
+            - template: 'test.yml'
+              parameters:
+                allFileNames: Get-ChildItem $(Pipeline.Workspace)/${{ parameters.migrationArtifactName }} | select name
 
   # - deployment: ApplyMigration
   #   displayName: 'Sql migration job'
