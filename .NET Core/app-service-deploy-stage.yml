@@ -57,7 +57,7 @@ stages:
     environment:
       name: ${{ parameters.environment }}
     variables:
-      outerArray: ''
+      outerArray: ['1']
     strategy:
       runOnce:
         deploy:
