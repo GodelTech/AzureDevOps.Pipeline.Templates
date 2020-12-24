@@ -56,6 +56,8 @@ stages:
       vmImage: windows-latest
     environment:
       name: ${{ parameters.environment }}
+    variables:
+      outerArray: ''
     strategy:
       runOnce:
         deploy:
