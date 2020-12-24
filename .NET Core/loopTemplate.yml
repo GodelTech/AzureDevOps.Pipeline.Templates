@@ -2,8 +2,7 @@
 #   allFileNames: []
 
 # steps:
-# - ${{ each myArtifact in parameters.allFileNames }}:
-#   - script: echo ${{ myArtifact.name }}
+# 
 #             # - task: SqlAzureDacpacDeployment@1
 #             #   displayName: 'Apply migration script'
 #             #   inputs:
@@ -17,6 +16,9 @@ parameters:
   files: []
 
 steps :
+- ${{ each item in parameters.files }}:
+  - script: echo ${{ item }}
+
 - task: PowerShell@2
   displayName: 'Fetching ValueFiles'
   inputs:
