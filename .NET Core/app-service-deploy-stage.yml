@@ -24,6 +24,8 @@ stages:
     pool:
       vmImage: ${{ parameters.vmImage }}
     environment: ${{ parameters.environment }}
+    variables:
+      LoopFileName: ''
     strategy:
       runOnce:
         deploy:
