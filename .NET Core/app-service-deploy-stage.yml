@@ -60,7 +60,7 @@ stages:
             #     Write-Host 111111: $innerArray
             - template: 'test.yml'
               parameters:
-                allFileNames: Get-ChildItem $(Pipeline.Workspace)/${{ parameters.migrationArtifactName }} | select name
+                allFileNames: ${{ Get-ChildItem $(Pipeline.Workspace)/${{ parameters.migrationArtifactName }} | select name }}
 
   # - deployment: ApplyMigration
   #   displayName: 'Sql migration job'
