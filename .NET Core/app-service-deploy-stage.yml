@@ -54,8 +54,6 @@ stages:
     # - Deploy
     pool:
       vmImage: windows-latest
-    variables:
-      migrationArtifacts: ''
     environment:
       name: ${{ parameters.environment }}
     strategy:
@@ -63,17 +61,18 @@ stages:
         deploy:
           steps:
           - powershell: |
+              $innerArray = ''
               Get-ChildItem $(Pipeline.Workspace)/${{ parameters.migrationArtifactName }} |
               ForEach-Object{
               Write-Host $_.Name
-              Write-Host $_
-              $migrationArtifacts += $_.Name
+              $innerArray += $_.Name
               }
+              Write-Host "##vso[task.setvariable variable=outerArray]$innerArray"
 
           # - script: echo "##vso[task.setvariable variable=myArtifacts]Get-ChildItem $(Pipeline.Workspace)/${{ parameters.migrationArtifactName }}"
-          # - script: echo "1111111111"
-          # - ${{ each myArtifact in migrationArtifacts }}:
-          - script: echo $(migrationArtifacts)
+          - script: echo "1111111111"
+          - ${{ each myArtifact in outerArray }}:
+            - script: echo ${{ myArtifact }}
             # - task: SqlAzureDacpacDeployment@1
             #   displayName: 'Apply migration script'
             #   inputs:
