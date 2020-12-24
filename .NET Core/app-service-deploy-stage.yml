@@ -66,21 +66,21 @@ stages:
                     Write-Host "##vso[task.setvariable variable=LoopFileName;isOutput=true]$innerArray"
               name: fileoutput
 
-  - deployment: ApplyMigration
-    displayName: 'Sql migration job'
-    dependsOn:
-    - Deploy
-    pool:
-      vmImage: windows-latest
-    environment:
-      name: ${{ parameters.environment }}
-    strategy:
-      runOnce:
-        deploy:
-          steps:
-          - template: 'test.yml'
-            parameters:
-              allFileNames: $[dependencies.Deploy.outputs['fileoutput.LoopFileName']]
+  # - deployment: ApplyMigration
+  #   displayName: 'Sql migration job'
+  #   dependsOn:
+  #   - Deploy
+  #   pool:
+  #     vmImage: windows-latest
+  #   environment:
+  #     name: ${{ parameters.environment }}
+  #   strategy:
+  #     runOnce:
+  #       deploy:
+  #         steps:
+  #         - template: 'test.yml'
+  #           parameters:
+  #             allFileNames: $[dependencies.Deploy.outputs['fileoutput.LoopFileName']]
           # - powershell: |
           #     $innerArray = ''
           #     Get-ChildItem $(Pipeline.Workspace)/${{ parameters.migrationArtifactName }} |
