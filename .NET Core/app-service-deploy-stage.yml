@@ -58,20 +58,20 @@ stages:
                     Write-Host "##vso[task.setvariable variable=LoopFileName]$innerArray"
             - script: echo ${{ LoopFileName }}
 
-  - deployment: ApplyMigration
-    displayName: 'Sql migration job'
-    dependsOn:
-    - Deploy
-    pool:
-      vmImage: windows-latest
-    environment:
-      name: ${{ parameters.environment }}
-    variables: 
-      allFileNames: $[dependencies.Deploy.outputs['fileoutput.LoopFileName']]
-    strategy:
-      runOnce:
-        deploy:
-          steps:
+  # - deployment: ApplyMigration
+  #   displayName: 'Sql migration job'
+  #   dependsOn:
+  #   - Deploy
+  #   pool:
+  #     vmImage: windows-latest
+  #   environment:
+  #     name: ${{ parameters.environment }}
+  #   variables: 
+  #     allFileNames: $[dependencies.Deploy.outputs['fileoutput.LoopFileName']]
+  #   strategy:
+  #     runOnce:
+  #       deploy:
+  #         steps:
           # - template: 'test.yml'
           #   parameters:
           #     allFileNames: $(allFileNames)
