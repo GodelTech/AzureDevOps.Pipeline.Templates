@@ -3,10 +3,9 @@ parameters:
   buildConfiguration: 'Release'
   stageName: 'N/A'
   migrationsProjectPath: 'N/A'
-  dbContextName: 'N/A'
+  dbContexts: []
   projectArtifactName: 'package'
-  migrationArtifactName: 'migration'
-  migrationScriptName: 'migration.sql'
+  migrationArtifactName: 'migrations'
 
 stages:
 - stage: ${{ parameters.stageName }}
@@ -43,21 +42,22 @@ stages:
         custom: tool
         arguments: 'install --global dotnet-ef'
 
-    - task: DotNetCoreCLI@2
-      displayName: 'Create migration script'
-      inputs:
-        command: custom
-        custom: ef
-        arguments: 'migrations script --verbose --project ${{ parameters.migrationsProjectPath }} --context ${{ parameters.dbContextName }} -i -o ${{ parameters.migrationScriptName }}'
+    - ${{ each dbContext in parameters.dbContexts }}:
+      - task: DotNetCoreCLI@2
+        displayName: 'Create ${{ dbContext }}.sql migration script'
+        inputs:
+          command: custom
+          custom: ef
+          arguments: 'migrations script --verbose --project ${{ parameters.migrationsProjectPath }} --context ${{ dbContext }} -i -o ${{ dbContext }}.sql'
 
-    - task: CopyFiles@2
-      displayName: 'Copy migration script to $(Build.ArtifactStagingDirectory)'
-      inputs:
-        Contents: 'migration.sql'
-        TargetFolder: '$(Build.ArtifactStagingDirectory)'
+      - task: CopyFiles@2
+        displayName: 'Copy ${{ dbContext }}.sql into $(Build.ArtifactStagingDirectory)'
+        inputs:
+          Contents: '${{ dbContext }}.sql'
+          TargetFolder: '$(Build.ArtifactStagingDirectory)'
 
     - task: PublishBuildArtifacts@1
-      displayName: 'Publish migration script in artifacts'
+      displayName: 'Publish scripts in artifact ${{ parameters.migrationArtifactName }}'
       inputs:
         pathtoPublish: '$(Build.ArtifactStagingDirectory)'
         artifactName: ${{ parameters.migrationArtifactName }}
