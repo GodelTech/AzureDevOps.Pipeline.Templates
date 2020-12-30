@@ -98,6 +98,7 @@ stages:
       - job: Pack
         displayName: 'Pack'
         dependsOn: Build
+        condition: succeeded()
         variables:
           shouldCreateNewTag: false
         steps:
@@ -139,6 +140,7 @@ stages:
   - stage: Artifacts
     displayName: 'Push package in internal feed'
     dependsOn: Build
+    condition: succeeded()
     pool:
       vmImage: ${{ parameters.vmImage }}
     jobs:
@@ -160,7 +162,7 @@ stages:
   - stage: NuGet
     displayName: 'Push package in external NuGet feed'
     dependsOn: Artifacts
-    condition: eq(variables.isDefaultBranch, true)
+    condition: and(succeeded(), eq(variables.isDefaultBranch, true))
     pool:
       vmImage: ${{ parameters.vmImage }}
     jobs:
