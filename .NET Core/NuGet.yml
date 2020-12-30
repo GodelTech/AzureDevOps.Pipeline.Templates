@@ -75,7 +75,7 @@ stages:
 
           - task: DotNetCoreCLI@2
             displayName: 'dotnet restore from both NuGet and Azure Artifacts feeds'
-            condition: and(ne($(isDefaultBranch)), ne(variables['Build.Reason'], 'PullRequest'))
+            condition: and(eq($(isDefaultBranch), false), ne(variables['Build.Reason'], 'PullRequest'))
             inputs:
               command: 'restore'
               projects: '**/*.csproj'
@@ -84,7 +84,7 @@ stages:
 
           - task: DotNetCoreCLI@2
             displayName: 'dotnet restore only from NuGet feed'
-            condition: or(eq($(isDefaultBranch)), eq(variables['Build.Reason'], 'PullRequest'))
+            condition: or(eq($(isDefaultBranch), true), eq(variables['Build.Reason'], 'PullRequest'))
             inputs:
               command: 'restore'
               projects: '**/*.csproj'
@@ -185,7 +185,7 @@ stages:
   - stage: NuGet
     displayName: 'NuGet'
     dependsOn: Artifacts
-    condition: and(succeeded(), eq($(isDefaultBranch)))
+    condition: and(succeeded(), eq($(isDefaultBranch), true))
     pool:
       vmImage: ${{ parameters.vmImage }}
     jobs:
