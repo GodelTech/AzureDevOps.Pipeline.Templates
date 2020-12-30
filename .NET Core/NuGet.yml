@@ -52,6 +52,7 @@ stages:
         displayName: 'Build'
         variables:
           isPullRequest: $[eq(variables['Build.Reason'], 'PullRequest')]
+          restoreOnlyFromNuGetFeed: $[or(eq(variables.isDefaultBranch, true), eq(variables.isPullRequest, true))]
         steps:
           - task: SonarCloudPrepare@1
             displayName: 'Prepare analysis on SonarCloud'
@@ -70,7 +71,7 @@ stages:
               buildConfiguration: ${{ parameters.buildConfiguration }}
               codeCoverageSettingsFullPath: ${{ parameters.codeCoverageSettingsFileName }}
               internalFeed: ${{ parameters.internalFeed }}
-              restoreOnlyFromNuGetFeed: $[or(eq(variables.isDefaultBranch, true), eq(variables.isPullRequest, true))]
+              restoreOnlyFromNuGetFeed: variables.restoreOnlyFromNuGetFeed
 
           # Temp solution because of issue with SonarCloud
           - task: UseDotNet@2
