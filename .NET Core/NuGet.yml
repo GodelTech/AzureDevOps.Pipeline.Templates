@@ -53,7 +53,7 @@ stages:
         steps:
           - template: 'git-versioning.yml'
             parameters:
-              isDefaultBranch: $(isDefaultBranch)
+              isDefaultBranch: variables.isDefaultBranch
 
           - task: SonarCloudPrepare@1
             displayName: 'Prepare analysis on SonarCloud'
