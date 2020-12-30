@@ -1,12 +1,43 @@
 parameters:
-  vmImage: 'ubuntu-latest'
-  sonarCloudOrganizationName: 'N/A'
-  defaultBranch: 'master'
-  buildConfiguration: 'N/A'
-  artifactPackDirectory: 'N/A'
-  internalFeed: 'N/A'
-  codeCoverageSettingsFileName: 'CodeCoverage.runsettings'
-  includeSonarcloudBuildBreaker: true
+  - name: vmImage
+    displayName: 'vmImage'
+    type: string
+    default: 'ubuntu-latest'
+
+  - name: sonarCloudOrganizationName
+    displayName: 'Organization name for SonarCloud'
+    type: string
+    default: 'N/A'
+
+  - name: defaultBranch
+    displayName: 'Name of the main branch'
+    type: string
+    default: 'master'
+
+  - name: buildConfiguration
+    displayName: 'Build Configuration'
+    type: string
+    default: 'N/A'
+
+  - name: artifactPackDirectory
+    displayName: 'Pipeline Artifact publishing directory'
+    type: string
+    default: 'N/A'
+
+  - name: internalFeed
+    displayName: 'Internal dotnet artifact feed'
+    type: string
+    default: 'N/A'
+
+  - name: codeCoverageSettingsFileName
+    displayName: 'The Name of the code coverage settings file'
+    type: string
+    default: 'CodeCoverage.runsettings'
+
+  - name: includeSonarcloudBuildBreaker
+    displayName: 'Does Sonarcloud build breaker turn on?'
+    type: boolean
+    default: true
 
 variables:
   isDefaultBranch: $[eq(variables['Build.SourceBranch'], 'refs/heads/${{ parameters.defaultBranch }}')]
