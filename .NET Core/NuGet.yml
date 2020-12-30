@@ -98,7 +98,7 @@ stages:
             inputs:
               command: 'build'
               projects: '**/*.csproj'
-              arguments: '--configuration ${{ parameters.buildConfiguration }} /p:Version=$(Build.BuildNumber)'
+              arguments: '--configuration ${{ parameters.buildConfiguration }}'
 
           - task: DotNetCoreCLI@2
             displayName: 'dotnet test'
