@@ -71,9 +71,9 @@ stages:
             inputs:
               targetType: "inline"
               script:
-                Write-Host "isDefaultBranch:" $isDefaultBranch;
-                Write-Host "isPullRequest:" $isPullRequest;
-                Write-Host "restoreOnlyFromNuGetFeed2:" $restoreOnlyFromNuGetFeed2;
+                Write-Host "isDefaultBranch:" $(isDefaultBranch);
+                Write-Host "isPullRequest:" $(isPullRequest);
+                Write-Host "restoreOnlyFromNuGetFeed2:" $(restoreOnlyFromNuGetFeed2);
               
           - template: 'build.yml'
             parameters:
