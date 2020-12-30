@@ -1,6 +1,7 @@
 parameters:
   isDefaultBranch: false
   shouldCreateNewTag: false
+  tempParam: false
 
 steps:
 - task: PowerShell@2
@@ -12,9 +13,10 @@ steps:
       $lastTag = $(git describe --tags --abbrev=0);
       $shouldCreateNewTag = $($lastTag -ne $Build.BuildNumber);
       Write-Host "##vso[task.setvariable variable=shouldCreateNewTag]$shouldCreateNewTag";
+      Write-Host "##vso[task.setvariable variable=tempParam]true";
 
 - task: git-tag-on-release-task@9
-  condition: and(succeeded(), eq(${{ parameters.isDefaultBranch }}, true), eq($(shouldCreateNewTag), true))
+  condition: and(succeeded(), eq(${{ parameters.isDefaultBranch }}, true), eq(${{ parameters.shouldCreateNewTag }}, true))
   displayName: 'Add new tag to git'
   inputs:
     staticTagName: '$(Build.BuildNumber)'
