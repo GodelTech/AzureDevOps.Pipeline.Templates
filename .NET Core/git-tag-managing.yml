@@ -15,6 +15,7 @@ steps:
       Write-Host "##vso[task.setvariable variable=shouldCreateNewTag]$shouldCreateNewTag";
       Write-Host "##vso[task.setvariable variable=tempParam]true";
       Write-Host "New Build Version:" ${{ parameters.shouldCreateNewTag }};
+      Write-Host "isDefaultBranch:" variables.isDefaultBranch;
 
 - task: git-tag-on-release-task@9
   condition: and(succeeded(), eq(${{ parameters.isDefaultBranch }}, true), eq(${{ parameters.shouldCreateNewTag }}, true))
