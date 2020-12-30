@@ -70,7 +70,7 @@ stages:
               buildConfiguration: ${{ parameters.buildConfiguration }}
               codeCoverageSettingsFullPath: ${{ parameters.codeCoverageSettingsFileName }}
               internalFeed: ${{ parameters.internalFeed }}
-              restoreOnlyFromNuGetFeed: $[or(eq(variables.isDefaultBranch, true), eq(variables.isPullRequest, true))]
+              restoreOnlyFromNuGetFeed: false
 
           # Temp solution because of issue with SonarCloud
           - task: UseDotNet@2
