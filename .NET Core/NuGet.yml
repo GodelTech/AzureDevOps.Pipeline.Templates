@@ -52,6 +52,7 @@ stages:
         displayName: 'Build'
         variables:
           isPullRequest: $[eq(variables['Build.Reason'], 'PullRequest')]
+          restoreOnlyFromNuGetFeed2: $[or(eq(variables.isDefaultBranch, true), eq(variables.isPullRequest, true))]
         steps:
           - task: SonarCloudPrepare@1
             displayName: 'Prepare analysis on SonarCloud'
@@ -65,12 +66,22 @@ stages:
                 sonar.cs.opencover.reportsPaths="$(Agent.TempDirectory)/**/coverage.opencover.xml"
                 sonar.coverage.exclusions="tools/build/*"
 
+          - task: PowerShell@2
+            displayName: 'Test'
+            inputs:
+              targetType: "inline"
+              script:
+                Write-Host "isDefaultBranch:" $isDefaultBranch;
+                Write-Host "isPullRequest:" $isPullRequest;
+                Write-Host "restoreOnlyFromNuGetFeed:" $[or(eq(variables.isDefaultBranch, true), eq(variables.isPullRequest, true))];
+                Write-Host "restoreOnlyFromNuGetFeed2:" $restoreOnlyFromNuGetFeed2;
+              
           - template: 'build.yml'
             parameters:
               buildConfiguration: ${{ parameters.buildConfiguration }}
               codeCoverageSettingsFullPath: ${{ parameters.codeCoverageSettingsFileName }}
               internalFeed: ${{ parameters.internalFeed }}
-              restoreOnlyFromNuGetFeed: false
+              restoreOnlyFromNuGetFeed: true
 
           # Temp solution because of issue with SonarCloud
           - task: UseDotNet@2
