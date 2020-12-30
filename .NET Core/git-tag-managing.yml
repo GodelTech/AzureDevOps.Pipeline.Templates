@@ -1,0 +1,27 @@
+parameters:
+  isDefaultBranch: false
+
+variables:
+    shouldCreateNewTag: false
+
+steps:
+- task: UseGitVersion@5
+  displayName: GitVersion
+  inputs:
+    versionSpec: '5.x'
+
+- task: PowerShell@2
+  condition: eq(${{ parameters.isDefaultBranch }}, true)
+  displayName: 'Compare last tag with build number'
+  inputs:
+    targetType: "inline"
+    script:
+      $lastTag = $(git describe --tags --abbrev=0);
+      $shouldCreateNewTag = $($lastTag -ne $Build.BuildNumber);
+      Write-Host "##vso[task.setvariable variable=shouldCreateNewTag]$shouldCreateNewTag";
+
+- task: git-tag-on-release-task@9
+  condition: and(succeeded(), eq(${{ parameters.isDefaultBranch }}, true), eq(variables.shouldCreateNewTag, true))
+  displayName: 'Add new tag to git'
+  inputs:
+    staticTagName: "$(Build.BuildNumber)"

@@ -39,29 +39,21 @@ parameters:
     type: boolean
     default: true
 
+variables:
+    isDefaultBranch: $[eq($(isDefaultBranch))]
+
 stages:
   - stage: Build
     displayName: 'Build'
-    variables:
-      versionSuffix: ''
     pool:
       vmImage: ${{ parameters.vmImage }}
     jobs:
       - job: Build
         displayName: 'Build'
         steps:
-          - task: UseGitVersion@5
-            displayName: GitVersion
-            inputs:
-              versionSpec: '5.x'
-
-          - task: Bash@3
-            displayName: 'Set Version Suffix'
-            condition: and(succeeded(), ne(variables['Build.SourceBranch'], 'refs/heads/${{ parameters.defaultBranch }}'))
-            inputs:
-              targetType: 'inline'
-              script: |
-                echo "##vso[task.setvariable variable=versionSuffix]ci-$BUILD_BUILDNUMBER"
+          - template: 'git-versioning.yml'
+            parameters:
+              isDefaultBranch: $(isDefaultBranch)
 
           - task: SonarCloudPrepare@1
             displayName: 'Prepare analysis on SonarCloud'
@@ -83,7 +75,7 @@ stages:
 
           - task: DotNetCoreCLI@2
             displayName: 'dotnet restore from both NuGet and Azure Artifacts feeds'
-            condition: and(ne(variables['Build.SourceBranch'], 'refs/heads/${{ parameters.defaultBranch }}'), ne(variables['Build.Reason'], 'PullRequest'))
+            condition: and(ne($(isDefaultBranch)), ne(variables['Build.Reason'], 'PullRequest'))
             inputs:
               command: 'restore'
               projects: '**/*.csproj'
@@ -92,7 +84,7 @@ stages:
 
           - task: DotNetCoreCLI@2
             displayName: 'dotnet restore only from NuGet feed'
-            condition: or(eq(variables['Build.SourceBranch'], 'refs/heads/${{ parameters.defaultBranch }}'), eq(variables['Build.Reason'], 'PullRequest'))
+            condition: or(eq($(isDefaultBranch)), eq(variables['Build.Reason'], 'PullRequest'))
             inputs:
               command: 'restore'
               projects: '**/*.csproj'
@@ -103,7 +95,7 @@ stages:
             inputs:
               command: 'build'
               projects: '**/*.csproj'
-              arguments: '--configuration ${{ parameters.buildConfiguration }} /p:Version=$(GitVersion.SemVer)'
+              arguments: '--configuration ${{ parameters.buildConfiguration }} /p:Version=$(Build.BuildNumber)'
 
           - task: DotNetCoreCLI@2
             displayName: 'dotnet test'
@@ -157,7 +149,11 @@ stages:
               packagesToPack: '**/*.csproj'
               packDirectory: '$(Build.ArtifactStagingDirectory)/${{ parameters.artifactPackDirectory }}'
               versioningScheme: byEnvVar
-              versionEnvVar: GitVersion.SemVer
+              versionEnvVar: 'Build.BuildNumber'
+
+          - template: 'git-tag-managing.yml'
+            parameters:
+              isDefaultBranch: $(isDefaultBranch)
 
           - task: PublishPipelineArtifact@1
             displayName: 'Publish Pipeline Artifact: NuGet Packages'
@@ -189,7 +185,7 @@ stages:
   - stage: NuGet
     displayName: 'NuGet'
     dependsOn: Artifacts
-    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/${{ parameters.defaultBranch }}'))
+    condition: and(succeeded(), eq($(isDefaultBranch)))
     pool:
       vmImage: ${{ parameters.vmImage }}
     jobs:
