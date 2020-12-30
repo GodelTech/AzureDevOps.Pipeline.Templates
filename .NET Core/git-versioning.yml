@@ -1,0 +1,30 @@
+parameters:
+  isDefaultBranch: false
+
+steps:
+- task: UseGitVersion@5
+  displayName: 'GitVersion'
+  inputs:
+    versionSpec: '5.x'
+
+- task: PowerShell@2
+  condition: eq(${{ parameters.isDefaultBranch }}, true)
+  displayName: 'Set Build Number'
+  inputs:
+    targetType: "inline"
+    script:
+      $lastTag = $(git describe --tags --abbrev=0);
+      Write-Host "Previous tag:" $lastTag;
+      $isStableTag = $lastTag -match '^[0-9]+\.[0-9]+\.[0-9]+$';
+      Write-Host "Is stable tag:" $isStableTag;
+
+      $nextPackageVersion = "";
+      if ($isStableTag) {
+        $nextPackageVersion = $env:GITVERSION_MAJORMINORPATCH;
+      }
+      else {
+        $nextPackageVersion = $env:GITVERSION_SEMVER;
+      }
+      Write-Host "Next package version:" $nextPackageVersion;
+      Write-Host "##vso[build.updatebuildnumber]$nextPackageVersion";
+      Write-Host "New Build Version:" $Build.BuildNumber;

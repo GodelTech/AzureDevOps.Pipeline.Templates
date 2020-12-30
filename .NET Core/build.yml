@@ -2,6 +2,8 @@ parameters:
   buildConfiguration: 'N/A'
   codeCoverageSettingsFullPath: 'CodeCoverage.runsettings'
   nugetConfigPath: ''
+  internalFeed: ''
+  restoreOnlyFromNuGetFeed: false
 
 steps:
 - task: UseDotNet@2
@@ -10,22 +12,40 @@ steps:
     packageType: 'sdk'
     version: '3.x'
 
-- task: DotNetCoreCLI@2
-  displayName: 'dotnet restore with NuGet config'
-  condition: and(succeeded(), ne('${{ parameters.nugetConfigPath }}', ''))
-  inputs:
-    command: 'restore'
-    projects: '**/*.csproj'
-    feedsToUse: 'config'
-    nugetConfigPath: '${{ parameters.nugetConfigPath }}'
+- ${{ if eq(parameters.restoreOnlyFromNuGetFeed, true) }}:
+  - task: DotNetCoreCLI@2
+    displayName: 'dotnet restore only from NuGet feed'
+    inputs:
+      command: 'restore'
+      projects: '**/*.csproj'
+      feedsToUse: 'select'
 
-- task: DotNetCoreCLI@2
-  displayName: 'dotnet restore only from NuGet feed'
-  condition: and(succeeded(), eq('${{ parameters.nugetConfigPath }}', ''))
-  inputs:
-    command: 'restore'
-    projects: '**/*.csproj'
-    feedsToUse: 'select'
+- ${{ if eq(parameters.restoreOnlyFromNuGetFeed, false) }}:
+  - task: DotNetCoreCLI@2
+    displayName: 'dotnet restore only from NuGet feed'
+    condition: and(eq('${{ parameters.internalFeed }}', ''), eq('${{ parameters.nugetConfigPath }}', ''))
+    inputs:
+      command: 'restore'
+      projects: '**/*.csproj'
+      feedsToUse: 'select'
+
+  - task: DotNetCoreCLI@2
+    displayName: 'dotnet restore with NuGet config'
+    condition: and(ne('${{ parameters.nugetConfigPath }}', ''), eq('${{ parameters.internalFeed }}', ''))
+    inputs:
+      command: 'restore'
+      projects: '**/*.csproj'
+      feedsToUse: 'config'
+      nugetConfigPath: '${{ parameters.nugetConfigPath }}'
+
+  - task: DotNetCoreCLI@2
+    displayName: 'dotnet restore from both NuGet and Azure Artifacts feeds'
+    condition: and(ne('${{ parameters.internalFeed }}', ''), eq('${{ parameters.nugetConfigPath }}', ''))
+    inputs:
+      command: 'restore'
+      projects: '**/*.csproj'
+      feedsToUse: 'select'
+      vstsFeed: '${{ parameters.internalFeed }}'
 
 - task: DotNetCoreCLI@2
   displayName: 'dotnet build'

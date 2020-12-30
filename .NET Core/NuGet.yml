@@ -39,25 +39,20 @@ parameters:
     type: boolean
     default: true
 
+variables:
+  isDefaultBranch: $[eq(variables['Build.SourceBranch'], 'refs/heads/${{ parameters.defaultBranch }}')]
+
 stages:
   - stage: Build
     displayName: 'Build'
-    variables:
-      versionSuffix: ''
     pool:
       vmImage: ${{ parameters.vmImage }}
     jobs:
       - job: Build
         displayName: 'Build'
+        variables:
+          isPullRequest: $[eq(variables['Build.Reason'], 'PullRequest')]
         steps:
-          - task: Bash@3
-            displayName: 'Set Version Suffix'
-            condition: and(succeeded(), ne(variables['Build.SourceBranch'], 'refs/heads/${{ parameters.defaultBranch }}'))
-            inputs:
-              targetType: 'inline'
-              script: |
-                echo "##vso[task.setvariable variable=versionSuffix]ci-$BUILD_BUILDNUMBER"
-
           - task: SonarCloudPrepare@1
             displayName: 'Prepare analysis on SonarCloud'
             inputs:
@@ -70,58 +65,12 @@ stages:
                 sonar.cs.opencover.reportsPaths="$(Agent.TempDirectory)/**/coverage.opencover.xml"
                 sonar.coverage.exclusions="tools/build/*"
 
-          - task: UseDotNet@2
-            displayName: 'Use .NET Core SDK'
-            inputs:
-              packageType: 'sdk'
-              version: '3.x'
-
-          - task: DotNetCoreCLI@2
-            displayName: 'dotnet restore from both NuGet and Azure Artifacts feeds'
-            condition: and(ne(variables['Build.SourceBranch'], 'refs/heads/${{ parameters.defaultBranch }}'), ne(variables['Build.Reason'], 'PullRequest'))
-            inputs:
-              command: 'restore'
-              projects: '**/*.csproj'
-              feedsToUse: 'select'
-              vstsFeed: '${{ parameters.internalFeed }}'
-
-          - task: DotNetCoreCLI@2
-            displayName: 'dotnet restore only from NuGet feed'
-            condition: or(eq(variables['Build.SourceBranch'], 'refs/heads/${{ parameters.defaultBranch }}'), eq(variables['Build.Reason'], 'PullRequest'))
-            inputs:
-              command: 'restore'
-              projects: '**/*.csproj'
-              feedsToUse: 'select'
-
-          - task: DotNetCoreCLI@2
-            displayName: 'dotnet build'
-            inputs:
-              command: 'build'
-              projects: '**/*.csproj'
-              arguments: '--configuration ${{ parameters.buildConfiguration }} /p:VersionSuffix=$(versionSuffix)'
-
-          - task: DotNetCoreCLI@2
-            displayName: 'dotnet test'
-            inputs:
-              command: 'test'
-              projects: '**/*[Tt]ests/*.csproj'
-              arguments: '--configuration ${{ parameters.buildConfiguration }} --settings $(System.DefaultWorkingDirectory)/${{ parameters.codeCoverageSettingsFileName }} --collect:"XPlat Code Coverage" -- RunConfiguration.DisableAppDomain=true'
-
-          - task: DotNetCoreCLI@2
-            displayName: 'Install ReportGenerator tool'
-            inputs:
-              command: 'custom'
-              custom: 'tool'
-              arguments: 'install --tool-path . dotnet-reportgenerator-globaltool'
-
-          - script: ./reportgenerator -reports:$(Agent.TempDirectory)/**/coverage.cobertura.xml -targetdir:$(Build.SourcesDirectory)/coverlet/reports -reporttypes:"Cobertura"
-            displayName: 'Create reports'
-
-          - task: PublishCodeCoverageResults@1
-            displayName: 'Publish code coverage'
-            inputs:
-              codeCoverageTool: 'Cobertura'
-              summaryFileLocation: '$(Build.SourcesDirectory)/coverlet/reports/Cobertura.xml'
+          - template: 'build.yml'
+            parameters:
+              buildConfiguration: ${{ parameters.buildConfiguration }}
+              codeCoverageSettingsFullPath: ${{ parameters.codeCoverageSettingsFileName }}
+              internalFeed: ${{ parameters.internalFeed }}
+              restoreOnlyFromNuGetFeed: $[or(eq(variables.isDefaultBranch, true), eq(variables.isPullRequest, true))]
 
           # Temp solution because of issue with SonarCloud
           - task: UseDotNet@2
@@ -145,14 +94,40 @@ stages:
               SonarCloud: 'SonarCloud'
               organization: '${{ parameters.sonarCloudOrganizationName }}'
 
+      - job: Pack
+        displayName: 'Pack'
+        dependsOn: Build
+        variables:
+          shouldCreateNewTag: false
+        steps:
+          - template: 'git-versioning.yml'
+            parameters:
+              isDefaultBranch: variables.isDefaultBranch
+
           - task: DotNetCoreCLI@2
             displayName: 'Pack .NET Core NuGet packages'
             inputs:
               command: 'pack'
               packagesToPack: '**/*.csproj'
-              buildProperties: 'VersionSuffix=$(versionSuffix)'
               packDirectory: '$(Build.ArtifactStagingDirectory)/${{ parameters.artifactPackDirectory }}'
-              versioningScheme: 'off'
+              versioningScheme: byEnvVar
+              versionEnvVar: 'Build.BuildNumber'
+
+          - task: PowerShell@2
+            condition: eq(variables.isDefaultBranch, true)
+            displayName: 'Compare last tag with build number'
+            inputs:
+              targetType: "inline"
+              script:
+                $lastTag = $(git describe --tags --abbrev=0);
+                $shouldCreateNewTag = $($lastTag -ne $Build.BuildNumber);
+                Write-Host "##vso[task.setvariable variable=shouldCreateNewTag]$shouldCreateNewTag";
+
+          - task: git-tag-on-release-task@9
+            condition: and(eq(variables.isDefaultBranch, true), eq(variables.shouldCreateNewTag, true))
+            displayName: 'Add new tag to git'
+            inputs:
+              staticTagName: '$(Build.BuildNumber)'
 
           - task: PublishPipelineArtifact@1
             displayName: 'Publish Pipeline Artifact: NuGet Packages'
@@ -161,7 +136,7 @@ stages:
               artifact: 'NuGet Packages'
 
   - stage: Artifacts
-    displayName: 'Artifacts'
+    displayName: 'Push package in internal feed'
     dependsOn: Build
     pool:
       vmImage: ${{ parameters.vmImage }}
@@ -182,9 +157,9 @@ stages:
                     publishVstsFeed: '${{ parameters.internalFeed }}'
 
   - stage: NuGet
-    displayName: 'NuGet'
+    displayName: 'Push package in external NuGet feed'
     dependsOn: Artifacts
-    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/${{ parameters.defaultBranch }}'))
+    condition: eq(variables.isDefaultBranch, true)
     pool:
       vmImage: ${{ parameters.vmImage }}
     jobs:
