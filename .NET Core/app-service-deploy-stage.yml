@@ -63,7 +63,7 @@ stages:
           steps:
           - ${{ each scriptName in parameters.migrationScriptList }}:
             - task: SqlAzureDacpacDeployment@1
-              displayName: 'Apply migration script'
+              displayName: 'Apply ${{ scriptName }} migration script'
               inputs:
                 azureSubscription: ${{ parameters.azureSubscription }}
                 AuthenticationType: 'connectionString'
