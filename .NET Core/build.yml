@@ -13,12 +13,12 @@ steps:
     version: '3.x'
 
 - ${{ if eq(parameters.restoreOnlyFromNuGetFeed, true) }}:
-- task: DotNetCoreCLI@2
-  displayName: 'dotnet restore only from NuGet feed'
-  inputs:
-    command: 'restore'
-    projects: '**/*.csproj'
-    feedsToUse: 'select'
+  - task: DotNetCoreCLI@2
+    displayName: 'dotnet restore only from NuGet feed'
+    inputs:
+      command: 'restore'
+      projects: '**/*.csproj'
+      feedsToUse: 'select'
 
 - ${{ if eq(parameters.restoreOnlyFromNuGetFeed, false) }}:
   - task: DotNetCoreCLI@2
