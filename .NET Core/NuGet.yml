@@ -40,7 +40,7 @@ parameters:
     default: true
 
 variables:
-    isDefaultBranch: $[eq($(isDefaultBranch))]
+  isDefaultBranch: $[eq(variables['Build.SourceBranch'], 'refs/heads/${{ parameters.defaultBranch }}')]
 
 stages:
   - stage: Build
