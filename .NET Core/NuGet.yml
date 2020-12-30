@@ -52,6 +52,7 @@ stages:
         displayName: 'Build'
         variables:
           shouldCreateNewTag: false
+          isPullRequest: $[eq(variables['Build.Reason'], 'PullRequest')]
         steps:
           - template: 'git-versioning.yml'
             parameters:
@@ -77,7 +78,7 @@ stages:
 
           - task: DotNetCoreCLI@2
             displayName: 'dotnet restore from both NuGet and Azure Artifacts feeds'
-            condition: and(eq(variables.isDefaultBranch, false), ne(variables['Build.Reason'], 'PullRequest'))
+            condition: and(eq(variables.isDefaultBranch, false), eq(variables.isPullRequest, false))
             inputs:
               command: 'restore'
               projects: '**/*.csproj'
@@ -86,7 +87,7 @@ stages:
 
           - task: DotNetCoreCLI@2
             displayName: 'dotnet restore only from NuGet feed'
-            condition: or(eq(variables.isDefaultBranch, true), eq(variables['Build.Reason'], 'PullRequest'))
+            condition: or(eq(variables.isDefaultBranch, true), eq(variables.isPullRequest, true))
             inputs:
               command: 'restore'
               projects: '**/*.csproj'
@@ -176,7 +177,7 @@ stages:
               artifact: 'NuGet Packages'
 
   - stage: Artifacts
-    displayName: 'Artifacts'
+    displayName: 'Push package in internal feed'
     dependsOn: Build
     pool:
       vmImage: ${{ parameters.vmImage }}
@@ -197,9 +198,9 @@ stages:
                     publishVstsFeed: '${{ parameters.internalFeed }}'
 
   - stage: NuGet
-    displayName: 'NuGet'
+    displayName: 'Push package in external NuGet feed'
     dependsOn: Artifacts
-    condition: and(succeeded(), eq(variables.isDefaultBranch, true))
+    condition: eq(variables.isDefaultBranch, true)
     pool:
       vmImage: ${{ parameters.vmImage }}
     jobs:
