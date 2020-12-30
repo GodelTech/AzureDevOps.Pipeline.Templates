@@ -53,6 +53,7 @@ stages:
         variables:
           isPullRequest: $[eq(variables['Build.Reason'], 'PullRequest')]
           restoreOnlyFromNuGetFeed2: $[or(eq(variables.isDefaultBranch, true), eq(variables.isPullRequest, true))]
+          restoreOnlyFromNuGetFeed3: true
         steps:
           - task: SonarCloudPrepare@1
             displayName: 'Prepare analysis on SonarCloud'
@@ -74,6 +75,7 @@ stages:
                 Write-Host "isDefaultBranch:" $(isDefaultBranch);
                 Write-Host "isPullRequest:" $(isPullRequest);
                 Write-Host "restoreOnlyFromNuGetFeed2:" $(restoreOnlyFromNuGetFeed2);
+                Write-Host "restoreOnlyFromNuGetFeed3:" $(restoreOnlyFromNuGetFeed3);
               
           - template: 'build.yml'
             parameters:
