@@ -55,6 +55,10 @@ stages:
             parameters:
               isDefaultBranch: variables.isDefaultBranch
 
+          - template: 'git-tag-managing.yml'
+            parameters:
+              isDefaultBranch: variables.isDefaultBranch
+
           - task: SonarCloudPrepare@1
             displayName: 'Prepare analysis on SonarCloud'
             inputs:
