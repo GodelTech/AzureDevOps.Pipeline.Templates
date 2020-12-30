@@ -73,7 +73,6 @@ stages:
               script:
                 Write-Host "isDefaultBranch:" $isDefaultBranch;
                 Write-Host "isPullRequest:" $isPullRequest;
-                Write-Host "restoreOnlyFromNuGetFeed:" $[or(eq(variables.isDefaultBranch, true), eq(variables.isPullRequest, true))];
                 Write-Host "restoreOnlyFromNuGetFeed2:" $restoreOnlyFromNuGetFeed2;
               
           - template: 'build.yml'
