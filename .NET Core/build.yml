@@ -3,7 +3,7 @@ parameters:
   codeCoverageSettingsFullPath: 'CodeCoverage.runsettings'
   nugetConfigPath: ''
   internalFeed: ''
-  restoreOnlyFromNuGetFeed: False
+  restoreOnlyFromNuGetFeed: false
 
 steps:
 - task: UseDotNet@2
@@ -14,7 +14,7 @@ steps:
 
 - task: DotNetCoreCLI@2
   displayName: 'dotnet restore only from NuGet feed'
-  condition: eq('${{ parameters.restoreOnlyFromNuGetFeed }}', true)
+  condition: eq(${{ parameters.restoreOnlyFromNuGetFeed }}, true)
   inputs:
     command: 'restore'
     projects: '**/*.csproj'
@@ -22,7 +22,7 @@ steps:
 
 - task: DotNetCoreCLI@2
   displayName: 'dotnet restore only from NuGet feed'
-  condition: and(eq('${{ parameters.restoreOnlyFromNuGetFeed }}', False), eq('${{ parameters.internalFeed }}', ''), eq('${{ parameters.nugetConfigPath }}', ''))
+  condition: and(eq(${{ parameters.restoreOnlyFromNuGetFeed }}, false), eq('${{ parameters.internalFeed }}', ''), eq('${{ parameters.nugetConfigPath }}', ''))
   inputs:
     command: 'restore'
     projects: '**/*.csproj'
@@ -30,7 +30,7 @@ steps:
 
 - task: DotNetCoreCLI@2
   displayName: 'dotnet restore with NuGet config'
-  condition: and(eq('${{ parameters.restoreOnlyFromNuGetFeed }}', False), ne('${{ parameters.nugetConfigPath }}', ''), eq('${{ parameters.internalFeed }}', ''))
+  condition: and(eq(${{ parameters.restoreOnlyFromNuGetFeed }}, false), ne('${{ parameters.nugetConfigPath }}', ''), eq('${{ parameters.internalFeed }}', ''))
   inputs:
     command: 'restore'
     projects: '**/*.csproj'
@@ -39,7 +39,7 @@ steps:
 
 - task: DotNetCoreCLI@2
   displayName: 'dotnet restore from both NuGet and Azure Artifacts feeds'
-  condition: and(eq('${{ parameters.restoreOnlyFromNuGetFeed }}', False), ne('${{ parameters.internalFeed }}', ''), eq('${{ parameters.nugetConfigPath }}', ''))
+  condition: and(eq(${{ parameters.restoreOnlyFromNuGetFeed }}, false), ne('${{ parameters.internalFeed }}', ''), eq('${{ parameters.nugetConfigPath }}', ''))
   inputs:
     command: 'restore'
     projects: '**/*.csproj'
