@@ -50,12 +50,10 @@ stages:
     jobs:
       - job: Build
         displayName: 'Build'
+        variables:
+          shouldCreateNewTag: false
         steps:
           - template: 'git-versioning.yml'
-            parameters:
-              isDefaultBranch: variables.isDefaultBranch
-
-          - template: 'git-tag-managing.yml'
             parameters:
               isDefaultBranch: variables.isDefaultBranch
 
@@ -155,9 +153,21 @@ stages:
               versioningScheme: byEnvVar
               versionEnvVar: 'Build.BuildNumber'
 
-          - template: 'git-tag-managing.yml'
-            parameters:
-              isDefaultBranch: variables.isDefaultBranch
+          - task: PowerShell@2
+            condition: eq(variables.isDefaultBranch, true)
+            displayName: 'Compare last tag with build number'
+            inputs:
+              targetType: "inline"
+              script:
+                $lastTag = $(git describe --tags --abbrev=0);
+                $shouldCreateNewTag = $($lastTag -ne $Build.BuildNumber);
+                Write-Host "##vso[task.setvariable variable=shouldCreateNewTag]$shouldCreateNewTag";
+
+          - task: git-tag-on-release-task@9
+            condition: and(eq(variables.isDefaultBranch, true), eq(variables.shouldCreateNewTag, true))
+            displayName: 'Add new tag to git'
+            inputs:
+              staticTagName: '$(Build.BuildNumber)'
 
           - task: PublishPipelineArtifact@1
             displayName: 'Publish Pipeline Artifact: NuGet Packages'
