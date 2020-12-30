@@ -1,7 +1,5 @@
 parameters:
   isDefaultBranch: false
-
-variables:
   shouldCreateNewTag: false
 
 steps:
