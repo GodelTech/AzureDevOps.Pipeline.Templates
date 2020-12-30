@@ -5,7 +5,7 @@ parameters:
 
 steps:
 - task: PowerShell@2
-  condition: eq(${{ parameters.isDefaultBranch }}, true)
+  #condition: eq(${{ parameters.isDefaultBranch }}, true)
   displayName: 'Compare last tag with build number'
   inputs:
     targetType: "inline"
