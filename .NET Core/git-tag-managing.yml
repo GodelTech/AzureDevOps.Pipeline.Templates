@@ -6,6 +6,7 @@ parameters:
 steps:
 - task: PowerShell@2
   #condition: eq(${{ parameters.isDefaultBranch }}, true)
+  condition: eq($(git describe --tags --abbrev=0), '3.0.2')
   displayName: 'Compare last tag with build number'
   inputs:
     targetType: "inline"
