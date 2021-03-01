@@ -1,0 +1,66 @@
+parameters:
+  - name: vmImage
+    type: string
+    default: 'ubuntu-latest'
+  - name: packageJsonDir
+    type: string
+    default: 'N/A'
+  - name: testCoveragePath
+    type: string
+    default: 'N/A'
+  - name: testResultPath
+    type: string
+    default: 'N/A'
+
+stages:
+- stage: Build
+  displayName: 'Build'
+  pool:
+    vmImage: ${{ parameters.vmImage }}
+  jobs:
+  - job: Build
+    displayName: 'Build'
+    steps:
+    - task: Npm@1
+      displayName: 'npm Install'
+      inputs:
+        command: 'install'
+        workingDir: ${{ parameters.packageJsonDir }}
+
+    - task: Npm@1
+      displayName: 'Lint'
+      inputs:
+        command: 'custom'
+        customCommand: 'run lint'
+        workingDir: ${{ parameters.packageJsonDir }}
+
+    - task: Npm@1
+      displayName: 'Build'
+      inputs:
+        command: 'custom'
+        customCommand: 'run build'
+        workingDir: ${{ parameters.packageJsonDir }}
+
+    - task: Npm@1
+      displayName: 'Test'
+      inputs:
+        command: 'custom'
+        customCommand: 'run test'
+        workingDir: ${{ parameters.packageJsonDir }}
+
+    - task: PublishCodeCoverageResults@1
+      displayName: 'Publish code coverage result'
+      condition: succeededOrFailed()
+      inputs:
+        codeCoverageTool: Cobertura
+        summaryFileLocation: ${{ parameters.testCoveragePath }}
+        failIfCoverageEmpty: true
+
+    - task: PublishTestResults@2
+      displayName: 'Publish test result'
+      condition: succeededOrFailed()
+      inputs:
+        searchFolder: $(System.DefaultWorkingDirectory)/${{ parameters.testResultPath }}
+        testRunTitle: Tests
+        testResultsFormat: JUnit
+        testResultsFiles: "**/TESTS*.xml"
