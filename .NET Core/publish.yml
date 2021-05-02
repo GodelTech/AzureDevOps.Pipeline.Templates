@@ -1,8 +1,11 @@
 parameters:
 - name: buildConfiguration
+  displayName: 'Build configuration'
   type: string
   default: 'Release'
+
 - name: projectArtifactName
+  displayName: 'Project artifact name'
   type: string
   default: 'project'
 

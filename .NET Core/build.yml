@@ -1,17 +1,26 @@
 parameters:
 - name: buildConfiguration
+  displayName: 'Build configuration'
   type: string
   default: 'Release'
+
 - name: codeCoverageSettingsFullPath
+  displayName: 'The path of the code coverage settings file'
   type: string
   default: 'CodeCoverage.runsettings'
+
 - name: restoreOnlyFromNuGetFeed
+  displayName: 'Restore only from NuGet feed'
   type: boolean
   default: true
+
 - name: nugetConfigPath
+  displayName: 'NuGet configuration path'
   type: string
   default: ''
+
 - name: internalFeed
+  displayName: 'Internal feed'
   type: string
   default: ''
 

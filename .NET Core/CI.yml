@@ -1,32 +1,51 @@
 parameters:
 - name: vmImage
+  displayName: 'Pool VM image'
   type: string
   default: 'ubuntu-latest'
+
 - name: buildConfiguration
+  displayName: 'Build configuration'
   type: string
   default: 'Release'
+
 - name: codeCoverageSettingsFullPath
+  displayName: 'The path of the code coverage settings file'
   type: string
   default: 'CodeCoverage.runsettings'
+
 - name: restoreOnlyFromNuGetFeed
+  displayName: 'Restore only from NuGet feed'
   type: boolean
   default: true
+
 - name: nugetConfigPath
+  displayName: 'NuGet configuration path'
   type: string
   default: ''
+
 - name: internalFeed
+  displayName: 'Internal feed'
   type: string
   default: ''
+
 - name: projectArtifactName
+  displayName: 'Project artifact name'
   type: string
   default: 'project'
+
 - name: migrationArtifactName
+  displayName: 'Migrations artifact name'
   type: string
   default: 'migrations'
+
 - name: migrationProjectPath
+  displayName: 'Migrations project path'
   type: string
   default: 'database/src/Database'
+
 - name: migrationDbContexts
+  displayName: 'Migrations database contexts'
   type: object
   default: []
 
@@ -40,13 +59,13 @@ stages:
     pool:
       vmImage: ${{ parameters.vmImage }}
     steps:
-      - template: 'build.yml'
-        parameters:
-          buildConfiguration: ${{ parameters.buildConfiguration }}
-          codeCoverageSettingsFullPath: ${{ parameters.codeCoverageSettingsFullPath }}
-          restoreOnlyFromNuGetFeed: ${{ parameters.restoreOnlyFromNuGetFeed }}
-          nugetConfigPath: ${{ parameters.nugetConfigPath }}
-          internalFeed: ${{ parameters.internalFeed }}
+    - template: 'build.yml'
+      parameters:
+        buildConfiguration: ${{ parameters.buildConfiguration }}
+        codeCoverageSettingsFullPath: ${{ parameters.codeCoverageSettingsFullPath }}
+        restoreOnlyFromNuGetFeed: ${{ parameters.restoreOnlyFromNuGetFeed }}
+        nugetConfigPath: ${{ parameters.nugetConfigPath }}
+        internalFeed: ${{ parameters.internalFeed }}
 
   - job: Publish
     displayName: 'Publish'
@@ -54,10 +73,10 @@ stages:
       vmImage: ${{ parameters.vmImage }}
     dependsOn: Build
     steps:
-      - template: 'publish.yml'
-        parameters:
-          buildConfiguration: ${{ parameters.buildConfiguration }}
-          projectArtifactName: ${{ parameters.projectArtifactName }}
+    - template: 'publish.yml'
+      parameters:
+        buildConfiguration: ${{ parameters.buildConfiguration }}
+        projectArtifactName: ${{ parameters.projectArtifactName }}
 
   - job: Migrations
     displayName: 'Migrations'
@@ -65,8 +84,8 @@ stages:
       vmImage: ${{ parameters.vmImage }}
     dependsOn: Publish
     steps:
-      - template: 'migrations.yml'
-        parameters:
-          migrationArtifactName: ${{ parameters.migrationArtifactName }}
-          migrationProjectPath: ${{ parameters.migrationProjectPath }}
-          migrationDbContexts: ${{ parameters.migrationDbContexts }}
+    - template: 'migrations.yml'
+      parameters:
+        migrationArtifactName: ${{ parameters.migrationArtifactName }}
+        migrationProjectPath: ${{ parameters.migrationProjectPath }}
+        migrationDbContexts: ${{ parameters.migrationDbContexts }}
