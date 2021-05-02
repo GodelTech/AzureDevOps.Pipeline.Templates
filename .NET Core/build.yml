@@ -1,9 +1,19 @@
 parameters:
-  buildConfiguration: 'N/A'
-  codeCoverageSettingsFullPath: 'CodeCoverage.runsettings'
-  nugetConfigPath: ''
-  internalFeed: ''
-  restoreOnlyFromNuGetFeed: false
+- name: buildConfiguration
+  type: string
+  default: 'Release'
+- name: codeCoverageSettingsFullPath
+  type: string
+  default: 'CodeCoverage.runsettings'
+- name: restoreOnlyFromNuGetFeed
+  type: boolean
+  default: true
+- name: nugetConfigPath
+  type: string
+  default: ''
+- name: internalFeed
+  type: string
+  default: ''
 
 steps:
 - task: UseDotNet@2
@@ -14,15 +24,17 @@ steps:
 
 - task: DotNetCoreCLI@2
   displayName: 'dotnet restore only from NuGet feed'
-  condition: eq(${{ parameters.restoreOnlyFromNuGetFeed }}, true)
-  inputs:
-    command: 'restore'
-    projects: '**/*.csproj'
-    feedsToUse: 'select'
-
-- task: DotNetCoreCLI@2
-  displayName: 'dotnet restore only from NuGet feed'
-  condition: and(eq(${{ parameters.restoreOnlyFromNuGetFeed }}, false), eq('${{ parameters.internalFeed }}', ''), eq('${{ parameters.nugetConfigPath }}', ''))
+  condition: |
+    or
+    (
+      eq(${{ parameters.restoreOnlyFromNuGetFeed }}, true),
+      and
+      (
+        eq(${{ parameters.restoreOnlyFromNuGetFeed }}, false),
+        eq('${{ parameters.nugetConfigPath }}', ''),
+        eq('${{ parameters.internalFeed }}', '')
+      )
+    )
   inputs:
     command: 'restore'
     projects: '**/*.csproj'
@@ -30,7 +42,13 @@ steps:
 
 - task: DotNetCoreCLI@2
   displayName: 'dotnet restore with NuGet config'
-  condition: and(eq(${{ parameters.restoreOnlyFromNuGetFeed }}, false), ne('${{ parameters.nugetConfigPath }}', ''), eq('${{ parameters.internalFeed }}', ''))
+  condition: |
+    and
+    (
+      eq(${{ parameters.restoreOnlyFromNuGetFeed }}, false),
+      ne('${{ parameters.nugetConfigPath }}', ''),
+      eq('${{ parameters.internalFeed }}', '')
+    )
   inputs:
     command: 'restore'
     projects: '**/*.csproj'
@@ -39,7 +57,13 @@ steps:
 
 - task: DotNetCoreCLI@2
   displayName: 'dotnet restore from both NuGet and Azure Artifacts feeds'
-  condition: and(eq(${{ parameters.restoreOnlyFromNuGetFeed }}, false), ne('${{ parameters.internalFeed }}', ''), eq('${{ parameters.nugetConfigPath }}', ''))
+  condition: |
+    and
+    (
+      eq(${{ parameters.restoreOnlyFromNuGetFeed }}, false),
+      eq('${{ parameters.nugetConfigPath }}', ''),
+      ne('${{ parameters.internalFeed }}', '')
+    )
   inputs:
     command: 'restore'
     projects: '**/*.csproj'
@@ -71,7 +95,7 @@ steps:
   displayName: 'Create reports'
 
 - task: PublishCodeCoverageResults@1
-  displayName: 'Publish code coverage'
+  displayName: 'Publish code coverage reports'
   inputs:
     codeCoverageTool: 'Cobertura'
     summaryFileLocation: '$(Build.SourcesDirectory)/coverlet/reports/Cobertura.xml'

@@ -1,0 +1,38 @@
+parameters:
+- name: migrationArtifactName
+  type: string
+  default: 'migrations'
+- name: migrationProjectPath
+  type: string
+  default: 'database/src/Database'
+- name: migrationDbContexts
+  type: object
+  default: []
+
+steps:
+- task: DotNetCoreCLI@2
+  displayName: 'Initialize Entity Framework Core'
+  inputs:
+    command: custom
+    custom: tool
+    arguments: 'install --global dotnet-ef'
+
+- ${{ each dbContext in parameters.migrationDbContexts }}:
+  - task: DotNetCoreCLI@2
+    displayName: 'Create sql migration script for dbContext'
+    inputs:
+      command: custom
+      custom: ef
+      arguments: 'migrations script --verbose --project ${{ parameters.migrationProjectPath }} --context ${{ dbContext }} -i -o ${{ dbContext }}.sql'
+
+  - task: CopyFiles@2
+    displayName: 'Copy sql into artifacts'
+    inputs:
+      Contents: '${{ dbContext }}.sql'
+      TargetFolder: '$(Build.ArtifactStagingDirectory)'
+
+  - task: PublishBuildArtifacts@1
+    displayName: 'Publish scripts in artifacts'
+    inputs:
+      pathtoPublish: '$(Build.ArtifactStagingDirectory)'
+      artifactName: ${{ parameters.migrationArtifactName }}

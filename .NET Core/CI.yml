@@ -1,0 +1,72 @@
+parameters:
+- name: vmImage
+  type: string
+  default: 'ubuntu-latest'
+- name: buildConfiguration
+  type: string
+  default: 'Release'
+- name: codeCoverageSettingsFullPath
+  type: string
+  default: 'CodeCoverage.runsettings'
+- name: restoreOnlyFromNuGetFeed
+  type: boolean
+  default: true
+- name: nugetConfigPath
+  type: string
+  default: ''
+- name: internalFeed
+  type: string
+  default: ''
+- name: projectArtifactName
+  type: string
+  default: 'project'
+- name: migrationArtifactName
+  type: string
+  default: 'migrations'
+- name: migrationProjectPath
+  type: string
+  default: 'database/src/Database'
+- name: migrationDbContexts
+  type: object
+  default: []
+
+stages:
+- stage: Build
+  displayName: 'Build'
+
+  jobs:
+  - job: Build
+    displayName: 'Build'
+    pool:
+      vmImage: ${{ parameters.vmImage }}
+    steps:
+      - template: 'build.yml'
+        parameters:
+          buildConfiguration: ${{ parameters.buildConfiguration }}
+          codeCoverageSettingsFullPath: ${{ parameters.codeCoverageSettingsFullPath }}
+          restoreOnlyFromNuGetFeed: ${{ parameters.restoreOnlyFromNuGetFeed }}
+          nugetConfigPath: ${{ parameters.nugetConfigPath }}
+          internalFeed: ${{ parameters.internalFeed }}
+
+  - job: Publish
+    displayName: 'Publish'
+    pool:
+      vmImage: ${{ parameters.vmImage }}
+    dependsOn: Build
+    steps:
+      - template: 'publish.yml'
+        parameters:
+          buildConfiguration: ${{ parameters.buildConfiguration }}
+          projectArtifactName: ${{ parameters.projectArtifactName }}
+
+  - job: Migrations
+    displayName: 'Migrations'
+    pool:
+      vmImage: ${{ parameters.vmImage }}
+    dependsOn: Publish
+    steps:
+      - template: 'migrations.yml'
+        parameters:
+          migrationArtifactName: ${{ parameters.migrationArtifactName }}
+          migrationProjectPath: ${{ parameters.migrationProjectPath }}
+          migrationDbContexts: ${{ parameters.migrationDbContexts }}
