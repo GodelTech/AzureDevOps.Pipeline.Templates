@@ -1,0 +1,48 @@
+parameters:
+- name: vmImage
+  displayName: 'Pool VM image'
+  type: string
+  default: 'ubuntu-latest'
+
+- name: buildConfiguration
+  displayName: 'Build configuration'
+  type: string
+  default: 'Release'
+
+- name: codeCoverageSettingsFullPath
+  displayName: 'The path of the code coverage settings file'
+  type: string
+  default: 'CodeCoverage.runsettings'
+
+- name: restoreOnlyFromNuGetFeed
+  displayName: 'Restore only from NuGet feed'
+  type: boolean
+  default: true
+
+- name: nugetConfigPath
+  displayName: 'NuGet configuration path'
+  type: string
+  default: ''
+
+- name: internalFeed
+  displayName: 'Internal feed'
+  type: string
+  default: ''
+
+stages:
+- stage: Build
+  displayName: 'Build'
+
+  jobs:
+  - job: Build
+    displayName: 'Build'
+    pool:
+      vmImage: ${{ parameters.vmImage }}
+    steps:
+    - template: 'build.yml'
+      parameters:
+        buildConfiguration: ${{ parameters.buildConfiguration }}
+        codeCoverageSettingsFullPath: ${{ parameters.codeCoverageSettingsFullPath }}
+        restoreOnlyFromNuGetFeed: ${{ parameters.restoreOnlyFromNuGetFeed }}
+        nugetConfigPath: ${{ parameters.nugetConfigPath }}
+        internalFeed: ${{ parameters.internalFeed }}
