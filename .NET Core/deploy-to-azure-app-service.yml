@@ -67,9 +67,9 @@ jobs:
           condition: |
             or
             (
-              ne('${{ parameters.generalSettings }}', ''),
-              ne('${{ parameters.connectionStrings }}', ''),
-              ne('${{ parameters.appSettings }}', '')
+              ne(${{ parameters.generalSettings }}, []),
+              ne(${{ parameters.connectionStrings }}, []),
+              ne(${{ parameters.appSettings }}, [])
             )
           inputs:
             azureSubscription: ${{ parameters.azureSubscription }}
