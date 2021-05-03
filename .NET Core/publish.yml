@@ -1,63 +1,25 @@
 parameters:
-  vmImage: 'ubuntu-latest'
-  buildConfiguration: 'Release'
-  stageName: 'N/A'
-  migrationsProjectPath: 'N/A'
-  dbContexts: []
-  projectArtifactName: 'package'
-  migrationArtifactName: 'migrations'
+- name: buildConfiguration
+  displayName: 'Build configuration'
+  type: string
+  default: 'Release'
 
-stages:
-- stage: ${{ parameters.stageName }}
-  displayName: '${{ parameters.stageName }} stage'
-  jobs:
-  - job: Publish
-    displayName: 'Publish job'
-    pool:
-      vmImage: ${{ parameters.vmImage }}
-    steps:
-    - task: DotNetCoreCLI@2
-      displayName: 'Publish application'
-      inputs:
-        command: 'publish'
-        publishWebProjects: true
-        arguments: '--configuration ${{ parameters.buildConfiguration }} --output $(Build.ArtifactStagingDirectory)'
-        zipAfterPublish: true
+- name: projectArtifactName
+  displayName: 'Project artifact name'
+  type: string
+  default: 'project'
 
-    - task: PublishBuildArtifacts@1
-      displayName: 'Publish artifacts'
-      inputs:
-        pathtoPublish: '$(Build.ArtifactStagingDirectory)'
-        artifactName: ${{ parameters.projectArtifactName }}
+steps:
+- task: DotNetCoreCLI@2
+  displayName: 'Publish application'
+  inputs:
+    command: 'publish'
+    publishWebProjects: true
+    arguments: '--configuration ${{ parameters.buildConfiguration }} --output $(Build.ArtifactStagingDirectory)'
+    zipAfterPublish: true
 
-  - job: MigrationBuild
-    displayName: Migration script job
-    pool:
-      vmImage: windows-latest
-    steps:
-    - task: DotNetCoreCLI@2
-      displayName: 'Initialize EntityFrameworkCore'
-      inputs:
-        command: custom
-        custom: tool
-        arguments: 'install --global dotnet-ef'
-
-    - ${{ each dbContext in parameters.dbContexts }}:
-      - task: DotNetCoreCLI@2
-        displayName: 'Create ${{ dbContext }}.sql migration script'
-        inputs:
-          command: custom
-          custom: ef
-          arguments: 'migrations script --verbose --project ${{ parameters.migrationsProjectPath }} --context ${{ dbContext }} -i -o ${{ dbContext }}.sql'
-
-      - task: CopyFiles@2
-        displayName: 'Copy ${{ dbContext }}.sql into $(Build.ArtifactStagingDirectory)'
-        inputs:
-          Contents: '${{ dbContext }}.sql'
-          TargetFolder: '$(Build.ArtifactStagingDirectory)'
-
-    - task: PublishBuildArtifacts@1
-      displayName: 'Publish scripts in artifact ${{ parameters.migrationArtifactName }}'
-      inputs:
-        pathtoPublish: '$(Build.ArtifactStagingDirectory)'
-        artifactName: ${{ parameters.migrationArtifactName }}
+- task: PublishBuildArtifacts@1
+  displayName: 'Publish application in artifacts'
+  inputs:
+    pathtoPublish: '$(Build.ArtifactStagingDirectory)'
+    artifactName: ${{ parameters.projectArtifactName }}
