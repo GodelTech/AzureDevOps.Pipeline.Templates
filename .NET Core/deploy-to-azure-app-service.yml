@@ -1,0 +1,110 @@
+parameters:
+- name: vmImage
+  displayName: 'Pool VM image'
+  type: string
+  default: 'ubuntu-latest'
+
+- name: environmentName
+  type: string
+  default: ''
+
+- name: azureSubscription
+  type: string
+  default: ''
+
+- name: resourceGroupName
+  type: string
+  default: ''
+
+- name: appName
+  type: string
+  default: ''
+
+- name: generalSettings
+  type: object
+  default: {}
+
+- name: connectionStrings
+  type: object
+  default: {}
+
+- name: appSettings
+  type: object
+  default: {}
+
+- name: projectArtifactName
+  displayName: 'Project artifact name'
+  type: string
+  default: 'project'
+
+- name: migrationArtifactName
+  displayName: 'Migrations artifact name'
+  type: string
+  default: 'migrations'
+
+- name: migrationConnectionString
+  displayName: 'Migration connection string'
+  type: string
+  default: ''
+
+- name: migrationSqlFiles
+  displayName: 'Migration SQL files'
+  type: object
+  default: []
+
+jobs:
+- deployment: Deploy
+  displayName: 'Deploy'
+  pool:
+    vmImage: ${{ parameters.vmImage }}
+  environment: ${{ parameters.environmentName }}
+  strategy:
+    runOnce:
+      deploy:
+        steps:
+        - task: AzureAppServiceSettings@1
+          displayName: 'Replace App Service settings'
+          condition: |
+            or
+            (
+              ne('${{ parameters.generalSettings }}', ''),
+              ne('${{ parameters.connectionStrings }}', ''),
+              ne('${{ parameters.appSettings }}', '')
+            )
+          inputs:
+            azureSubscription: ${{ parameters.azureSubscription }}
+            resourceGroupName: ${{ parameters.resourceGroupName }}
+            appName: ${{ parameters.appName }}
+            generalSettings: ${{ parameters.generalSettings }}
+            connectionStrings: ${{ parameters.connectionStrings }}
+            appSettings: ${{ parameters.appSettings }}
+
+        - task: AzureRmWebAppDeployment@4
+          displayName: 'Deploy in App Service'
+          inputs:
+            ConnectionType: 'AzureRM'
+            azureSubscription: ${{ parameters.azureSubscription }}
+            appType: 'apiApp'
+            WebAppName: ${{ parameters.appName }}
+            packageForLinux: '$(Pipeline.Workspace)/${{ parameters.projectArtifactName }}/*.zip'
+
+- deployment: ApplyMigration
+  displayName: 'Migrations'
+  pool:
+    vmImage: windows-latest
+  environment: ${{ parameters.environmentName }}
+  dependsOn: Deploy
+  strategy:
+    runOnce:
+      deploy:
+        steps:
+        - ${{ each fileName in parameters.migrationSqlFiles }}:
+          - task: SqlAzureDacpacDeployment@1
+            displayName: 'Apply ${{ fileName }} migration script'
+            inputs:
+              azureSubscription: ${{ parameters.azureSubscription }}
+              AuthenticationType: 'connectionString'
+              ConnectionString: ${{ parameters.migrationConnectionString }}
+              deployType: 'SqlTask'
+              SqlFile: '$(Pipeline.Workspace)/${{ parameters.migrationArtifactName }}/${{ fileName }}'
+              IpDetectionMethod: 'AutoDetect'
