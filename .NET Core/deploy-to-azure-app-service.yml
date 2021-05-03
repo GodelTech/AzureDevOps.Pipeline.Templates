@@ -86,7 +86,7 @@ jobs:
             azureSubscription: ${{ parameters.azureSubscription }}
             appType: 'apiApp'
             WebAppName: ${{ parameters.appName }}
-            packageForLinux: '$(Pipeline.Workspace)/${{ parameters.projectArtifactName }}/*.zip'
+            packageForLinux: '$(Pipeline.Workspace)/**/${{ parameters.projectArtifactName }}/*.zip'
 
 - deployment: Migrations
   displayName: 'Migrations'
@@ -106,5 +106,5 @@ jobs:
               AuthenticationType: 'connectionString'
               ConnectionString: ${{ parameters.migrationConnectionString }}
               deployType: 'SqlTask'
-              SqlFile: '$(Pipeline.Workspace)/${{ parameters.migrationArtifactName }}/${{ fileName }}'
+              SqlFile: '$(Pipeline.Workspace)/**/${{ parameters.migrationArtifactName }}/${{ fileName }}'
               IpDetectionMethod: 'AutoDetect'
