@@ -22,15 +22,15 @@ parameters:
 
 - name: generalSettings
   type: object
-  default: {}
+  default: []
 
 - name: connectionStrings
   type: object
-  default: {}
+  default: []
 
 - name: appSettings
   type: object
-  default: {}
+  default: []
 
 - name: projectArtifactName
   displayName: 'Project artifact name'
