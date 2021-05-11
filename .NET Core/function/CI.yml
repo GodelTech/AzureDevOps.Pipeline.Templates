@@ -1,0 +1,71 @@
+parameters:
+- name: vmImage
+  displayName: 'Pool VM image'
+  type: string
+  default: 'ubuntu-latest'
+
+- name: buildConfiguration
+  displayName: 'Build configuration'
+  type: string
+  default: 'Release'
+
+- name: codeCoverageSettingsFullPath
+  displayName: 'The path of the code coverage settings file'
+  type: string
+  default: 'CodeCoverage.runsettings'
+
+- name: restoreOnlyFromNuGetFeed
+  displayName: 'Restore only from NuGet feed'
+  type: boolean
+  default: true
+
+- name: nugetConfigPath
+  displayName: 'NuGet configuration path'
+  type: string
+  default: ''
+
+- name: internalFeed
+  displayName: 'Internal feed'
+  type: string
+  default: ''
+
+- name: projects
+  displayName: 'The path to the csproj file(s) to use'
+  type: string
+  default: '**/FunctionApp.csproj'
+
+- name: projectArtifactName
+  displayName: 'Project artifact name'
+  type: string
+  default: 'project'
+
+stages:
+- stage: Build
+  displayName: 'Build'
+
+  jobs:
+  - job: Build
+    displayName: 'Build'
+    pool:
+      vmImage: ${{ parameters.vmImage }}
+    steps:
+    - template: '../build.yml'
+      parameters:
+        buildConfiguration: ${{ parameters.buildConfiguration }}
+        codeCoverageSettingsFullPath: ${{ parameters.codeCoverageSettingsFullPath }}
+        restoreOnlyFromNuGetFeed: ${{ parameters.restoreOnlyFromNuGetFeed }}
+        nugetConfigPath: ${{ parameters.nugetConfigPath }}
+        internalFeed: ${{ parameters.internalFeed }}
+
+  - job: Publish
+    displayName: 'Publish'
+    pool:
+      vmImage: ${{ parameters.vmImage }}
+    dependsOn: Build
+    steps:
+    - template: '../publish.yml'
+      parameters:
+        buildConfiguration: ${{ parameters.buildConfiguration }}
+        isWebProjects: false
+        projects: ${{ parameters.projects }}
+        projectArtifactName: ${{ parameters.projectArtifactName }}

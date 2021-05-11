@@ -4,6 +4,16 @@ parameters:
   type: string
   default: 'Release'
 
+- name: isWebProjects
+  displayName: 'Is web project'
+  type: boolean
+  default: true
+
+- name: projects
+  displayName: 'The path to the csproj file(s) to use'
+  type: string
+  default: '**/*.csproj'
+
 - name: projectArtifactName
   displayName: 'Project artifact name'
   type: string
@@ -14,7 +24,8 @@ steps:
   displayName: 'Publish application'
   inputs:
     command: 'publish'
-    publishWebProjects: true
+    publishWebProjects: ${{ parameters.isWebProjects }}
+    projects: ${{ parameters.projects }}
     arguments: '--configuration ${{ parameters.buildConfiguration }} --output $(Build.ArtifactStagingDirectory)'
     zipAfterPublish: true
 
