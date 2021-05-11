@@ -1,0 +1,49 @@
+parameters:
+- name: vmImage
+  displayName: 'Pool VM image'
+  type: string
+  default: 'ubuntu-latest'
+
+- name: environmentName
+  type: string
+  default: ''
+
+- name: azureSubscription
+  type: string
+  default: ''
+
+- name: appType
+  type: string
+  default: 'functionAppLinux'
+
+- name: appName
+  type: string
+  default: ''
+
+- name: appSettings
+  type: string
+  default: ''
+
+- name: projectArtifactName
+  displayName: 'Project artifact name'
+  type: string
+  default: 'project'
+
+jobs:
+- deployment: Deploy
+  displayName: 'Deploy'
+  pool:
+    vmImage: ${{ parameters.vmImage }}
+  environment: ${{ parameters.environmentName }}
+  strategy:
+    runOnce:
+      deploy:
+        steps:
+        - task: AzureFunctionApp@1
+          displayName: 'Deploy in Azure Function'
+          inputs:
+            azureSubscription: ${{ parameters.azureSubscription }}
+            appType: ${{ parameters.appType }}
+            appName: ${{ parameters.appName }}
+            package: '$(Pipeline.Workspace)/**/${{ parameters.projectArtifactName }}/*.zip'
+            appSettings: ${{ parameters.appSettings }}
