@@ -24,6 +24,11 @@ parameters:
   type: string
   default: ''
 
+- name: checkCoverage
+  displayName: 'Check code coverage'
+  type: boolean
+  default: true
+
 steps:
 - task: UseDotNet@2
   displayName: 'Use .NET Core SDK'
@@ -108,3 +113,12 @@ steps:
   inputs:
     codeCoverageTool: 'Cobertura'
     summaryFileLocation: '$(Build.SourcesDirectory)/coverlet/reports/Cobertura.xml'
+
+- task: BuildQualityChecks@8
+  displayName: 'Code coverage quality check'
+  condition: eq(${{ parameters.checkCoverage }}, true)
+  inputs:
+    checkCoverage: true
+    coverageFailOption: 'fixed'
+    coverageType: 'lines'
+    coverageThreshold: '80'

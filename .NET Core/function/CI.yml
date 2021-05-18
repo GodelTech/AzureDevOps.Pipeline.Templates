@@ -29,6 +29,11 @@ parameters:
   type: string
   default: ''
 
+- name: checkCoverage
+  displayName: 'Check code coverage'
+  type: boolean
+  default: true
+
 - name: projects
   displayName: 'The path to the csproj file(s) to use'
   type: string
@@ -56,6 +61,7 @@ stages:
         restoreOnlyFromNuGetFeed: ${{ parameters.restoreOnlyFromNuGetFeed }}
         nugetConfigPath: ${{ parameters.nugetConfigPath }}
         internalFeed: ${{ parameters.internalFeed }}
+        checkCoverage: ${{ parameters.checkCoverage }}
 
   - job: Publish
     displayName: 'Publish'

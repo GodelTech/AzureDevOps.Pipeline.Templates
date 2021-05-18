@@ -29,6 +29,11 @@ parameters:
   type: string
   default: ''
 
+- name: checkCoverage
+  displayName: 'Check code coverage'
+  type: boolean
+  default: true
+
 stages:
 - stage: Build
   displayName: 'Build'
@@ -46,3 +51,4 @@ stages:
         restoreOnlyFromNuGetFeed: ${{ parameters.restoreOnlyFromNuGetFeed }}
         nugetConfigPath: ${{ parameters.nugetConfigPath }}
         internalFeed: ${{ parameters.internalFeed }}
+        checkCoverage: ${{ parameters.checkCoverage }}

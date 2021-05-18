@@ -29,6 +29,11 @@ parameters:
   type: string
   default: ''
 
+- name: checkCoverage
+  displayName: 'Check code coverage'
+  type: boolean
+  default: true
+
 - name: projectArtifactName
   displayName: 'Project artifact name'
   type: string
@@ -66,6 +71,7 @@ stages:
         restoreOnlyFromNuGetFeed: ${{ parameters.restoreOnlyFromNuGetFeed }}
         nugetConfigPath: ${{ parameters.nugetConfigPath }}
         internalFeed: ${{ parameters.internalFeed }}
+        checkCoverage: ${{ parameters.checkCoverage }}
 
   - job: Publish
     displayName: 'Publish'

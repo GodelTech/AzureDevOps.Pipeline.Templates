@@ -24,15 +24,20 @@ parameters:
   type: string
   default: ''
 
+- name: codeCoverageSettingsFullPath
+  displayName: 'The path of the code coverage settings file'
+  type: string
+  default: 'CodeCoverage.runsettings'
+
 - name: internalFeed
   displayName: 'Internal dotnet artifact feed'
   type: string
   default: ''
 
-- name: codeCoverageSettingsFullPath
-  displayName: 'The path of the code coverage settings file'
-  type: string
-  default: 'CodeCoverage.runsettings'
+- name: checkCoverage
+  displayName: 'Check code coverage'
+  type: boolean
+  default: true
 
 - name: includeSonarcloudBuildBreaker
   displayName: 'Does Sonarcloud build breaker turn on?'
@@ -70,8 +75,9 @@ stages:
       parameters:
         buildConfiguration: ${{ parameters.buildConfiguration }}
         codeCoverageSettingsFullPath: ${{ parameters.codeCoverageSettingsFileName }}
-        internalFeed: ${{ parameters.internalFeed }}
         restoreOnlyFromNuGetFeed: variables.restoreOnlyFromNuGetFeed
+        internalFeed: ${{ parameters.internalFeed }}
+        checkCoverage: ${{ parameters.checkCoverage }}
 
     # Temp solution because of issue with SonarCloud
     - task: UseDotNet@2
