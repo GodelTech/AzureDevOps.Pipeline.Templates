@@ -116,7 +116,12 @@ steps:
 
 - task: BuildQualityChecks@8
   displayName: 'Line Code coverage quality check'
-  condition: eq(${{ parameters.checkCoverage }}, true)
+  condition: |
+    and
+    (
+      succeeded(),
+      eq(${{ parameters.checkCoverage }}, true)
+    )
   inputs:
     checkCoverage: true
     coverageFailOption: 'fixed'
@@ -125,7 +130,12 @@ steps:
 
 - task: BuildQualityChecks@8
   displayName: 'Branches Code coverage quality check'
-  condition: eq(${{ parameters.checkCoverage }}, true)
+  condition: |
+    and
+    (
+      succeeded(),
+      eq(${{ parameters.checkCoverage }}, true)
+    )
   inputs:
     checkCoverage: true
     coverageFailOption: 'fixed'
