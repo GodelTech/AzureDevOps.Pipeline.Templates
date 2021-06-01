@@ -24,6 +24,11 @@ parameters:
   type: string
   default: ''
 
+- name: checkWarnings
+  displayName: 'Check warnings'
+  type: boolean
+  default: true
+
 - name: checkCoverage
   displayName: 'Check code coverage'
   type: boolean
@@ -113,6 +118,20 @@ steps:
   inputs:
     codeCoverageTool: 'Cobertura'
     summaryFileLocation: '$(Build.SourcesDirectory)/coverlet/reports/Cobertura.xml'
+
+- task: BuildQualityChecks@8
+  displayName: 'Warnings quality check'
+  condition: |
+    and
+    (
+      succeeded(),
+      eq(${{ parameters.checkWarnings }}, true)
+    )
+  inputs:ss
+    checkWarnings: true
+    warningFailOption: 'fixed'
+    warningThreshold: '0'
+    showStatistics: true
 
 - task: BuildQualityChecks@8
   displayName: 'Line Code coverage quality check'

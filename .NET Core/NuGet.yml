@@ -34,6 +34,11 @@ parameters:
   type: string
   default: ''
 
+- name: checkWarnings
+  displayName: 'Check warnings'
+  type: boolean
+  default: true
+
 - name: checkCoverage
   displayName: 'Check code coverage'
   type: boolean
@@ -77,6 +82,7 @@ stages:
         codeCoverageSettingsFullPath: ${{ parameters.codeCoverageSettingsFileName }}
         restoreOnlyFromNuGetFeed: variables.restoreOnlyFromNuGetFeed
         internalFeed: ${{ parameters.internalFeed }}
+        checkWarnings: ${{ parameters.checkWarnings }}
         checkCoverage: ${{ parameters.checkCoverage }}
 
     # Temp solution because of issue with SonarCloud
