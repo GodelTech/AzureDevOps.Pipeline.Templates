@@ -127,7 +127,7 @@ steps:
       succeeded(),
       eq(${{ parameters.checkWarnings }}, true)
     )
-  inputs:ss
+  inputs:
     checkWarnings: true
     warningFailOption: 'fixed'
     warningThreshold: '0'
