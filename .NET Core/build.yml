@@ -101,23 +101,14 @@ steps:
   inputs:
     command: 'test'
     projects: '**/*[Tt]ests/*.csproj'
-    arguments: '--configuration ${{ parameters.buildConfiguration }} --settings $(System.DefaultWorkingDirectory)/${{ parameters.codeCoverageSettingsFullPath }} --collect:"XPlat Code Coverage" -- RunConfiguration.DisableAppDomain=true'
-
-- task: DotNetCoreCLI@2
-  displayName: 'Install ReportGenerator tool'
-  inputs:
-    command: 'custom'
-    custom: 'tool'
-    arguments: 'install --tool-path . dotnet-reportgenerator-globaltool'
-
-- script: ./reportgenerator -reports:$(Agent.TempDirectory)/**/coverage.cobertura.xml -targetdir:$(Build.SourcesDirectory)/coverlet/reports -reporttypes:"Cobertura"
-  displayName: 'Create reports'
+    arguments: '--configuration ${{ parameters.buildConfiguration }} /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:CoverletOutput=$(Build.SourcesDirectory)/TestResults/Coverage/'
+    publishTestResults: true
 
 - task: PublishCodeCoverageResults@1
   displayName: 'Publish code coverage reports'
   inputs:
     codeCoverageTool: 'Cobertura'
-    summaryFileLocation: '$(Build.SourcesDirectory)/coverlet/reports/Cobertura.xml'
+    summaryFileLocation: '$(Build.SourcesDirectory)/**/coverage.cobertura.xml'
 
 - task: BuildQualityChecks@8
   displayName: 'Warnings quality check'
