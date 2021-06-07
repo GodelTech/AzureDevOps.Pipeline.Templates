@@ -102,6 +102,7 @@ steps:
     command: 'test'
     projects: '**/*[Tt]ests/*.csproj'
     arguments: --configuration ${{ parameters.buildConfiguration }}
+      --settings $(System.DefaultWorkingDirectory)/${{ parameters.codeCoverageSettingsFullPath }}
       -p:CollectCoverage=true
       -p:CoverletOutputFormat=json%2ccobertura
       -p:CoverletOutput=$(Build.SourcesDirectory)/TestResults/Coverage/
