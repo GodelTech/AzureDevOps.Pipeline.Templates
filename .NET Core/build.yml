@@ -101,11 +101,11 @@ steps:
   inputs:
     command: 'test'
     projects: '**/*[Tt]ests/*.csproj'
-    arguments: --configuration ${{ parameters.buildConfiguration }}
+    arguments: '--configuration ${{ parameters.buildConfiguration }}
       -p:CollectCoverage=true
       -p:CoverletOutputFormat=\"json,cobertura\"
       -p:CoverletOutput=$(Build.SourcesDirectory)/TestResults/Coverage/
-      -p:MergeWith=$(Build.SourcesDirectory)/TestResults/Coverage/coverage.json
+      -p:MergeWith=$(Build.SourcesDirectory)/TestResults/Coverage/coverage.json'
     publishTestResults: true
 
 - task: PublishCodeCoverageResults@1
