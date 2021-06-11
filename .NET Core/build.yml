@@ -109,18 +109,19 @@ steps:
   inputs:
     command: 'test'
     projects: '**/*[Tt]ests/*.csproj'
-    arguments: --configuration $(buildConfiguration)
+    arguments: --configuration ${{ parameters.buildConfiguration }}
       --collect:"XPlat Code Coverage"
       --settings $(System.DefaultWorkingDirectory)/${{ parameters.codeCoverageSettingsFullPath }}
-      -p:CoverletOutputFormat=cobertura
+      -p:CoverletOutputFormat=json%2ccobertura
       -p:CoverletOutput=$(Build.SourcesDirectory)/TestResults/Coverage/
+      -p:MergeWith=$(Build.SourcesDirectory)/TestResults/Coverage/coverage.json
     publishTestResults: true
 
 - task: PublishCodeCoverageResults@1
   displayName: 'Publish code coverage reports'
   inputs:
     codeCoverageTool: 'Cobertura'
-    summaryFileLocation: '$(Build.SourcesDirectory)/**/coverage.cobertura.xml'
+    summaryFileLocation: '$(Build.SourcesDirectory)/TestResults/Coverage/coverage.cobertura.xml'
 
 - task: BuildQualityChecks@8
   displayName: 'Warnings quality check'
