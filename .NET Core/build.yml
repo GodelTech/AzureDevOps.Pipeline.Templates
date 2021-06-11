@@ -39,7 +39,7 @@ steps:
   displayName: 'Use .NET Core SDK'
   inputs:
     packageType: 'sdk'
-    version: '3.x'
+    version: '5.0.x'
 
 - task: DotNetCoreCLI@2
   displayName: 'dotnet restore only from NuGet feed'
@@ -101,19 +101,18 @@ steps:
   inputs:
     command: 'test'
     projects: '**/*[Tt]ests/*.csproj'
-    arguments: --configuration ${{ parameters.buildConfiguration }}
+    arguments: --configuration $(buildConfiguration)
+      --collect:"XPlat Code Coverage"
       --settings $(System.DefaultWorkingDirectory)/${{ parameters.codeCoverageSettingsFullPath }}
-      -p:CollectCoverage=true
-      -p:CoverletOutputFormat=json%2ccobertura
+      -p:CoverletOutputFormat=cobertura
       -p:CoverletOutput=$(Build.SourcesDirectory)/TestResults/Coverage/
-      -p:MergeWith=$(Build.SourcesDirectory)/TestResults/Coverage/coverage.json
     publishTestResults: true
 
 - task: PublishCodeCoverageResults@1
   displayName: 'Publish code coverage reports'
   inputs:
     codeCoverageTool: 'Cobertura'
-    summaryFileLocation: '$(Build.SourcesDirectory)/TestResults/Coverage/coverage.cobertura.xml'
+    summaryFileLocation: '$(Build.SourcesDirectory)/**/coverage.cobertura.xml'
 
 - task: BuildQualityChecks@8
   displayName: 'Warnings quality check'
