@@ -1,0 +1,54 @@
+parameters:
+- name: buildConfiguration
+  displayName: 'Build configuration'
+  type: string
+  default: 'Release'
+
+- name: codeCoverageSettingsFullPath
+  displayName: 'The path of the code coverage settings file'
+  type: string
+  default: 'CodeCoverage.runsettings'
+
+- name: restoreOnlyFromNuGetFeed
+  displayName: 'Restore only from NuGet feed'
+  type: boolean
+  default: true
+
+- name: nugetConfigPath
+  displayName: 'NuGet configuration path'
+  type: string
+  default: ''
+
+- name: internalFeed
+  displayName: 'Internal feed'
+  type: string
+  default: ''
+
+- name: checkWarnings
+  displayName: 'Check warnings'
+  type: boolean
+  default: true
+
+- name: checkCoverage
+  displayName: 'Check code coverage'
+  type: boolean
+  default: true
+
+steps:
+# this task is here to solve issue of function build
+# https://dev.to/kenakamu/build-net-5-azure-functions-with-azure-devops-pipeline-b7o
+- task: UseDotNet@2
+  displayName: 'Use .NET Core SDK'
+  inputs:
+    packageType: 'sdk'
+    version: '3.1.x'
+
+- template: '../build.yml'
+  parameters:
+    buildConfiguration: ${{ parameters.buildConfiguration }}
+    codeCoverageSettingsFullPath: ${{ parameters.codeCoverageSettingsFullPath }}
+    restoreOnlyFromNuGetFeed: ${{ parameters.restoreOnlyFromNuGetFeed }}
+    nugetConfigPath: ${{ parameters.nugetConfigPath }}
+    internalFeed: ${{ parameters.internalFeed }}
+    checkWarnings: ${{ parameters.checkWarnings }}
+    checkCoverage: ${{ parameters.checkCoverage }}

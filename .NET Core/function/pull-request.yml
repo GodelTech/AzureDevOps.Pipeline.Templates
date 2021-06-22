@@ -39,16 +39,6 @@ parameters:
   type: boolean
   default: true
 
-- name: projects
-  displayName: 'The path to the csproj file(s) to use'
-  type: string
-  default: '**/FunctionApp.csproj'
-
-- name: projectArtifactName
-  displayName: 'Project artifact name'
-  type: string
-  default: 'project'
-
 stages:
 - stage: Build
   displayName: 'Build'
@@ -68,16 +58,3 @@ stages:
         internalFeed: ${{ parameters.internalFeed }}
         checkWarnings: ${{ parameters.checkWarnings }}
         checkCoverage: ${{ parameters.checkCoverage }}
-
-  - job: Publish
-    displayName: 'Publish'
-    pool:
-      vmImage: ${{ parameters.vmImage }}
-    dependsOn: Build
-    steps:
-    - template: '../publish.yml'
-      parameters:
-        buildConfiguration: ${{ parameters.buildConfiguration }}
-        isWebProjects: false
-        projects: ${{ parameters.projects }}
-        projectArtifactName: ${{ parameters.projectArtifactName }}
