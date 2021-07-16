@@ -79,7 +79,7 @@ stages:
     - template: 'build.yml'
       parameters:
         buildConfiguration: ${{ parameters.buildConfiguration }}
-        codeCoverageSettingsFullPath: ${{ parameters.codeCoverageSettingsFullPaths }}
+        codeCoverageSettingsFullPath: ${{ parameters.codeCoverageSettingsFullPath }}
         restoreOnlyFromNuGetFeed: variables.restoreOnlyFromNuGetFeed
         internalFeed: ${{ parameters.internalFeed }}
         checkWarnings: ${{ parameters.checkWarnings }}
