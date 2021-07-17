@@ -68,7 +68,11 @@ stages:
       ${{ if and(eq(variables.isDefaultBranch, false), ne(variables['Build.Reason'], 'PullRequest')) }}:
         restoreOnlyFromNuGetFeed: false
     steps:
-    - script: echo building $(Build.SourceBranchName) with ${{ parameters.defaultBranch }} and $(isDefaultBranch)
+    - script: echo building $(Build.SourceBranchName) with ${{ parameters.defaultBranch }} and $(isDefaultBranch) - yes
+      condition: eq(variables['Build.SourceBranchName'], '${{ parameters.defaultBranch }}')
+
+    - script: echo building $(Build.SourceBranchName) with ${{ parameters.defaultBranch }} and $(isDefaultBranch) - no
+      condition: ne(variables['Build.SourceBranchName'], '${{ parameters.defaultBranch }}')
 
     - task: SonarCloudPrepare@1
       displayName: 'Prepare analysis on SonarCloud'
