@@ -50,9 +50,9 @@ parameters:
   default: true
 
 variables:
-  ${{ if eq(variables['Build.SourceBranch'], 'refs/heads/${{ parameters.defaultBranch }}') }}:
+  ${{ if eq(variables['Build.SourceBranchName'], ${{ parameters.defaultBranch }}) }}:
     isDefaultBranch: true
-  ${{ if ne(variables['Build.SourceBranch'], 'refs/heads/${{ parameters.defaultBranch }}') }}:
+  ${{ if ne(variables['Build.SourceBranchName'], ${{ parameters.defaultBranch }}) }}:
     isDefaultBranch: false
 
 stages:
