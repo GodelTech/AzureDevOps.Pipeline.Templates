@@ -80,8 +80,6 @@ stages:
       parameters:
         buildConfiguration: ${{ parameters.buildConfiguration }}
         codeCoverageSettingsFullPath: ${{ parameters.codeCoverageSettingsFullPath }}
-        ${{ if eq(variables.restoreOnlyFromNuGetFeed, true) }}
-          restoreOnlyFromNuGetFeed: true
         ${{ if eq(variables.restoreOnlyFromNuGetFeed, false) }}
           restoreOnlyFromNuGetFeed: false
         internalFeed: ${{ parameters.internalFeed }}
