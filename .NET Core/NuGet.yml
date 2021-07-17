@@ -113,10 +113,7 @@ stages:
     steps:
     - template: '../git-versioning.yml'
       parameters:
-        ${{ if eq(variables.isDefaultBranch, true) }}
-          isDefaultBranch: true
-        ${{ if eq(variables.isDefaultBranch, false) }}
-          isDefaultBranch: false
+        isDefaultBranch: true
 
     - task: DotNetCoreCLI@2
       displayName: 'Pack .NET Core NuGet packages'
