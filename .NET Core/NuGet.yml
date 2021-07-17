@@ -50,7 +50,10 @@ parameters:
   default: true
 
 variables:
-  isDefaultBranch: $[eq(variables['Build.SourceBranch'], 'refs/heads/${{ parameters.defaultBranch }}')]
+  ${{ if eq(variables['Build.SourceBranch'], 'refs/heads/${{ parameters.defaultBranch }}') }}:
+    isDefaultBranch: true
+  ${{ if ne(variables['Build.SourceBranch'], 'refs/heads/${{ parameters.defaultBranch }}') }}:
+    isDefaultBranch: false
 
 stages:
 - stage: Build
@@ -61,7 +64,10 @@ stages:
   - job: Build
     displayName: 'Build'
     variables:
-      restoreOnlyFromNuGetFeed: $[or(eq(variables.isDefaultBranch, true), eq(variables['Build.Reason'], 'PullRequest'))]
+      ${{ if or(eq(variables.isDefaultBranch, true), eq(variables['Build.Reason'], 'PullRequest')) }}:
+        restoreOnlyFromNuGetFeed: true
+      ${{ if and(eq(variables.isDefaultBranch, false), ne(variables['Build.Reason'], 'PullRequest')) }}:
+        restoreOnlyFromNuGetFeed: false
     steps:
     - task: SonarCloudPrepare@1
       displayName: 'Prepare analysis on SonarCloud'
