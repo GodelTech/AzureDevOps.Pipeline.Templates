@@ -142,6 +142,7 @@ steps:
     checkCoverage: true
     coverageFailOption: 'fixed'
     coverageType: 'lines'
+    treat0of0as100: true
     coverageThreshold: '80'
 
 - task: BuildQualityChecks@8
@@ -156,4 +157,5 @@ steps:
     checkCoverage: true
     coverageFailOption: 'fixed'
     coverageType: 'branches'
+    treat0of0as100: true
     coverageThreshold: '80'
