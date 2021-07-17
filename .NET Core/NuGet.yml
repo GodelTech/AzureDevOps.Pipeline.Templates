@@ -54,26 +54,15 @@ stages:
   displayName: 'Build'
   pool:
     vmImage: ${{ parameters.vmImage }}
-  variables:
-    ${{ if eq(variables['Build.SourceBranchName'], '${{ parameters.defaultBranch }}') }}:
-      isDefaultBranch: true
-    ${{ if ne(variables['Build.SourceBranchName'], '${{ parameters.defaultBranch }}') }}:
-      isDefaultBranch: false
   jobs:
   - job: Build
     displayName: 'Build'
     variables:
-      ${{ if or(eq(variables.isDefaultBranch, true), eq(variables['Build.Reason'], 'PullRequest')) }}:
+      ${{ if or(eq(variables['Build.SourceBranchName'], '${{ parameters.defaultBranch }}'), eq(variables['Build.Reason'], 'PullRequest')) }}:
         restoreOnlyFromNuGetFeed: true
-      ${{ if and(eq(variables.isDefaultBranch, false), ne(variables['Build.Reason'], 'PullRequest')) }}:
+      ${{ if and(ne(variables['Build.SourceBranchName'], '${{ parameters.defaultBranch }}'), ne(variables['Build.Reason'], 'PullRequest')) }}:
         restoreOnlyFromNuGetFeed: false
     steps:
-    - script: echo building $(Build.SourceBranchName) with ${{ parameters.defaultBranch }} and $(isDefaultBranch) - yes
-      condition: eq(variables['Build.SourceBranchName'], '${{ parameters.defaultBranch }}')
-
-    - script: echo building $(Build.SourceBranchName) with ${{ parameters.defaultBranch }} and $(isDefaultBranch) - no
-      condition: ne(variables['Build.SourceBranchName'], '${{ parameters.defaultBranch }}')
-
     - task: SonarCloudPrepare@1
       displayName: 'Prepare analysis on SonarCloud'
       inputs:
@@ -129,9 +118,9 @@ stages:
     steps:
     - template: '../git-versioning.yml'
       parameters:
-        ${{ if eq(variables.isDefaultBranch, true) }}:
+        ${{ if eq(variables['Build.SourceBranchName'], '${{ parameters.defaultBranch }}') }}:
           isDefaultBranch: true
-        ${{ if eq(variables.isDefaultBranch, false) }}:
+        ${{ if ne(variables['Build.SourceBranchName'], '${{ parameters.defaultBranch }}') }}:
           isDefaultBranch: false
 
     - task: DotNetCoreCLI@2
@@ -144,7 +133,7 @@ stages:
         versionEnvVar: 'Build.BuildNumber'
 
     - task: PowerShell@2
-      condition: eq(variables.isDefaultBranch, true)
+      condition: eq(variables['Build.SourceBranchName'], '${{ parameters.defaultBranch }}')
       displayName: 'Compare last tag with build number'
       inputs:
         targetType: "inline"
@@ -154,7 +143,7 @@ stages:
           Write-Host "##vso[task.setvariable variable=shouldCreateNewTag]$shouldCreateNewTag";
 
     - task: git-tag-on-release-task@9
-      condition: and(eq(variables.isDefaultBranch, true), eq(variables.shouldCreateNewTag, true))
+      condition: and(eq(variables['Build.SourceBranchName'], '${{ parameters.defaultBranch }}'), eq(variables.shouldCreateNewTag, true))
       displayName: 'Add new tag to git'
       inputs:
         staticTagName: '$(Build.BuildNumber)'
