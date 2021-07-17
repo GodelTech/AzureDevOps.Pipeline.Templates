@@ -49,17 +49,16 @@ parameters:
   type: boolean
   default: true
 
-variables:
-  ${{ if eq(variables['Build.SourceBranchName'], '${{ parameters.defaultBranch }}') }}:
-    isDefaultBranch: true
-  ${{ if ne(variables['Build.SourceBranchName'], '${{ parameters.defaultBranch }}') }}:
-    isDefaultBranch: false
-
 stages:
 - stage: Build
   displayName: 'Build'
   pool:
     vmImage: ${{ parameters.vmImage }}
+  variables:
+    ${{ if eq(variables['Build.SourceBranchName'], '${{ parameters.defaultBranch }}') }}:
+      isDefaultBranch: true
+    ${{ if ne(variables['Build.SourceBranchName'], '${{ parameters.defaultBranch }}') }}:
+      isDefaultBranch: false
   jobs:
   - job: Build
     displayName: 'Build'
@@ -187,7 +186,7 @@ stages:
 - stage: NuGet
   displayName: 'Push package in external NuGet feed'
   dependsOn: Artifacts
-  condition: and(succeeded(), eq(variables.isDefaultBranch, true))
+  condition: and(succeeded(), eq(variables['Build.SourceBranchName'], '${{ parameters.defaultBranch }}'))
   pool:
     vmImage: ${{ parameters.vmImage }}
   jobs:
