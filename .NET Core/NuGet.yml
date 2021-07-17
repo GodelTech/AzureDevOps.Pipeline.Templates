@@ -60,6 +60,8 @@ stages:
   jobs:
   - job: Build
     displayName: 'Build'
+    variables:
+      restoreOnlyFromNuGetFeed: $[or(eq(variables.isDefaultBranch, true), eq(variables['Build.Reason'], 'PullRequest'))]
     steps:
     - task: SonarCloudPrepare@1
       displayName: 'Prepare analysis on SonarCloud'
@@ -77,7 +79,10 @@ stages:
       parameters:
         buildConfiguration: ${{ parameters.buildConfiguration }}
         codeCoverageSettingsFullPath: ${{ parameters.codeCoverageSettingsFullPath }}
-        restoreOnlyFromNuGetFeed: true
+        ${{ if eq(variables.restoreOnlyFromNuGetFeed, true) }}:
+          restoreOnlyFromNuGetFeed: true
+        ${{ if eq(variables.restoreOnlyFromNuGetFeed, false) }}:
+          restoreOnlyFromNuGetFeed: false
         internalFeed: ${{ parameters.internalFeed }}
         checkWarnings: ${{ parameters.checkWarnings }}
         checkCoverage: ${{ parameters.checkCoverage }}
@@ -113,7 +118,10 @@ stages:
     steps:
     - template: '../git-versioning.yml'
       parameters:
-        isDefaultBranch: true
+        ${{ if eq(variables.isDefaultBranch, true) }}:
+          isDefaultBranch: true
+        ${{ if eq(variables.isDefaultBranch, false) }}:
+          isDefaultBranch: false
 
     - task: DotNetCoreCLI@2
       displayName: 'Pack .NET Core NuGet packages'
