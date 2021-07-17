@@ -116,7 +116,7 @@ stages:
 
     - task: sonarcloud-buildbreaker@2
       displayName: 'Break build on quality gate failure'
-      condition: eq(parameters.includeSonarcloudBuildBreaker, true)
+      condition: eq(${{ parameters.includeSonarcloudBuildBreaker }}, true)
       inputs:
         SonarCloud: 'SonarCloud'
         organization: '${{ parameters.sonarCloudOrganizationName }}'
