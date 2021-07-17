@@ -80,7 +80,10 @@ stages:
       parameters:
         buildConfiguration: ${{ parameters.buildConfiguration }}
         codeCoverageSettingsFullPath: ${{ parameters.codeCoverageSettingsFullPath }}
-        restoreOnlyFromNuGetFeed: $[eq(variables.restoreOnlyFromNuGetFeed, true)]
+        ${{ if eq(variables.restoreOnlyFromNuGetFeed, true) }}
+          restoreOnlyFromNuGetFeed: true
+        ${{ if eq(variables.restoreOnlyFromNuGetFeed, false) }}
+          restoreOnlyFromNuGetFeed: false
         internalFeed: ${{ parameters.internalFeed }}
         checkWarnings: ${{ parameters.checkWarnings }}
         checkCoverage: ${{ parameters.checkCoverage }}
@@ -116,7 +119,10 @@ stages:
     steps:
     - template: '../git-versioning.yml'
       parameters:
-        isDefaultBranch: $[eq(variables.isDefaultBranch, true)]
+        ${{ if eq(variables.isDefaultBranch, true) }}
+          isDefaultBranch: true
+        ${{ if eq(variables.isDefaultBranch, false) }}
+          isDefaultBranch: false
 
     - task: DotNetCoreCLI@2
       displayName: 'Pack .NET Core NuGet packages'
