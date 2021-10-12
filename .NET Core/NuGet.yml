@@ -95,10 +95,10 @@ stages:
 
     # Temp solution because of issue with SonarCloud
     - task: UseDotNet@2
-      displayName: 'Use .NET Core SDK 2.2.x for SonarCloud'
+      displayName: 'Use .NET Core SDK 3.1.x for SonarCloud'
       inputs:
         packageType: 'sdk'
-        version: '2.2.x'
+        version: '3.1.x'
 
     - task: SonarCloudAnalyze@1
       displayName: 'Run Code Analysis'
