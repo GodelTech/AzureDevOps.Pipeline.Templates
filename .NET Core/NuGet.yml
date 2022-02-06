@@ -9,6 +9,11 @@ parameters:
   type: string
   default: 'Release'
 
+- name: preBuildSteps
+  displayName: 'Steps to run before build'
+  type: stepList
+  default: []
+
 - name: sonarCloudOrganizationName
   displayName: 'Organization name for SonarCloud'
   type: string
@@ -84,6 +89,7 @@ stages:
     - template: 'build.yml'
       parameters:
         buildConfiguration: ${{ parameters.buildConfiguration }}
+        preBuildSteps: ${{ parameters.preBuildSteps }}
         codeCoverageSettingsFullPath: ${{ parameters.codeCoverageSettingsFullPath }}
         ${{ if eq(variables.restoreOnlyFromNuGetFeed, true) }}:
           restoreOnlyFromNuGetFeed: true

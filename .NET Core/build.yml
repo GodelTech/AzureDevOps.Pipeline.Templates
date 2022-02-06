@@ -4,6 +4,11 @@ parameters:
   type: string
   default: 'Release'
 
+- name: preBuildSteps
+  displayName: 'Steps to run before build'
+  type: stepList
+  default: []
+
 - name: codeCoverageSettingsFullPath
   displayName: 'The path of the code coverage settings file'
   type: string
@@ -35,6 +40,9 @@ parameters:
   default: true
 
 steps:
+- ${{ each step in parameters.preBuildSteps }}
+  - ${{ step }}
+
 - task: UseDotNet@2
   displayName: 'Use .NET Core SDK'
   inputs:

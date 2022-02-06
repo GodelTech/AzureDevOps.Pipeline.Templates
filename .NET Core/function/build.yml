@@ -4,6 +4,11 @@ parameters:
   type: string
   default: 'Release'
 
+- name: preBuildSteps
+  displayName: 'Steps to run before build'
+  type: stepList
+  default: []
+
 - name: codeCoverageSettingsFullPath
   displayName: 'The path of the code coverage settings file'
   type: string
@@ -46,6 +51,7 @@ steps:
 - template: '../build.yml'
   parameters:
     buildConfiguration: ${{ parameters.buildConfiguration }}
+    preBuildSteps: ${{ parameters.preBuildSteps }}
     codeCoverageSettingsFullPath: ${{ parameters.codeCoverageSettingsFullPath }}
     restoreOnlyFromNuGetFeed: ${{ parameters.restoreOnlyFromNuGetFeed }}
     nugetConfigPath: ${{ parameters.nugetConfigPath }}
