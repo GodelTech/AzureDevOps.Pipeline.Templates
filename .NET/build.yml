@@ -59,7 +59,7 @@ steps:
     packageType: sdk
     ${{ if eq('${{ parameters.dotNetSDKVersion }}', '') }}:
       version: '6.0.x'
-    ${{ if ne('${{ parameters.dotNetSDKVersion }}', '') }}:
+    ${{ else }}:
       version: ${{ parameters.dotNetSDKVersion }}
 
 - task: DotNetCoreCLI@2
