@@ -14,6 +14,11 @@ parameters:
   type: stepList
   default: []
 
+- name: dotNetSDKVersion
+  displayName: '.NET Core SDK version'
+  type: string
+  default: ''
+
 - name: codeCoverageSettingsFullPath
   displayName: 'The path of the code coverage settings file'
   type: string
@@ -44,6 +49,16 @@ parameters:
   type: boolean
   default: true
 
+- name: projects
+  displayName: 'The path to the csproj file(s) to use'
+  type: string
+  default: '**/FunctionApp.csproj'
+
+- name: projectArtifactName
+  displayName: 'Project artifact name'
+  type: string
+  default: 'project'
+
 stages:
 - stage: Build
   displayName: 'Build'
@@ -58,9 +73,23 @@ stages:
       parameters:
         buildConfiguration: ${{ parameters.buildConfiguration }}
         preBuildSteps: ${{ parameters.preBuildSteps }}
+        dotNetSDKVersion: ${{ parameters.dotNetSDKVersion }}
         codeCoverageSettingsFullPath: ${{ parameters.codeCoverageSettingsFullPath }}
         restoreOnlyFromNuGetFeed: ${{ parameters.restoreOnlyFromNuGetFeed }}
         nugetConfigPath: ${{ parameters.nugetConfigPath }}
         internalFeed: ${{ parameters.internalFeed }}
         checkWarnings: ${{ parameters.checkWarnings }}
         checkCoverage: ${{ parameters.checkCoverage }}
+
+  - job: Publish
+    displayName: 'Publish'
+    pool:
+      vmImage: ${{ parameters.vmImage }}
+    dependsOn: Build
+    steps:
+    - template: '../publish.yml'
+      parameters:
+        buildConfiguration: ${{ parameters.buildConfiguration }}
+        isWebProjects: false
+        projects: ${{ parameters.projects }}
+        projectArtifactName: ${{ parameters.projectArtifactName }}

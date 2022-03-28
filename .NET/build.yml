@@ -9,6 +9,11 @@ parameters:
   type: stepList
   default: []
 
+- name: dotNetSDKVersion
+  displayName: '.NET Core SDK version'
+  type: string
+  default: ''
+
 - name: codeCoverageSettingsFullPath
   displayName: 'The path of the code coverage settings file'
   type: string
@@ -52,8 +57,10 @@ steps:
   displayName: 'Use .NET Core SDK'
   inputs:
     packageType: sdk
-    version: '6.0.x'
-    includePreviewVersions: true
+    ${{ if eq('${{ parameters.dotNetSDKVersion }}', '') }}:
+      version: '6.0.x'
+    ${{ if ne('${{ parameters.dotNetSDKVersion }}', '') }}:
+      version: ${{ parameters.dotNetSDKVersion }}
 
 - task: DotNetCoreCLI@2
   displayName: 'dotnet restore only from NuGet feed'

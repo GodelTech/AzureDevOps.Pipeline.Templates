@@ -9,6 +9,11 @@ parameters:
   type: stepList
   default: []
 
+- name: dotNetSDKVersion
+  displayName: '.NET Core SDK version'
+  type: string
+  default: ''
+
 - name: codeCoverageSettingsFullPath
   displayName: 'The path of the code coverage settings file'
   type: string
@@ -43,13 +48,6 @@ steps:
 # this task is here to solve issue of function build
 # https://dev.to/kenakamu/build-net-5-azure-functions-with-azure-devops-pipeline-b7o
 - task: UseDotNet@2
-  displayName: 'Use .NET Core SDK 6.0.x'
-  inputs:
-    packageType: sdk
-    version: '6.0.x'
-    includePreviewVersions: true
-
-- task: UseDotNet@2
   displayName: 'Use .NET Core SDK 3.1.x'
   inputs:
     packageType: sdk
@@ -59,6 +57,7 @@ steps:
   parameters:
     buildConfiguration: ${{ parameters.buildConfiguration }}
     preBuildSteps: ${{ parameters.preBuildSteps }}
+    dotNetSDKVersion: ${{ parameters.dotNetSDKVersion }}
     codeCoverageSettingsFullPath: ${{ parameters.codeCoverageSettingsFullPath }}
     restoreOnlyFromNuGetFeed: ${{ parameters.restoreOnlyFromNuGetFeed }}
     nugetConfigPath: ${{ parameters.nugetConfigPath }}
