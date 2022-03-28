@@ -57,7 +57,7 @@ steps:
   displayName: 'Use .NET Core SDK'
   inputs:
     packageType: sdk
-    ${{ if eq('${{ parameters.dotNetSDKVersion }}', '') }}:
+    ${{ if eq(parameters.dotNetSDKVersion, '') }}:
       version: '6.0.x'
     ${{ else }}:
       version: ${{ parameters.dotNetSDKVersion }}
