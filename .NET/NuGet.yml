@@ -37,7 +37,7 @@ parameters:
 - name: codeCoverageSettingsFullPath
   displayName: 'The path of the code coverage settings file'
   type: string
-  default: 'CodeCoverage.runsettings'
+  default: '.runsettings'
 
 - name: internalFeed
   displayName: 'Internal dotnet artifact feed'
