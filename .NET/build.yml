@@ -9,10 +9,10 @@ parameters:
   type: stepList
   default: []
 
-- name: dotNetSDKVersion
-  displayName: '.NET Core SDK version'
-  type: string
-  default: ''
+- name: dotNetSDKVersions
+  displayName: '.NET Core SDK versions'
+  type: object
+  default: []
 
 - name: codeCoverageSettingsFullPath
   displayName: 'The path of the code coverage settings file'
@@ -54,13 +54,18 @@ steps:
         '${{ pair.value }}': error
 
 - task: UseDotNet@2
-  displayName: 'Use .NET Core SDK'
+  displayName: 'Use .NET Core SDK 6.0.x'
+  condition: eq(${{ parameters.dotNetSDKVersions }}, '')
   inputs:
     packageType: sdk
-    ${{ if eq(parameters.dotNetSDKVersion, '') }}:
-      version: '6.0.x'
-    ${{ else }}:
-      version: ${{ parameters.dotNetSDKVersion }}
+    version: '6.0.x'
+
+- ${{ each dotNetSDKVersion in parameters.dotNetSDKVersions }}:
+  - task: UseDotNet@2
+    displayName: 'Use .NET Core SDK ${{ dotNetSDKVersion }}'
+    inputs:
+      packageType: sdk
+      version: ${{ dotNetSDKVersion }}
 
 - task: DotNetCoreCLI@2
   displayName: 'dotnet restore only from NuGet feed'
