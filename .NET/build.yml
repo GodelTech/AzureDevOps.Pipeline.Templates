@@ -53,12 +53,12 @@ steps:
         # Step is rejected by raising a YAML syntax error: Unexpected value 'CmdLine@2'
         '${{ pair.value }}': error
 
-- task: UseDotNet@2
-  displayName: 'Use .NET Core SDK 6.0.x'
-  condition: eq(length(parameters.dotNetSDKVersions), 0)
-  inputs:
-    packageType: sdk
-    version: '6.0.x'
+- ${{ if eq(length(parameters.dotNetSDKVersions), 0) }}:
+  - task: UseDotNet@2
+    displayName: 'Use .NET Core SDK 6.0.x'
+    inputs:
+      packageType: sdk
+      version: '6.0.x'
 
 - ${{ each dotNetSDKVersion in parameters.dotNetSDKVersions }}:
   - task: UseDotNet@2
