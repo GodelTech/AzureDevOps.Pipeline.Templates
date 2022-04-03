@@ -133,6 +133,20 @@ steps:
       -- RunConfiguration.DisableAppDomain=true
     publishTestResults: true
 
+- task: BuildQualityChecks@8
+  displayName: 'Warnings quality check'
+  condition: |
+    and
+    (
+      succeeded(),
+      eq(${{ parameters.checkWarnings }}, true)
+    )
+  inputs:
+    checkWarnings: true
+    warningFailOption: 'fixed'
+    warningThreshold: '0'
+    showStatistics: true
+
 - script: 'dotnet tool install --global dotnet-reportgenerator-globaltool'
   displayName: 'Install ReportGenerator tool'
 
@@ -147,20 +161,6 @@ steps:
   inputs:
     codeCoverageTool: 'Cobertura'
     summaryFileLocation: '$(Build.SourcesDirectory)/TestResults/Coverage/Cobertura.xml'
-
-- task: BuildQualityChecks@8
-  displayName: 'Warnings quality check'
-  condition: |
-    and
-    (
-      succeeded(),
-      eq(${{ parameters.checkWarnings }}, true)
-    )
-  inputs:
-    checkWarnings: true
-    warningFailOption: 'fixed'
-    warningThreshold: '0'
-    showStatistics: true
 
 - task: BuildQualityChecks@8
   displayName: 'Line Code coverage quality check'
