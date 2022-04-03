@@ -88,7 +88,7 @@ stages:
         projectKey: '$(Build.DefinitionName)'
         projectName: '$(Build.DefinitionName)'
         extraProperties: |
-          sonar.coverageReportPaths='$(Build.SourcesDirectory)/TestResults/Coverage/SonarQube.xml'
+          sonar.coverageReportPaths="$(Build.SourcesDirectory)/TestResults/Coverage/SonarQube.xml"
 
     - template: 'build.yml'
       parameters:
