@@ -88,8 +88,7 @@ stages:
         projectKey: '$(Build.DefinitionName)'
         projectName: '$(Build.DefinitionName)'
         extraProperties: |
-          sonar.cs.opencover.reportsPaths="$(Agent.TempDirectory)/**/coverage.opencover.xml"
-          sonar.coverage.exclusions="tools/build/*"
+          sonar.coverageReportPaths='$(Build.SourcesDirectory)/TestResults/Coverage/SonarQube.xml'
 
     - template: 'build.yml'
       parameters:
