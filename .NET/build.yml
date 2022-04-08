@@ -120,7 +120,8 @@ steps:
   inputs:
     command: 'build'
     projects: '**/*.csproj'
-    arguments: '--configuration ${{ parameters.buildConfiguration }}'
+    arguments: --configuration ${{ parameters.buildConfiguration }}
+      --no-restore
 
 - task: DotNetCoreCLI@2
   displayName: 'dotnet test'
@@ -128,6 +129,7 @@ steps:
     command: 'test'
     projects: '**/*[Tt]ests/*.csproj'
     arguments: --configuration ${{ parameters.buildConfiguration }}
+      --no-restore
       --collect:"XPlat Code Coverage"
       --settings $(System.DefaultWorkingDirectory)/${{ parameters.codeCoverageSettingsFullPath }}
       -- RunConfiguration.DisableAppDomain=true
