@@ -1,0 +1,17 @@
+parameters:
+- name: buildOutputPath
+  displayName: 'Build output path'
+  type: string
+  default: 'dist/app'
+
+- name: projectArtifactName
+  displayName: 'Project artifact name'
+  type: string
+  default: 'project'
+
+steps:
+- task: PublishBuildArtifacts@1
+  displayName: 'Publish application in artifacts'
+  inputs:
+    pathtoPublish: '$(System.DefaultWorkingDirectory)/${{ parameters.buildOutputPath }}'
+    artifactName: ${{ parameters.projectArtifactName }}

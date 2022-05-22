@@ -1,0 +1,38 @@
+parameters:
+- name: vmImage
+  displayName: 'Pool VM image'
+  type: string
+  default: 'ubuntu-latest'
+
+- name: environmentName
+  type: string
+  default: ''
+
+- name: projectArtifactName
+  displayName: 'Project artifact name'
+  type: string
+  default: 'project'
+
+- name: staticWebAppApiKey
+  displayName: 'Static Web App Api Key'
+  type: string
+  default: ''
+
+jobs:
+- deployment: Deploy
+  displayName: 'Deploy'
+  pool:
+    vmImage: ${{ parameters.vmImage }}
+  environment: ${{ parameters.environmentName }}
+  strategy:
+    runOnce:
+      deploy:
+        steps:
+        - task: AzureStaticWebApp@0
+          displayName: 'Deploy in Static Web App'
+          inputs:
+            workingDirectory: '$(Pipeline.Workspace)/ci'
+            app_location: '/${{ parameters.projectArtifactName }}'
+            skip_app_build: true
+            skip_api_build: true
+            azure_static_web_apps_api_token: '${{ parameters.staticWebAppApiKey }}'

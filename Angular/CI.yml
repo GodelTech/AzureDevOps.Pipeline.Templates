@@ -1,0 +1,51 @@
+parameters:
+- name: vmImage
+  displayName: 'Pool VM image'
+  type: string
+  default: 'ubuntu-latest'
+
+- name: preBuildSteps
+  displayName: 'Steps to run before build'
+  type: stepList
+  default: []
+
+- name: checkWarnings
+  displayName: 'Check warnings'
+  type: boolean
+  default: true
+
+- name: checkCoverage
+  displayName: 'Check code coverage'
+  type: boolean
+  default: true
+
+- name: buildOutputPath
+  displayName: 'Build output path'
+  type: string
+  default: 'dist/app'
+
+- name: projectArtifactName
+  displayName: 'Project artifact name'
+  type: string
+  default: 'project'
+
+stages:
+- stage: Build
+  displayName: 'Build'
+
+  jobs:
+  - job: Build
+    displayName: 'Build'
+    pool:
+      vmImage: ${{ parameters.vmImage }}
+    steps:
+    - template: 'build.yml'
+      parameters:
+        preBuildSteps: ${{ parameters.preBuildSteps }}
+        checkWarnings: ${{ parameters.checkWarnings }}
+        checkCoverage: ${{ parameters.checkCoverage }}
+
+    - template: 'publish.yml'
+      parameters:
+        buildOutputPath: ${{ parameters.buildOutputPath }}
+        projectArtifactName: ${{ parameters.projectArtifactName }}
