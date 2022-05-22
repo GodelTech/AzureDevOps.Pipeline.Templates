@@ -8,6 +8,11 @@ parameters:
   type: string
   default: ''
 
+- name: pipelineName
+  displayName: 'Pipeline name. Used as folder for downloads'
+  type: string
+  default: 'ci'
+
 - name: projectArtifactName
   displayName: 'Project artifact name'
   type: string
@@ -31,7 +36,7 @@ jobs:
         - task: AzureStaticWebApp@0
           displayName: 'Deploy in Static Web App'
           inputs:
-            workingDirectory: '$(Pipeline.Workspace)/ci'
+            workingDirectory: '$(Pipeline.Workspace)/${{ parameters.pipelineName }}'
             app_location: '/${{ parameters.projectArtifactName }}'
             skip_app_build: true
             skip_api_build: true
