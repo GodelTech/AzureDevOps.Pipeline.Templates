@@ -193,6 +193,18 @@ steps:
       eq(${{ parameters.enableReSharperInspectCode }}, true)
     )
 
+- task: PublishPipelineArtifact@1
+  displayName: 'Publish ReSharper inspect code report'
+  condition: |
+    and
+    (
+      succeeded(),
+      eq(${{ parameters.enableReSharperInspectCode }}, true)
+    )
+  inputs:
+    targetPath: '$(Build.SourcesDirectory)/TestResults/ReSharper'
+    artifactName: 'ReSharperInspectCodeReport'
+
 - task: DotNetCoreCLI@2
   displayName: 'dotnet test'
   inputs:
