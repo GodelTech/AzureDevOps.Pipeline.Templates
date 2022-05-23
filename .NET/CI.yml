@@ -54,6 +54,11 @@ parameters:
   type: string
   default: ''
 
+- name: enableReSharperInspectCode
+  displayName: 'Enable ReSharper inspect code'
+  type: boolean
+  default: true
+
 - name: checkWarnings
   displayName: 'Check warnings'
   type: boolean
@@ -111,6 +116,7 @@ stages:
         restoreOnlyFromNuGetFeed: ${{ parameters.restoreOnlyFromNuGetFeed }}
         nugetConfigPath: ${{ parameters.nugetConfigPath }}
         internalFeed: ${{ parameters.internalFeed }}
+        enableReSharperInspectCode: ${{ parameters.enableReSharperInspectCode }}
         checkWarnings: ${{ parameters.checkWarnings }}
         checkCoverage: ${{ parameters.checkCoverage }}
         includeSonarcloudBuildBreaker: ${{ parameters.includeSonarcloudBuildBreaker }}
