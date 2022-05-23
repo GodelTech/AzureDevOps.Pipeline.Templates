@@ -75,7 +75,12 @@ steps:
 
 - task: SonarCloudPrepare@1
   displayName: 'Prepare analysis on SonarCloud'
-  condition: ne('${{ parameters.sonarCloudOrganizationName }}', '')
+  condition: |
+    and
+    (
+      succeeded(),
+      ne('${{ parameters.sonarCloudOrganizationName }}', '')
+    )
   inputs:
     SonarCloud: 'SonarCloud'
     organization: '${{ parameters.sonarCloudOrganizationName }}'
@@ -104,9 +109,14 @@ steps:
   condition: |
     or
     (
-      eq(${{ parameters.restoreOnlyFromNuGetFeed }}, true),
       and
       (
+        succeeded(),
+        eq(${{ parameters.restoreOnlyFromNuGetFeed }}, true)
+      ),
+      and
+      (
+        succeeded(),
         eq(${{ parameters.restoreOnlyFromNuGetFeed }}, false),
         eq('${{ parameters.nugetConfigPath }}', ''),
         eq('${{ parameters.internalFeed }}', '')
@@ -122,6 +132,7 @@ steps:
   condition: |
     and
     (
+      succeeded(),
       eq(${{ parameters.restoreOnlyFromNuGetFeed }}, false),
       ne('${{ parameters.nugetConfigPath }}', ''),
       eq('${{ parameters.internalFeed }}', '')
@@ -137,6 +148,7 @@ steps:
   condition: |
     and
     (
+      succeeded(),
       eq(${{ parameters.restoreOnlyFromNuGetFeed }}, false),
       eq('${{ parameters.nugetConfigPath }}', ''),
       ne('${{ parameters.internalFeed }}', '')
@@ -167,20 +179,6 @@ steps:
       -- RunConfiguration.DisableAppDomain=true
     publishTestResults: true
 
-- task: BuildQualityChecks@8
-  displayName: 'Warnings quality check'
-  condition: |
-    and
-    (
-      succeeded(),
-      eq(${{ parameters.checkWarnings }}, true)
-    )
-  inputs:
-    checkWarnings: true
-    warningFailOption: 'fixed'
-    warningThreshold: '0'
-    showStatistics: true
-
 - script: 'dotnet tool install --global dotnet-reportgenerator-globaltool'
   displayName: 'Install ReportGenerator tool'
 
@@ -195,6 +193,53 @@ steps:
   inputs:
     codeCoverageTool: 'Cobertura'
     summaryFileLocation: '$(Build.SourcesDirectory)/TestResults/Coverage/Cobertura.xml'
+
+# Temp solution because of issue with SonarCloud
+- task: UseDotNet@2
+  displayName: 'Use .NET Core SDK 3.1.x for SonarCloud'
+  condition: |
+    and
+    (
+      succeeded(),
+      ne('${{ parameters.sonarCloudOrganizationName }}', '')
+    )
+  inputs:
+    packageType: 'sdk'
+    version: '3.1.x'
+
+- task: SonarCloudAnalyze@1
+  displayName: 'Run Code Analysis'
+  condition: |
+    and
+    (
+      succeeded(),
+      ne('${{ parameters.sonarCloudOrganizationName }}', '')
+    )
+
+- task: SonarCloudPublish@1
+  displayName: 'Publish Quality Gate Result'
+  condition: |
+    and
+    (
+      succeeded(),
+      ne('${{ parameters.sonarCloudOrganizationName }}', '')
+    )
+  inputs:
+    pollingTimeoutSec: '300'
+
+- task: BuildQualityChecks@8
+  displayName: 'Warnings quality check'
+  condition: |
+    and
+    (
+      succeeded(),
+      eq(${{ parameters.checkWarnings }}, true)
+    )
+  inputs:
+    checkWarnings: true
+    warningFailOption: 'fixed'
+    warningThreshold: '0'
+    showStatistics: true
 
 - task: BuildQualityChecks@8
   displayName: 'Line Code coverage quality check'
@@ -226,29 +271,12 @@ steps:
     treat0of0as100: true
     coverageThreshold: '80'
 
-# Temp solution because of issue with SonarCloud
-- task: UseDotNet@2
-  displayName: 'Use .NET Core SDK 3.1.x for SonarCloud'
-  condition: ne('${{ parameters.sonarCloudOrganizationName }}', '')
-  inputs:
-    packageType: 'sdk'
-    version: '3.1.x'
-
-- task: SonarCloudAnalyze@1
-  displayName: 'Run Code Analysis'
-  condition: ne('${{ parameters.sonarCloudOrganizationName }}', '')
-
-- task: SonarCloudPublish@1
-  displayName: 'Publish Quality Gate Result'
-  condition: ne('${{ parameters.sonarCloudOrganizationName }}', '')
-  inputs:
-    pollingTimeoutSec: '300'
-
 - task: sonarcloud-buildbreaker@2
   displayName: 'Break build on quality gate failure'
   condition: |
     and
     (
+      succeeded(),
       ne('${{ parameters.sonarCloudOrganizationName }}', ''),
       eq(${{ parameters.includeSonarcloudBuildBreaker }}, true)
     )

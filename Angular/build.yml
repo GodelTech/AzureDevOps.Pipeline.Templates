@@ -65,6 +65,12 @@ steps:
     testResultsFiles: 'TestResults/TESTS*.xml'
     mergeTestResults: true
 
+- task: PublishCodeCoverageResults@1
+  displayName: 'Publish code coverage reports'
+  inputs:
+    codeCoverageTool: 'Cobertura'
+    summaryFileLocation: '$(Build.SourcesDirectory)/coverage/**/*.xml'
+
 - task: BuildQualityChecks@8
   displayName: 'Warnings quality check'
   condition: |
@@ -78,12 +84,6 @@ steps:
     warningFailOption: 'fixed'
     warningThreshold: '0'
     showStatistics: true
-
-- task: PublishCodeCoverageResults@1
-  displayName: 'Publish code coverage reports'
-  inputs:
-    codeCoverageTool: 'Cobertura'
-    summaryFileLocation: '$(Build.SourcesDirectory)/coverage/**/*.xml'
 
 - task: BuildQualityChecks@8
   displayName: 'Line Code coverage quality check'
