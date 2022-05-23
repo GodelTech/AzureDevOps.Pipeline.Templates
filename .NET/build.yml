@@ -49,6 +49,11 @@ parameters:
   type: string
   default: ''
 
+- name: enableReSharperInspectCode
+  displayName: 'Enable ReSharper inspect code'
+  type: boolean
+  default: true
+
 - name: checkWarnings
   displayName: 'Check warnings'
   type: boolean
@@ -166,6 +171,26 @@ steps:
     projects: '**/*.csproj'
     arguments: --configuration ${{ parameters.buildConfiguration }}
       --no-restore
+
+- script: 'dotnet tool install --global JetBrains.ReSharper.GlobalTools'
+  displayName: 'Install ReSharper tool'
+  condition: |
+    and
+    (
+      succeeded(),
+      eq(${{ parameters.enableReSharperInspectCode }}, true)
+    )
+
+- script: jb inspectcode
+    "--output='$(Build.SourcesDirectory)/TestResults/ReSharper/ReSharper.xml'"
+    "--no-build"
+  displayName: 'ReSharper inspect code'
+  condition: |
+    and
+    (
+      succeeded(),
+      eq(${{ parameters.enableReSharperInspectCode }}, true)
+    )
 
 - task: DotNetCoreCLI@2
   displayName: 'dotnet test'
