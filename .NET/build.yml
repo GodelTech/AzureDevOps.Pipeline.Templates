@@ -14,6 +14,16 @@ parameters:
   type: string
   default: ''
 
+- name: sonarCloudProjectKey
+  displayName: 'Project key for SonarCloud'
+  type: string
+  default: ''
+
+- name: sonarCloudProjectName
+  displayName: 'Project name for SonarCloud'
+  type: string
+  default: ''
+
 - name: dotNetSDKVersions
   displayName: '.NET Core SDK versions'
   type: object
@@ -70,8 +80,8 @@ steps:
     SonarCloud: 'SonarCloud'
     organization: '${{ parameters.sonarCloudOrganizationName }}'
     scannerMode: 'MSBuild'
-    projectKey: '$(Build.DefinitionName)'
-    projectName: '$(Build.DefinitionName)'
+    projectKey: '${{ parameters.sonarCloudProjectKey }}'
+    projectName: '${{ parameters.sonarCloudProjectName }}'
     extraProperties: |
       sonar.coverageReportPaths="$(Build.SourcesDirectory)/TestResults/Coverage/SonarQube.xml"
 
