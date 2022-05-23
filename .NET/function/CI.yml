@@ -14,6 +14,11 @@ parameters:
   type: stepList
   default: []
 
+- name: sonarCloudOrganizationName
+  displayName: 'Organization name for SonarCloud'
+  type: string
+  default: ''
+
 - name: dotNetSDKVersions
   displayName: '.NET Core SDK versions'
   type: object
@@ -49,6 +54,11 @@ parameters:
   type: boolean
   default: true
 
+- name: includeSonarcloudBuildBreaker
+  displayName: 'Does Sonarcloud build breaker turn on?'
+  type: boolean
+  default: true
+
 - name: projects
   displayName: 'The path to the csproj file(s) to use'
   type: string
@@ -73,6 +83,7 @@ stages:
       parameters:
         buildConfiguration: ${{ parameters.buildConfiguration }}
         preBuildSteps: ${{ parameters.preBuildSteps }}
+        sonarCloudOrganizationName: ${{ parameters.sonarCloudOrganizationName }}
         dotNetSDKVersions: ${{ parameters.dotNetSDKVersions }}
         codeCoverageSettingsFullPath: ${{ parameters.codeCoverageSettingsFullPath }}
         restoreOnlyFromNuGetFeed: ${{ parameters.restoreOnlyFromNuGetFeed }}
@@ -80,6 +91,7 @@ stages:
         internalFeed: ${{ parameters.internalFeed }}
         checkWarnings: ${{ parameters.checkWarnings }}
         checkCoverage: ${{ parameters.checkCoverage }}
+        includeSonarcloudBuildBreaker: ${{ parameters.includeSonarcloudBuildBreaker }}
 
   - job: Publish
     displayName: 'Publish'

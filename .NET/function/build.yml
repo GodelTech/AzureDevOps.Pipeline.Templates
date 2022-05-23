@@ -9,6 +9,11 @@ parameters:
   type: stepList
   default: []
 
+- name: sonarCloudOrganizationName
+  displayName: 'Organization name for SonarCloud'
+  type: string
+  default: ''
+
 - name: dotNetSDKVersions
   displayName: '.NET Core SDK versions'
   type: object
@@ -44,6 +49,11 @@ parameters:
   type: boolean
   default: true
 
+- name: includeSonarcloudBuildBreaker
+  displayName: 'Does Sonarcloud build breaker turn on?'
+  type: boolean
+  default: true
+
 steps:
 # this task is here to solve issue of function build
 # https://dev.to/kenakamu/build-net-5-azure-functions-with-azure-devops-pipeline-b7o
@@ -57,6 +67,7 @@ steps:
   parameters:
     buildConfiguration: ${{ parameters.buildConfiguration }}
     preBuildSteps: ${{ parameters.preBuildSteps }}
+    sonarCloudOrganizationName: ${{ parameters.sonarCloudOrganizationName }}
     dotNetSDKVersions: ${{ parameters.dotNetSDKVersions }}
     codeCoverageSettingsFullPath: ${{ parameters.codeCoverageSettingsFullPath }}
     restoreOnlyFromNuGetFeed: ${{ parameters.restoreOnlyFromNuGetFeed }}
@@ -64,3 +75,4 @@ steps:
     internalFeed: ${{ parameters.internalFeed }}
     checkWarnings: ${{ parameters.checkWarnings }}
     checkCoverage: ${{ parameters.checkCoverage }}
+    includeSonarcloudBuildBreaker: ${{ parameters.includeSonarcloudBuildBreaker }}

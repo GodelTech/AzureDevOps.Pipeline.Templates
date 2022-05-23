@@ -14,15 +14,15 @@ parameters:
   type: stepList
   default: []
 
-- name: dotNetSDKVersions
-  displayName: '.NET Core SDK versions'
-  type: object
-  default: []
-
 - name: sonarCloudOrganizationName
   displayName: 'Organization name for SonarCloud'
   type: string
   default: ''
+
+- name: dotNetSDKVersions
+  displayName: '.NET Core SDK versions'
+  type: object
+  default: []
 
 - name: defaultBranch
   displayName: 'Name of the main branch'
@@ -79,21 +79,11 @@ stages:
       ${{ if and(eq(variables.isDefaultBranch, false), ne(variables['Build.Reason'], 'PullRequest')) }}:
         restoreOnlyFromNuGetFeed: false
     steps:
-    - task: SonarCloudPrepare@1
-      displayName: 'Prepare analysis on SonarCloud'
-      inputs:
-        SonarCloud: 'SonarCloud'
-        organization: '${{ parameters.sonarCloudOrganizationName }}'
-        scannerMode: 'MSBuild'
-        projectKey: '$(Build.DefinitionName)'
-        projectName: '$(Build.DefinitionName)'
-        extraProperties: |
-          sonar.coverageReportPaths="$(Build.SourcesDirectory)/TestResults/Coverage/SonarQube.xml"
-
     - template: 'build.yml'
       parameters:
         buildConfiguration: ${{ parameters.buildConfiguration }}
         preBuildSteps: ${{ parameters.preBuildSteps }}
+        sonarCloudOrganizationName: ${{ parameters.sonarCloudOrganizationName }}
         dotNetSDKVersions: ${{ parameters.dotNetSDKVersions }}
         codeCoverageSettingsFullPath: ${{ parameters.codeCoverageSettingsFullPath }}
         ${{ if eq(variables.restoreOnlyFromNuGetFeed, true) }}:
@@ -103,28 +93,7 @@ stages:
         internalFeed: ${{ parameters.internalFeed }}
         checkWarnings: ${{ parameters.checkWarnings }}
         checkCoverage: ${{ parameters.checkCoverage }}
-
-    # Temp solution because of issue with SonarCloud
-    - task: UseDotNet@2
-      displayName: 'Use .NET Core SDK 3.1.x for SonarCloud'
-      inputs:
-        packageType: 'sdk'
-        version: '3.1.x'
-
-    - task: SonarCloudAnalyze@1
-      displayName: 'Run Code Analysis'
-
-    - task: SonarCloudPublish@1
-      displayName: 'Publish Quality Gate Result'
-      inputs:
-        pollingTimeoutSec: '300'
-
-    - task: sonarcloud-buildbreaker@2
-      displayName: 'Break build on quality gate failure'
-      condition: eq(${{ parameters.includeSonarcloudBuildBreaker }}, true)
-      inputs:
-        SonarCloud: 'SonarCloud'
-        organization: '${{ parameters.sonarCloudOrganizationName }}'
+        includeSonarcloudBuildBreaker: ${{ parameters.includeSonarcloudBuildBreaker }}
 
   - job: Pack
     displayName: 'Pack'
@@ -160,7 +129,12 @@ stages:
           Write-Host "##vso[task.setvariable variable=shouldCreateNewTag]$shouldCreateNewTag";
 
     - task: git-tag-on-release-task@9
-      condition: and(eq(variables.isDefaultBranch, true), eq(variables.shouldCreateNewTag, true))
+      condition: |
+        and
+        (
+          eq(variables.isDefaultBranch, true),
+          eq(variables.shouldCreateNewTag, true)
+        )
       displayName: 'Add new tag to git'
       inputs:
         staticTagName: '$(Build.BuildNumber)'
@@ -196,7 +170,12 @@ stages:
 - stage: NuGet
   displayName: 'Push package in external NuGet feed'
   dependsOn: Artifacts
-  condition: and(succeeded(), eq(variables.isDefaultBranch, true))
+  condition: |
+    and
+    (
+      succeeded(),
+      eq(variables.isDefaultBranch, true)
+    )
   pool:
     vmImage: ${{ parameters.vmImage }}
   jobs:
