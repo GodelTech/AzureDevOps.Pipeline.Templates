@@ -181,7 +181,7 @@ steps:
       eq(${{ parameters.enableReSharperInspectCode }}, true)
     )
 
-- script: jb inspectcode
+- script: jb inspectcode '$(Build.SourcesDirectory)/**/*.sln'
     "--output='$(Build.SourcesDirectory)/TestResults/ReSharper/ReSharper.xml'"
     "--no-build"
   displayName: 'ReSharper inspect code'
