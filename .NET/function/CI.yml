@@ -95,7 +95,7 @@ stages:
         preBuildSteps: ${{ parameters.preBuildSteps }}
         sonarCloudOrganizationName: ${{ parameters.sonarCloudOrganizationName }}
         sonarCloudProjectKey: ${{ parameters.sonarCloudProjectKey }}
-        sonarCloudProjectName: ${{ parameters.sonarCloudProjectKey }}
+        sonarCloudProjectName: ${{ parameters.sonarCloudProjectName }}
         dotNetSDKVersions: ${{ parameters.dotNetSDKVersions }}
         codeCoverageSettingsFullPath: ${{ parameters.codeCoverageSettingsFullPath }}
         restoreOnlyFromNuGetFeed: ${{ parameters.restoreOnlyFromNuGetFeed }}
