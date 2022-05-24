@@ -184,6 +184,7 @@ steps:
 - script: jb inspectcode '$(Build.SourcesDirectory)/$(Build.Repository.Name).sln'
     "--output=$(Build.SourcesDirectory)/TestResults/ReSharper/ReSharper.xml"
     "--properties:Configuration=${{ parameters.buildConfiguration }}"
+    "--no-build"
   displayName: 'ReSharper inspect code'
   condition: |
     and
