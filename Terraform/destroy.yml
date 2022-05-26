@@ -1,4 +1,9 @@
 parameters:
+- name: vmImage
+  displayName: 'Pool VM image'
+  type: string
+  default: 'ubuntu-latest'
+
 - name: environmentName
   displayName: 'Environment name'
   type: string
@@ -35,53 +40,57 @@ parameters:
   default: ''
 
 jobs:
-- job: Terraform
+- deployment: Terraform
   displayName: 'Terraform'
   pool:
-    vmImage: 'ubuntu-latest'
-  steps:
-  - task: TerraformInstaller@0
-    displayName: 'Install Terraform'
-    inputs:
-      terraformVersion: 'latest'
+    vmImage: ${{ parameters.vmImage }}
+  environment: ${{ parameters.environmentName }}
+  strategy:
+    runOnce:
+      deploy:
+        steps:
+        - task: TerraformInstaller@0
+          displayName: 'Install Terraform'
+          inputs:
+            terraformVersion: 'latest'
 
-  - task: TerraformCLI@0
-    displayName: 'Terraform init'
-    inputs:
-      command: 'init'
-      workingDirectory: '$(System.DefaultWorkingDirectory)/${{ parameters.workingDirectoryPath }}'
-      backendType: 'azurerm'
-      backendServiceArm: '${{ parameters.azureServiceConnectionName }}'
-      ensureBackend: true
-      backendAzureRmResourceGroupName: '${{ parameters.azureResourceGroupName }}'
-      backendAzureRmResourceGroupLocation: '${{ parameters.azureResourceGroupLocation }}'
-      backendAzureRmStorageAccountName: '${{ parameters.azureStorageAccountName }}'
-      backendAzureRmContainerName: '${{ parameters.azureStorageContainerName }}'
-      backendAzureRmKey: '${{ parameters.environmentName }}.terraform.tfstate'
-      allowTelemetryCollection: true
+        - task: TerraformCLI@0
+          displayName: 'Terraform init'
+          inputs:
+            command: 'init'
+            workingDirectory: '$(System.DefaultWorkingDirectory)/${{ parameters.workingDirectoryPath }}'
+            backendType: 'azurerm'
+            backendServiceArm: '${{ parameters.azureServiceConnectionName }}'
+            ensureBackend: true
+            backendAzureRmResourceGroupName: '${{ parameters.azureResourceGroupName }}'
+            backendAzureRmResourceGroupLocation: '${{ parameters.azureResourceGroupLocation }}'
+            backendAzureRmStorageAccountName: '${{ parameters.azureStorageAccountName }}'
+            backendAzureRmContainerName: '${{ parameters.azureStorageContainerName }}'
+            backendAzureRmKey: '${{ parameters.environmentName }}.terraform.tfstate'
+            allowTelemetryCollection: true
 
-  - task: TerraformCLI@0
-    displayName: 'Terraform validate'
-    inputs:
-      command: 'validate'
-      workingDirectory: '$(System.DefaultWorkingDirectory)/${{ parameters.workingDirectoryPath }}'
-      allowTelemetryCollection: true
+        - task: TerraformCLI@0
+          displayName: 'Terraform validate'
+          inputs:
+            command: 'validate'
+            workingDirectory: '$(System.DefaultWorkingDirectory)/${{ parameters.workingDirectoryPath }}'
+            allowTelemetryCollection: true
 
-  - task: TerraformCLI@0
-    displayName: 'Terraform plan destroy'
-    inputs:
-      command: 'plan'
-      workingDirectory: '$(System.DefaultWorkingDirectory)/${{ parameters.workingDirectoryPath }}'
-      environmentServiceName: '${{ parameters.azureServiceConnectionName }}'
-      allowTelemetryCollection: true
-      publishPlanResults: '${{ parameters.environmentName }}'
-      commandOptions: '-destroy'
+        - task: TerraformCLI@0
+          displayName: 'Terraform plan destroy'
+          inputs:
+            command: 'plan'
+            workingDirectory: '$(System.DefaultWorkingDirectory)/${{ parameters.workingDirectoryPath }}'
+            environmentServiceName: '${{ parameters.azureServiceConnectionName }}'
+            allowTelemetryCollection: true
+            publishPlanResults: '${{ parameters.environmentName }}'
+            commandOptions: '-destroy'
 
-  - task: TerraformCLI@0
-    displayName: 'Terraform apply destroy'
-    inputs:
-      command: 'apply'
-      workingDirectory: '$(System.DefaultWorkingDirectory)/${{ parameters.workingDirectoryPath }}'
-      environmentServiceName: '${{ parameters.azureServiceConnectionName }}'
-      allowTelemetryCollection: true
-      commandOptions: '-destroy'
+        - task: TerraformCLI@0
+          displayName: 'Terraform apply destroy'
+          inputs:
+            command: 'apply'
+            workingDirectory: '$(System.DefaultWorkingDirectory)/${{ parameters.workingDirectoryPath }}'
+            environmentServiceName: '${{ parameters.azureServiceConnectionName }}'
+            allowTelemetryCollection: true
+            commandOptions: '-destroy'
