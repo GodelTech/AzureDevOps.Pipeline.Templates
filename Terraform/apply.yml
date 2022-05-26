@@ -37,7 +37,6 @@ parameters:
 - name: commandVariables
   displayName: 'Command variables'
   type: object
-  default: []
 
 jobs:
 - job: Terraform
