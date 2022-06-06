@@ -9,6 +9,21 @@ parameters:
   type: stepList
   default: []
 
+- name: sonarCloudOrganizationName
+  displayName: 'Organization name for SonarCloud'
+  type: string
+  default: ''
+
+- name: sonarCloudProjectKey
+  displayName: 'Project key for SonarCloud'
+  type: string
+  default: ''
+
+- name: sonarCloudProjectName
+  displayName: 'Project name for SonarCloud'
+  type: string
+  default: ''
+
 - name: checkWarnings
   displayName: 'Check warnings'
   type: boolean
@@ -32,5 +47,9 @@ stages:
     - template: 'build.yml'
       parameters:
         preBuildSteps: ${{ parameters.preBuildSteps }}
+        sonarCloudOrganizationName: ${{ parameters.sonarCloudOrganizationName }}
+        sonarCloudProjectKey: ${{ parameters.sonarCloudProjectKey }}
+        sonarCloudProjectName: ${{ parameters.sonarCloudProjectName }}
         checkWarnings: ${{ parameters.checkWarnings }}
         checkCoverage: ${{ parameters.checkCoverage }}
+        
