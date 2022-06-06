@@ -4,6 +4,21 @@ parameters:
   type: stepList
   default: []
 
+- name: sonarCloudOrganizationName
+  displayName: 'Organization name for SonarCloud'
+  type: string
+  default: ''
+
+- name: sonarCloudProjectKey
+  displayName: 'Project key for SonarCloud'
+  type: string
+  default: ''
+
+- name: sonarCloudProjectName
+  displayName: 'Project name for SonarCloud'
+  type: string
+  default: ''
+
 - name: checkWarnings
   displayName: 'Check warnings'
   type: boolean
@@ -22,6 +37,35 @@ steps:
       ${{ if eq(pair.value, 'CmdLine@2') }}: 
         # Step is rejected by raising a YAML syntax error: Unexpected value 'CmdLine@2'
         '${{ pair.value }}': error
+
+- task: SonarCloudPrepare@1
+      displayName: 'Prepare analysis on SonarCloud'
+      condition: |
+        and
+        (
+          succeeded(),
+          ne('${{ parameters.sonarCloudOrganizationName }}', '')
+        )
+      inputs:
+        SonarCloud: 'SonarCloud'
+        organization: '${{ parameters.sonarCloudOrganizationName }}'
+        scannerMode: CLI
+        projectKey: '${{ parameters.sonarCloudProjectKey }}'
+        projectName: '${{ parameters.sonarCloudProjectName }}'
+        cliSources: src
+        cliProjectKey: $(Build.Repository.Name)
+        configMode: manual
+        extraProperties: |
+          sonar.verbose=true
+          sonar.sourceEncoding=UTF-8
+          sonar.language=ts
+          sonar.tests=src
+          sonar.ts.tslintconfigpath=tslint.json
+          sonar.test.inclusions=**/*.spec.ts
+          sonar.exclusions=**/*.spec.ts,**/*.js
+          sonar.coverage.exclusions=src/main.ts,src/polyfills.ts,**/*environment*.ts,**/*module.ts
+          sonar.typescript.lcov.reportPaths=TestResults/Coverage/lcov.info
+          sonar.testExecutionReportPaths=TestResults/Coverage/SonarQube.xml
 
 - task: NodeTool@0
   displayName: 'Install Node.js 16.x'
@@ -70,6 +114,26 @@ steps:
   inputs:
     codeCoverageTool: 'Cobertura'
     summaryFileLocation: '$(Build.SourcesDirectory)/coverage/**/*.xml'
+
+- task: SonarCloudAnalyze@1
+  displayName: 'Run Code Analysis'
+  condition: |
+    and
+    (
+      succeeded(),
+      ne('${{ parameters.sonarCloudOrganizationName }}', '')
+    )
+
+- task: SonarCloudPublish@1
+  displayName: 'Publish Quality Gate Result'
+  condition: |
+    and
+    (
+      succeeded(),
+      ne('${{ parameters.sonarCloudOrganizationName }}', '')
+    )
+  inputs:
+    pollingTimeoutSec: '300'
 
 - task: BuildQualityChecks@8
   displayName: 'Warnings quality check'
