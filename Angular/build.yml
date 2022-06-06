@@ -39,33 +39,33 @@ steps:
         '${{ pair.value }}': error
 
 - task: SonarCloudPrepare@1
-      displayName: 'Prepare analysis on SonarCloud'
-      condition: |
-        and
-        (
-          succeeded(),
-          ne('${{ parameters.sonarCloudOrganizationName }}', '')
-        )
-      inputs:
-        SonarCloud: 'SonarCloud'
-        organization: '${{ parameters.sonarCloudOrganizationName }}'
-        scannerMode: CLI
-        projectKey: '${{ parameters.sonarCloudProjectKey }}'
-        projectName: '${{ parameters.sonarCloudProjectName }}'
-        cliSources: src
-        cliProjectKey: $(Build.Repository.Name)
-        configMode: manual
-        extraProperties: |
-          sonar.verbose=true
-          sonar.sourceEncoding=UTF-8
-          sonar.language=ts
-          sonar.tests=src
-          sonar.ts.tslintconfigpath=tslint.json
-          sonar.test.inclusions=**/*.spec.ts
-          sonar.exclusions=**/*.spec.ts,**/*.js
-          sonar.coverage.exclusions=src/main.ts,src/polyfills.ts,**/*environment*.ts,**/*module.ts
-          sonar.typescript.lcov.reportPaths=TestResults/Coverage/lcov.info
-          sonar.testExecutionReportPaths=TestResults/Coverage/SonarQube.xml
+  displayName: 'Prepare analysis on SonarCloud'
+  condition: |
+    and
+    (
+      succeeded(),
+      ne('${{ parameters.sonarCloudOrganizationName }}', '')
+    )
+  inputs:
+    SonarCloud: 'SonarCloud'
+    organization: '${{ parameters.sonarCloudOrganizationName }}'
+    scannerMode: CLI
+    projectKey: '${{ parameters.sonarCloudProjectKey }}'
+    projectName: '${{ parameters.sonarCloudProjectName }}'
+    cliSources: src
+    cliProjectKey: $(Build.Repository.Name)
+    configMode: manual
+    extraProperties: |
+      sonar.verbose=true
+      sonar.sourceEncoding=UTF-8
+      sonar.language=ts
+      sonar.tests=src
+      sonar.ts.tslintconfigpath=tslint.json
+      sonar.test.inclusions=**/*.spec.ts
+      sonar.exclusions=**/*.spec.ts,**/*.js
+      sonar.coverage.exclusions=src/main.ts,src/polyfills.ts,**/*environment*.ts,**/*module.ts
+      sonar.typescript.lcov.reportPaths=TestResults/Coverage/lcov.info
+      sonar.testExecutionReportPaths=TestResults/Coverage/SonarQube.xml
 
 - task: NodeTool@0
   displayName: 'Install Node.js 16.x'
