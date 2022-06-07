@@ -54,11 +54,6 @@ parameters:
   type: boolean
   default: true
 
-- name: solutionName
-  displayName: 'Name of solution to inspect using ReSharper'
-  type: string
-  default: $(Build.Repository.Name)
-
 - name: checkWarnings
   displayName: 'Check warnings'
   type: boolean
@@ -74,6 +69,9 @@ parameters:
   type: boolean
   default: true
 
+variables:
+  solutionName: $(Build.Repository.Name)
+
 steps:
 - ${{ each step in parameters.preBuildSteps }}:
   - ${{ each pair in step }}:
@@ -82,6 +80,15 @@ steps:
       ${{ if eq(pair.value, 'CmdLine@2') }}: 
         # Step is rejected by raising a YAML syntax error: Unexpected value 'CmdLine@2'
         '${{ pair.value }}': error
+
+- ${{ if contains(solutionName, '/') }}:
+  - task: PowerShell@2
+    displayName: 'Set solution name from repository name'
+    inputs:
+      targetType: 'inline'
+      script: |
+        $parts = "$(solutionName)".Split("/")
+        Write-Host "##vso[task.setvariable variable=solutionName;]$parts[1]"
 
 - task: SonarCloudPrepare@1
   displayName: 'Prepare analysis on SonarCloud'
