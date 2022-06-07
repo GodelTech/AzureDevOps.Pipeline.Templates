@@ -89,8 +89,8 @@ stages:
         buildConfiguration: ${{ parameters.buildConfiguration }}
         preBuildSteps: ${{ parameters.preBuildSteps }}
         sonarCloudOrganizationName: ${{ parameters.sonarCloudOrganizationName }}
-        sonarCloudProjectKey: $[replace(variables['Build.Repository.Name'], '/', '_')]
-        sonarCloudProjectName: $[replace(variables['Build.Repository.Name'], '/', '_')]
+        sonarCloudProjectKey: ${{ replace(variables['Build.Repository.Name'], '/', '_') }}
+        sonarCloudProjectName: ${{ replace(variables['Build.Repository.Name'], '/', '_') }}
         dotNetSDKVersions: ${{ parameters.dotNetSDKVersions }}
         codeCoverageSettingsFullPath: ${{ parameters.codeCoverageSettingsFullPath }}
         ${{ if eq(variables.restoreOnlyFromNuGetFeed, true) }}:
