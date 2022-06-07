@@ -179,7 +179,7 @@ steps:
     script: |
       $parts = "$(Build.Repository.Name)".Split("/")
 
-      if ($parts.Length > 1) {
+      if ($parts.Length -gt 1) {
         Write-Host "##vso[task.setvariable variable=solutionName;]$parts[1]"
       } else {
         Write-Host "##vso[task.setvariable variable=solutionName;]$parts[0]"
@@ -194,7 +194,7 @@ steps:
       eq(${{ parameters.enableReSharperInspectCode }}, true)
     )
 
-- script: jb inspectcode '$(Build.SourcesDirectory)/${{ variables.solutionName }}.sln'
+- script: jb inspectcode '$(Build.SourcesDirectory)/$(solutionName).sln'
     "--output=$(Build.SourcesDirectory)/TestResults/ReSharper/ReSharper.xml"
     "--properties:Configuration=${{ parameters.buildConfiguration }}"
     "--no-build"
