@@ -69,9 +69,6 @@ parameters:
   type: boolean
   default: true
 
-variables:
-  solutionName: $(Build.Repository.Name)
-
 steps:
 - ${{ each step in parameters.preBuildSteps }}:
   - ${{ each pair in step }}:
@@ -80,15 +77,6 @@ steps:
       ${{ if eq(pair.value, 'CmdLine@2') }}: 
         # Step is rejected by raising a YAML syntax error: Unexpected value 'CmdLine@2'
         '${{ pair.value }}': error
-
-- ${{ if contains(solutionName, '/') }}:
-  - task: PowerShell@2
-    displayName: 'Set solution name from repository name'
-    inputs:
-      targetType: 'inline'
-      script: |
-        $parts = "$(solutionName)".Split("/")
-        Write-Host "##vso[task.setvariable variable=solutionName;]$parts[1]"
 
 - task: SonarCloudPrepare@1
   displayName: 'Prepare analysis on SonarCloud'
@@ -184,6 +172,19 @@ steps:
     arguments: --configuration ${{ parameters.buildConfiguration }}
       --no-restore
 
+- task: PowerShell@2
+  displayName: 'Set solution name from repository name'
+  inputs:
+    targetType: 'inline'
+    script: |
+      $parts = "$(Build.Repository.Name)".Split("/")
+
+      if ($parts.Length > 1) {
+        Write-Host "##vso[task.setvariable variable=solutionName;]$parts[1]"
+      } else {
+        Write-Host "##vso[task.setvariable variable=solutionName;]$parts[0]"
+      }
+
 - script: 'dotnet tool install --global JetBrains.ReSharper.GlobalTools'
   displayName: 'Install ReSharper tool'
   condition: |
@@ -193,7 +194,7 @@ steps:
       eq(${{ parameters.enableReSharperInspectCode }}, true)
     )
 
-- script: jb inspectcode '$(Build.SourcesDirectory)/${{ parameters.solutionName }}.sln'
+- script: jb inspectcode '$(Build.SourcesDirectory)/${{ variables.solutionName }}.sln'
     "--output=$(Build.SourcesDirectory)/TestResults/ReSharper/ReSharper.xml"
     "--properties:Configuration=${{ parameters.buildConfiguration }}"
     "--no-build"
