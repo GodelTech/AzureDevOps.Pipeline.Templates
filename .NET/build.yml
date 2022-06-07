@@ -54,6 +54,11 @@ parameters:
   type: boolean
   default: true
 
+- name: solutionName
+  displayName: 'Name of solution to inspect using ReSharper'
+  type: string
+  default: $(Build.Repository.Name)
+
 - name: checkWarnings
   displayName: 'Check warnings'
   type: boolean
@@ -181,7 +186,7 @@ steps:
       eq(${{ parameters.enableReSharperInspectCode }}, true)
     )
 
-- script: jb inspectcode '$(Build.SourcesDirectory)/$(Build.Repository.Name).sln'
+- script: jb inspectcode '$(Build.SourcesDirectory)/${{ parameters.solutionName }}.sln'
     "--output=$(Build.SourcesDirectory)/TestResults/ReSharper/ReSharper.xml"
     "--properties:Configuration=${{ parameters.buildConfiguration }}"
     "--no-build"
