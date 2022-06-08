@@ -177,13 +177,14 @@ steps:
   inputs:
     targetType: 'inline'
     script: |
-      $parts = "$(Build.Repository.Name)".Split("/")
+      $solutionNameArray = "$(Build.Repository.Name)".Split("/")
+      $solutionName = $solutionNameArray[0]
 
-      if ($parts.Length -gt 1) {
-        Write-Host "##vso[task.setvariable variable=solutionName;]$parts[1]"
-      } else {
-        Write-Host "##vso[task.setvariable variable=solutionName;]$parts[0]"
+      if ($solutionNameArray.Length -gt 1) {
+        $solutionName = $solutionNameArray[1]
       }
+
+      Write-Host "##vso[task.setvariable variable=solutionName;]$solutionName"
 
 - script: 'dotnet tool install --global JetBrains.ReSharper.GlobalTools'
   displayName: 'Install ReSharper tool'
