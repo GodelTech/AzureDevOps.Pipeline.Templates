@@ -9,6 +9,11 @@ parameters:
   type: stepList
   default: []
 
+- name: enableSonarCloud
+  displayName: 'Enable SonarCloud'
+  type: boolean
+  default: true
+
 - name: sonarCloudOrganizationName
   displayName: 'Organization name for SonarCloud'
   type: string
@@ -47,6 +52,7 @@ stages:
     - template: 'build.yml'
       parameters:
         preBuildSteps: ${{ parameters.preBuildSteps }}
+        enableSonarCloud: ${{ parameters.enableSonarCloud }}
         sonarCloudOrganizationName: ${{ parameters.sonarCloudOrganizationName }}
         sonarCloudProjectKey: ${{ parameters.sonarCloudProjectKey }}
         sonarCloudProjectName: ${{ parameters.sonarCloudProjectName }}
