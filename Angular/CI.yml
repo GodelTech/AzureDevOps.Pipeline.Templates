@@ -39,6 +39,11 @@ parameters:
   type: boolean
   default: true
 
+- name: includeSonarcloudBuildBreaker
+  displayName: 'Does Sonarcloud build breaker turn on?'
+  type: boolean
+  default: true
+
 - name: buildOutputPath
   displayName: 'Build output path'
   type: string
@@ -68,6 +73,7 @@ stages:
         sonarCloudProjectName: ${{ parameters.sonarCloudProjectName }}
         checkWarnings: ${{ parameters.checkWarnings }}
         checkCoverage: ${{ parameters.checkCoverage }}
+        includeSonarcloudBuildBreaker: ${{ parameters.includeSonarcloudBuildBreaker }}
 
     - template: 'publish.yml'
       parameters:

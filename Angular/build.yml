@@ -4,6 +4,11 @@ parameters:
   type: stepList
   default: []
 
+- name: enableSonarCloud
+  displayName: 'Enable SonarCloud'
+  type: boolean
+  default: true
+
 - name: sonarCloudOrganizationName
   displayName: 'Organization name for SonarCloud'
   type: string
@@ -29,6 +34,11 @@ parameters:
   type: boolean
   default: true
 
+- name: includeSonarcloudBuildBreaker
+  displayName: 'Does Sonarcloud build breaker turn on?'
+  type: boolean
+  default: true
+
 steps:
 - ${{ each step in parameters.preBuildSteps }}:
   - ${{ each pair in step }}:
@@ -44,7 +54,7 @@ steps:
     and
     (
       succeeded(),
-      ne('${{ parameters.sonarCloudOrganizationName }}', '')
+      eq(${{ parameters.enableSonarCloud }}, true)
     )
   inputs:
     SonarCloud: 'SonarCloud'
@@ -121,7 +131,7 @@ steps:
     and
     (
       succeeded(),
-      ne('${{ parameters.sonarCloudOrganizationName }}', '')
+      eq(${{ parameters.enableSonarCloud }}, true)
     )
 
 - task: SonarCloudPublish@1
@@ -130,7 +140,7 @@ steps:
     and
     (
       succeeded(),
-      ne('${{ parameters.sonarCloudOrganizationName }}', '')
+      eq(${{ parameters.enableSonarCloud }}, true)
     )
   inputs:
     pollingTimeoutSec: '300'
@@ -178,3 +188,16 @@ steps:
     coverageType: 'branches'
     treat0of0as100: true
     coverageThreshold: '80'
+
+- task: sonarcloud-buildbreaker@2
+  displayName: 'Break build on quality gate failure'
+  condition: |
+    and
+    (
+      succeeded(),
+      eq(${{ parameters.enableSonarCloud }}, true),
+      eq(${{ parameters.includeSonarcloudBuildBreaker }}, true)
+    )
+  inputs:
+    SonarCloud: 'SonarCloud'
+    organization: '${{ parameters.sonarCloudOrganizationName }}'
