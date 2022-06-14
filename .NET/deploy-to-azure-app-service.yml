@@ -1,4 +1,9 @@
 parameters:
+- name: dependsOn
+  displayName: 'Depends On'
+  type: object
+  default: []
+
 - name: vmImage
   displayName: 'Pool VM image'
   type: string
@@ -55,6 +60,7 @@ parameters:
 jobs:
 - deployment: Deploy
   displayName: 'Deploy'
+  dependsOn: ${{ parameters.dependsOn }}
   pool:
     vmImage: ${{ parameters.vmImage }}
   environment: ${{ parameters.environmentName }}
