@@ -68,7 +68,6 @@ jobs:
             backendAzureRmResourceGroupLocation: '${{ parameters.azureResourceGroupLocation }}'
             backendAzureRmStorageAccountName: '${{ parameters.azureStorageAccountName }}'
             backendAzureRmContainerName: '${{ parameters.azureStorageContainerName }}'
-            backendAzureRmKey: '${{ parameters.environmentName }}.terraform.tfstate'
             allowTelemetryCollection: true
 
         - task: TerraformCLI@0
