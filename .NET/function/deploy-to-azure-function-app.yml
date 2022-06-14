@@ -8,6 +8,11 @@ parameters:
   type: string
   default: ''
 
+- name: dependsOn
+  displayName: 'Depends On'
+  type: object
+  default: []
+
 - name: azureSubscription
   type: string
   default: ''
@@ -35,6 +40,7 @@ jobs:
   pool:
     vmImage: ${{ parameters.vmImage }}
   environment: ${{ parameters.environmentName }}
+  dependsOn: ${{ parameters.dependsOn }}
   strategy:
     runOnce:
       deploy:

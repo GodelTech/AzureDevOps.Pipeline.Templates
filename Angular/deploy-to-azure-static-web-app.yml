@@ -8,6 +8,11 @@ parameters:
   type: string
   default: ''
 
+- name: dependsOn
+  displayName: 'Depends On'
+  type: object
+  default: []
+
 - name: pipelineName
   displayName: 'Pipeline name. Used as folder for downloads'
   type: string
@@ -29,6 +34,7 @@ jobs:
   pool:
     vmImage: ${{ parameters.vmImage }}
   environment: ${{ parameters.environmentName }}
+  dependsOn: ${{ parameters.dependsOn }}
   strategy:
     runOnce:
       deploy:

@@ -1,9 +1,4 @@
 parameters:
-- name: dependsOn
-  displayName: 'Depends On'
-  type: object
-  default: []
-
 - name: vmImage
   displayName: 'Pool VM image'
   type: string
@@ -12,6 +7,11 @@ parameters:
 - name: environmentName
   type: string
   default: ''
+
+- name: dependsOn
+  displayName: 'Depends On'
+  type: object
+  default: []
 
 - name: azureSubscription
   type: string
@@ -60,10 +60,10 @@ parameters:
 jobs:
 - deployment: Deploy
   displayName: 'Deploy'
-  dependsOn: ${{ parameters.dependsOn }}
   pool:
     vmImage: ${{ parameters.vmImage }}
   environment: ${{ parameters.environmentName }}
+  dependsOn: ${{ parameters.dependsOn }}
   strategy:
     runOnce:
       deploy:
