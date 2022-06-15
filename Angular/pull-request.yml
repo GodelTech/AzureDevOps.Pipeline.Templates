@@ -9,6 +9,11 @@ parameters:
   type: stepList
   default: []
 
+- name: appName
+  displayName: 'Angular application name'
+  type: string
+  default: 'app'
+
 - name: enableSonarCloud
   displayName: 'Enable SonarCloud'
   type: boolean
@@ -57,6 +62,7 @@ stages:
     - template: 'build.yml'
       parameters:
         preBuildSteps: ${{ parameters.preBuildSteps }}
+        appName: ${{ parameters.appName }}
         enableSonarCloud: ${{ parameters.enableSonarCloud }}
         sonarCloudOrganizationName: ${{ parameters.sonarCloudOrganizationName }}
         sonarCloudProjectKey: ${{ parameters.sonarCloudProjectKey }}

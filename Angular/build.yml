@@ -4,6 +4,11 @@ parameters:
   type: stepList
   default: []
 
+- name: appName
+  displayName: 'Angular application name'
+  type: string
+  default: 'app'
+
 - name: enableSonarCloud
   displayName: 'Enable SonarCloud'
   type: boolean
@@ -74,8 +79,8 @@ steps:
       sonar.test.inclusions=**/*.spec.ts
       sonar.exclusions=**/*.spec.ts,**/*.js
       sonar.coverage.exclusions=src/main.ts,src/polyfills.ts,**/*environment*.ts,**/*module.ts
-      sonar.typescript.lcov.reportPaths=TestResults/Coverage/lcov.info
-      sonar.testExecutionReportPaths=TestResults/Coverage/SonarQube.xml
+      sonar.javascript.lcov.reportPaths=$(Build.SourcesDirectory)/coverage/${{ parameters.appName }}/lcov/lcov.info
+      sonar.testExecutionReportPaths=$(Build.SourcesDirectory)/TestResults/SonarQube/SonarQube.xml
 
 - task: NodeTool@0
   displayName: 'Install Node.js 16.x'
@@ -116,14 +121,14 @@ steps:
   displayName: "Publish test results"
   inputs:
     testResultsFormat: 'JUnit'
-    testResultsFiles: 'TestResults/TESTS*.xml'
+    testResultsFiles: 'TestResults/junit/TESTS*.xml'
     mergeTestResults: true
 
 - task: PublishCodeCoverageResults@1
   displayName: 'Publish code coverage reports'
   inputs:
     codeCoverageTool: 'Cobertura'
-    summaryFileLocation: '$(Build.SourcesDirectory)/coverage/**/*.xml'
+    summaryFileLocation: '$(Build.SourcesDirectory)/coverage/${{ parameters.appName }}/cobertura/cobertura-coverage.xml'
 
 - task: SonarCloudAnalyze@1
   displayName: 'Run Code Analysis'
