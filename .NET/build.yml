@@ -59,6 +59,11 @@ parameters:
   type: boolean
   default: true
 
+- name: enableDotnetFormat
+  displayName: 'Verify that all code is correctly formatted'
+  type: boolean
+  default: true
+
 - name: checkWarnings
   displayName: 'Check warnings'
   type: boolean
@@ -229,6 +234,20 @@ steps:
   inputs:
     targetPath: '$(Build.SourcesDirectory)/TestResults/ReSharper'
     artifactName: 'ReSharperInspectCodeReport'
+
+- task: DotNetCoreCLI@2
+  displayName: 'dotnet format'
+  condition: |
+    and
+    (
+      succeeded(),
+      eq(${{ parameters.enableDotnetFormat }}, true)
+    )
+  inputs:
+    command: 'custom'
+    custom: 'format'
+    arguments: --verify-no-changes
+      --no-restore
 
 - task: DotNetCoreCLI@2
   displayName: 'dotnet test'

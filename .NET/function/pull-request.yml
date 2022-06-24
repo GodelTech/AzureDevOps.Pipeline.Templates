@@ -64,6 +64,11 @@ parameters:
   type: boolean
   default: true
 
+- name: enableDotnetFormat
+  displayName: 'Verify that all code is correctly formatted'
+  type: boolean
+  default: true
+
 - name: checkWarnings
   displayName: 'Check warnings'
   type: boolean
@@ -103,6 +108,7 @@ stages:
         nugetConfigPath: ${{ parameters.nugetConfigPath }}
         internalFeed: ${{ parameters.internalFeed }}
         enableReSharperInspectCode: ${{ parameters.enableReSharperInspectCode }}
+        enableDotnetFormat: ${{ parameters.enableDotnetFormat }}
         checkWarnings: ${{ parameters.checkWarnings }}
         checkCoverage: ${{ parameters.checkCoverage }}
         includeSonarcloudBuildBreaker: ${{ parameters.includeSonarcloudBuildBreaker }}
