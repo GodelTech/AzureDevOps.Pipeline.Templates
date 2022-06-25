@@ -265,7 +265,7 @@ steps:
       script: 'dotnet stryker'
       workingDirectory: '$(Build.SourcesDirectory)${{ mutationTestingProject.folderPath }}'
 
-  - task: PublishMutationReport@0
+  - task: PublishMutationReport@1
     displayName: 'Publish Mutation Testing Report for project ${{ mutationTestingProject.displayName }}'
     inputs:
       reportDisplayName: '${{ mutationTestingProject.displayName }} Mutation Testing Report'
