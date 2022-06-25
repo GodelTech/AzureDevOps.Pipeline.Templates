@@ -254,7 +254,7 @@ steps:
     and
     (
       succeeded(),
-      gt(length(${{ parameters.mutationTestingProjects }}), 0)
+      ${{ gt(length(parameters.mutationTestingProjects), 0) }}
     )
 
 - ${{ each mutationTestingProject in parameters.mutationTestingProjects }}:
