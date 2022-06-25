@@ -64,6 +64,11 @@ parameters:
   type: boolean
   default: true
 
+- name: mutationTestingProjects
+  displayName: 'List of projects for mutation testing using Stryker'
+  type: object
+  default: []
+
 - name: enableReSharperInspectCode
   displayName: 'Enable ReSharper inspect code'
   type: boolean
@@ -108,6 +113,7 @@ stages:
         nugetConfigPath: ${{ parameters.nugetConfigPath }}
         internalFeed: ${{ parameters.internalFeed }}
         enableDotNetFormat: ${{ parameters.enableDotNetFormat }}
+        mutationTestingProjects: ${{ parameters.mutationTestingProjects }}
         enableReSharperInspectCode: ${{ parameters.enableReSharperInspectCode }}
         checkWarnings: ${{ parameters.checkWarnings }}
         checkCoverage: ${{ parameters.checkCoverage }}

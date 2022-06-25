@@ -59,6 +59,11 @@ parameters:
   type: boolean
   default: true
 
+- name: mutationTestingProjects
+  displayName: 'List of projects for mutation testing using Stryker'
+  type: object
+  default: []
+
 - name: enableReSharperInspectCode
   displayName: 'Enable ReSharper inspect code'
   type: boolean
@@ -242,6 +247,29 @@ steps:
     )
   inputs:
     pollingTimeoutSec: '300'
+
+- script: 'dotnet tool install --global dotnet-stryker'
+  displayName: 'Install Stryker tool'
+  condition: |
+    and
+    (
+      succeeded(),
+      gt(length(${{ parameters.mutationTestingProjects }}), 0)
+    )
+
+- ${{ each mutationTestingProject in parameters.mutationTestingProjects }}:
+  - task: PowerShell@2
+    displayName: 'Mutation Testing for project ${{ mutationTestingProject.displayName }}'
+    inputs:
+      targetType: 'inline'
+      script: 'dotnet stryker'
+      workingDirectory: '$(Build.SourcesDirectory)${{ mutationTestingProject.folderPath }}'
+
+  - task: PublishMutationReport@0
+    displayName: 'Publish Mutation Testing Report for project ${{ mutationTestingProject.displayName }}'
+    inputs:
+      reportDisplayName: '${{ mutationTestingProject.displayName }} Mutation Testing Report'
+      reportPattern: '$(Build.SourcesDirectory)${{ mutationTestingProject.folderPath }}/StrykerOutput/**/mutation-report.html'
 
 - task: PowerShell@2
   displayName: 'Set solution name from repository name'
