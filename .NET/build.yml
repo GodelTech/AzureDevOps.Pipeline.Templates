@@ -54,7 +54,7 @@ parameters:
   type: string
   default: ''
 
-- name: enableDotnetFormat
+- name: enableDotNetFormat
   displayName: 'Verify that all code is correctly formatted'
   type: boolean
   default: true
@@ -188,7 +188,7 @@ steps:
     and
     (
       succeeded(),
-      eq(${{ parameters.enableDotnetFormat }}, true)
+      eq(${{ parameters.enableDotNetFormat }}, true)
     )
   inputs:
     command: 'custom'

@@ -59,7 +59,7 @@ parameters:
   type: string
   default: ''
 
-- name: enableDotnetFormat
+- name: enableDotNetFormat
   displayName: 'Verify that all code is correctly formatted'
   type: boolean
   default: true
@@ -107,7 +107,7 @@ stages:
         restoreOnlyFromNuGetFeed: ${{ parameters.restoreOnlyFromNuGetFeed }}
         nugetConfigPath: ${{ parameters.nugetConfigPath }}
         internalFeed: ${{ parameters.internalFeed }}
-        enableDotnetFormat: ${{ parameters.enableDotnetFormat }}
+        enableDotNetFormat: ${{ parameters.enableDotNetFormat }}
         enableReSharperInspectCode: ${{ parameters.enableReSharperInspectCode }}
         checkWarnings: ${{ parameters.checkWarnings }}
         checkCoverage: ${{ parameters.checkCoverage }}
