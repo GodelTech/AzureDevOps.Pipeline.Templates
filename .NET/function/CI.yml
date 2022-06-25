@@ -59,13 +59,13 @@ parameters:
   type: string
   default: ''
 
-- name: enableReSharperInspectCode
-  displayName: 'Enable ReSharper inspect code'
+- name: enableDotnetFormat
+  displayName: 'Verify that all code is correctly formatted'
   type: boolean
   default: true
 
-- name: enableDotnetFormat
-  displayName: 'Verify that all code is correctly formatted'
+- name: enableReSharperInspectCode
+  displayName: 'Enable ReSharper inspect code'
   type: boolean
   default: true
 
@@ -117,8 +117,8 @@ stages:
         restoreOnlyFromNuGetFeed: ${{ parameters.restoreOnlyFromNuGetFeed }}
         nugetConfigPath: ${{ parameters.nugetConfigPath }}
         internalFeed: ${{ parameters.internalFeed }}
-        enableReSharperInspectCode: ${{ parameters.enableReSharperInspectCode }}
         enableDotnetFormat: ${{ parameters.enableDotnetFormat }}
+        enableReSharperInspectCode: ${{ parameters.enableReSharperInspectCode }}
         checkWarnings: ${{ parameters.checkWarnings }}
         checkCoverage: ${{ parameters.checkCoverage }}
         includeSonarcloudBuildBreaker: ${{ parameters.includeSonarcloudBuildBreaker }}

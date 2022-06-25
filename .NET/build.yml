@@ -54,13 +54,13 @@ parameters:
   type: string
   default: ''
 
-- name: enableReSharperInspectCode
-  displayName: 'Enable ReSharper inspect code'
+- name: enableDotnetFormat
+  displayName: 'Verify that all code is correctly formatted'
   type: boolean
   default: true
 
-- name: enableDotnetFormat
-  displayName: 'Verify that all code is correctly formatted'
+- name: enableReSharperInspectCode
+  displayName: 'Enable ReSharper inspect code'
   type: boolean
   default: true
 
@@ -182,59 +182,6 @@ steps:
     arguments: --configuration ${{ parameters.buildConfiguration }}
       --no-restore
 
-- task: PowerShell@2
-  displayName: 'Set solution name from repository name'
-  condition: |
-    and
-    (
-      succeeded(),
-      eq(${{ parameters.enableReSharperInspectCode }}, true)
-    )
-  inputs:
-    targetType: 'inline'
-    script: |
-      $solutionNameArray = "$(Build.Repository.Name)".Split("/")
-      $solutionName = $solutionNameArray[0]
-
-      if ($solutionNameArray.Length -gt 1) {
-        $solutionName = $solutionNameArray[1]
-      }
-
-      Write-Host "##vso[task.setvariable variable=solutionName;]$solutionName"
-
-- script: 'dotnet tool install --global JetBrains.ReSharper.GlobalTools'
-  displayName: 'Install ReSharper tool'
-  condition: |
-    and
-    (
-      succeeded(),
-      eq(${{ parameters.enableReSharperInspectCode }}, true)
-    )
-
-- script: jb inspectcode '$(Build.SourcesDirectory)/$(solutionName).sln'
-    "--output=$(Build.SourcesDirectory)/TestResults/ReSharper/ReSharper.xml"
-    "--properties:Configuration=${{ parameters.buildConfiguration }}"
-    "--no-build"
-  displayName: 'ReSharper inspect code'
-  condition: |
-    and
-    (
-      succeeded(),
-      eq(${{ parameters.enableReSharperInspectCode }}, true)
-    )
-
-- task: PublishPipelineArtifact@1
-  displayName: 'Publish ReSharper inspect code report'
-  condition: |
-    and
-    (
-      succeeded(),
-      eq(${{ parameters.enableReSharperInspectCode }}, true)
-    )
-  inputs:
-    targetPath: '$(Build.SourcesDirectory)/TestResults/ReSharper'
-    artifactName: 'ReSharperInspectCodeReport'
-
 - task: DotNetCoreCLI@2
   displayName: 'dotnet format'
   condition: |
@@ -308,6 +255,59 @@ steps:
     )
   inputs:
     pollingTimeoutSec: '300'
+
+- task: PowerShell@2
+  displayName: 'Set solution name from repository name'
+  condition: |
+    and
+    (
+      succeeded(),
+      eq(${{ parameters.enableReSharperInspectCode }}, true)
+    )
+  inputs:
+    targetType: 'inline'
+    script: |
+      $solutionNameArray = "$(Build.Repository.Name)".Split("/")
+      $solutionName = $solutionNameArray[0]
+
+      if ($solutionNameArray.Length -gt 1) {
+        $solutionName = $solutionNameArray[1]
+      }
+
+      Write-Host "##vso[task.setvariable variable=solutionName;]$solutionName"
+
+- script: 'dotnet tool install --global JetBrains.ReSharper.GlobalTools'
+  displayName: 'Install ReSharper tool'
+  condition: |
+    and
+    (
+      succeeded(),
+      eq(${{ parameters.enableReSharperInspectCode }}, true)
+    )
+
+- script: jb inspectcode '$(Build.SourcesDirectory)/$(solutionName).sln'
+    "--output=$(Build.SourcesDirectory)/TestResults/ReSharper/ReSharper.xml"
+    "--properties:Configuration=${{ parameters.buildConfiguration }}"
+    "--no-build"
+  displayName: 'ReSharper inspect code'
+  condition: |
+    and
+    (
+      succeeded(),
+      eq(${{ parameters.enableReSharperInspectCode }}, true)
+    )
+
+- task: PublishPipelineArtifact@1
+  displayName: 'Publish ReSharper inspect code report'
+  condition: |
+    and
+    (
+      succeeded(),
+      eq(${{ parameters.enableReSharperInspectCode }}, true)
+    )
+  inputs:
+    targetPath: '$(Build.SourcesDirectory)/TestResults/ReSharper'
+    artifactName: 'ReSharperInspectCodeReport'
 
 - task: BuildQualityChecks@8
   displayName: 'Warnings quality check'
