@@ -201,6 +201,8 @@ steps:
     arguments: --verify-no-changes
       --no-restore
 
+- template: 'NuGet/validation.yml'
+
 - task: DotNetCoreCLI@2
   displayName: 'dotnet test'
   inputs:

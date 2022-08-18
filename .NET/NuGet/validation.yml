@@ -1,0 +1,19 @@
+parameters:
+- name: enableValidationOfNuGetOutdatedPackages
+  displayName: 'Enable validation of NuGet outdated packages'
+  type: boolean
+  default: true
+
+steps:
+- task: DotNetCoreCLI@2
+  displayName: 'NuGet list packages'
+  condition: |
+    and
+    (
+      succeeded(),
+      eq(${{ parameters.enableValidationOfNuGetOutdatedPackages }}, true)
+    )
+  inputs:
+    command: 'custom'
+    custom: 'list package'
+    arguments: --include-transitive
