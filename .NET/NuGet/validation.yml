@@ -18,3 +18,35 @@ steps:
     custom: 'list'
     arguments: package
       --include-transitive
+
+- task: DotNetCoreCLI@2
+  displayName: 'NuGet check for outdated packages'
+  condition: |
+    and
+    (
+      succeeded(),
+      eq(${{ parameters.enableValidationOfNuGetOutdatedPackages }}, true)
+    )
+  inputs:
+    command: 'custom'
+    custom: 'list'
+    arguments: package
+      --outdated
+
+- task: DotNetCoreCLI@2
+  displayName: 'NuGet check for deprecated packages'
+  inputs:
+    command: 'custom'
+    custom: 'list'
+    arguments: package
+      --deprecated
+      --include-transitive
+
+- task: DotNetCoreCLI@2
+  displayName: 'NuGet check for vulnerable packages'
+  inputs:
+    command: 'custom'
+    custom: 'list'
+    arguments: package
+      --vulnerable
+      --include-transitive
