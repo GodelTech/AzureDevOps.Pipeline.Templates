@@ -1,0 +1,186 @@
+parameters:
+- name: azureDevOpsPAT
+  displayName: 'Azure DevOps Personal Access Token'
+  type: string
+
+- name: organizationName
+  displayName: 'Organization name'
+  type: string
+
+- name: projectName
+  displayName: 'Project name'
+  type: string
+
+- name: repositories
+  displayName: 'List of repositories'
+  type: object
+  default: []
+
+- name: defaultBuildConfiguration
+  displayName: 'Build configuration'
+  type: string
+  default: 'Release'
+
+- name: defaultDotNetSDKVersions
+  displayName: '.NET Core SDK versions'
+  type: object
+  default: []
+
+- name: defaultRestoreOnlyFromNuGetFeed
+  displayName: 'Restore only from NuGet feed'
+  type: boolean
+  default: true
+
+stages:
+- stage: Validate
+  displayName: 'Validate repositories'
+  variables:
+    repositoriesAsJsonString: '{}'
+
+  jobs:
+  - job: CheckList
+    displayName: 'Check list of repositories'
+    pool:
+      vmImage: ubuntu-latest
+    steps:
+    - task: PowerShell@2
+      displayName: 'Get list of repositories in Organization'
+      inputs:
+        targetType: 'inline'
+        script: |
+          $AzureDevOpsPAT = "${{ parameters.azureDevOpsPAT }}"
+          $OrganizationName = "${{ parameters.organizationName }}"
+          $ProjectName = "${{ parameters.projectName }}"
+
+          $AzureDevOpsAuthenicationHeader = @{Authorization = 'Basic ' + [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(":$($AzureDevOpsPAT)")) }
+
+          $BaseUri = "https://dev.azure.com/$($OrganizationName)/$($ProjectName)"
+          $RepositoriesUri = $BaseUri + "/_apis/git/repositories?api-version=6.0"
+
+          $response = Invoke-RestMethod -Uri $RepositoriesUri -Method get -Headers $AzureDevOpsAuthenicationHeader
+
+          $json = $response.value | ConvertTo-Json -Compress
+
+          Write-Host "##vso[task.setvariable variable=repositoriesAsJsonString]$json"
+
+    - task: PowerShell@2
+      displayName: 'Check specified repositories'
+      inputs:
+        targetType: 'inline'
+        script: |
+          $repositories = '$(repositoriesAsJsonString)' | ConvertFrom-Json
+          $specifiedRepositories = '${{ convertToJson(parameters.repositories) }}' | ConvertFrom-Json
+
+          # check specified repositories
+          foreach($specifiedRepository in $specifiedRepositories | Sort-Object -Property name)
+          {
+            $repository = $repositories | Where-Object { $_.name -eq $specifiedRepository.name }
+
+            if ($repository -eq $null)
+            {
+              Write-Error "Specified repository '$($specifiedRepository.name)' does not exist." -Category InvalidArgument -TargetObject $specifiedRepository
+            }
+          }
+
+    - task: PowerShell@2
+      displayName: 'List of repositories'
+      inputs:
+        targetType: 'inline'
+        script: |
+          $repositories = '$(repositoriesAsJsonString)' | ConvertFrom-Json
+          $specifiedRepositories = '${{ convertToJson(parameters.repositories) }}' | ConvertFrom-Json
+
+          $output = @()
+
+          # check repositories
+          foreach($repository in $repositories | Sort-Object -Property name)
+          {
+            if ($repository.isDisabled)
+            {
+              $output += New-Object PSObject -Property @{name = $repository.name; skip = $false; isDisabled = $true }
+              continue
+            }
+
+            $specifiedRepository = $specifiedRepositories | Where-Object { $_.name -eq $repository.name }
+
+            if ($specifiedRepository -eq $null)
+            {
+              $output += New-Object PSObject -Property @{name = $repository.name; skip = $false; missed = $true }
+              Write-Warning "Repository '$($repository.name)' is not in list to validate."
+            }
+            else
+            {
+              $output += New-Object PSObject -Property @{name = $specifiedRepository.name; skip = $specifiedRepository.skip }
+
+              if ($specifiedRepository.skip -eq $true)
+              {
+                Write-Warning "Repository '$($specifiedRepository.name)' is skipped from validation."
+              }
+            }
+          }
+
+          # output
+          Write-Host ""
+          Write-Host "List of repositories: "
+          Write-Host ""
+          Write-Host "##[error] (Red - missed repository)" -ForegroundColor "Red"
+          Write-Host "##[warning] (Yellow - skipped repository)" -ForegroundColor "Yellow"
+          Write-Host "(White - all is ok)" -ForegroundColor "White"
+          Write-Host ""
+          foreach($item in $output | Sort-Object -Property name)
+          {
+            if ($item.isDisabled)
+            {
+              continue
+            }
+
+            $vsoColor = ""
+            $foregroundColor = "White"
+
+            if ($item.missed -eq $true)
+            {
+              $vsoColor = "##[error] "
+              $foregroundColor = "Red"
+            }
+            elseif ($item.skip -eq $true)
+            {
+              $vsoColor = "##[warning] "
+              $foregroundColor = "Yellow"
+            }
+
+            Write-Host "$($vsoColor)- name: '$($item.name)'" -ForegroundColor $foregroundColor
+            Write-Host "$($vsoColor)  skip: $($item.skip.ToString().ToLower())" -ForegroundColor $foregroundColor
+          }
+
+          # complete task
+          $missedRepositories = $output | Where-Object { $_.missed -eq $true }
+
+          if ($missedRepositories.Count -gt 0)
+          {
+            Write-Host "##vso[task.complete result=SucceededWithIssues;]"
+            Write-Host ""
+            Write-Warning "Some repositories are not in list to validate. Please check list above."
+          }
+
+  - ${{ each repository in parameters.repositories }}:
+    - job: ${{ replace(repository.name, '.', '_') }}
+      displayName: 'Validate ${{ repository.name }}'
+      dependsOn: CheckList
+      condition: |
+        ne(${{ repository.skip }}, true)
+      pool:
+        vmImage: ubuntu-latest
+      steps:
+      - checkout: 'git://${{ parameters.projectName }}/${{ repository.name }}'
+
+      - template: '../dotnet/build.yml@templates'
+        parameters:
+          buildConfiguration: ${{ coalesce(repository.build.buildConfiguration, parameters.defaultBuildConfiguration) }}
+          dotNetSDKVersions: ${{ coalesce(repository.build.dotNetSDKVersions, parameters.defaultDotNetSDKVersions) }}
+          restoreOnlyFromNuGetFeed: ${{ coalesce(repository.build.restoreOnlyFromNuGetFeed, parameters.defaultRestoreOnlyFromNuGetFeed) }}
+          ${{ if repository.build.nugetConfigPath }}:
+            nugetConfigPath: ${{ repository.build.nugetConfigPath }}
+          ${{ if repository.build.internalFeed }}:
+            internalFeed: ${{ repository.build.internalFeed }}
+
+      - template: '../NuGet/validation.yml@templates'
