@@ -110,82 +110,15 @@ steps:
     extraProperties: |
       sonar.coverageReportPaths="$(Build.SourcesDirectory)/TestResults/Coverage/SonarQube.xml"
 
-- ${{ if eq(length(parameters.dotNetSDKVersions), 0) }}:
-  - task: UseDotNet@2
-    displayName: 'Use .NET Core SDK 6.0.x'
-    inputs:
-      packageType: sdk
-      version: '6.0.x'
+- template: 'dotnet/build.yml'
+  parameters:
+    buildConfiguration: ${{ parameters.buildConfiguration }}
+    dotNetSDKVersions: ${{ parameters.dotNetSDKVersions }}
+    restoreOnlyFromNuGetFeed: ${{ parameters.restoreOnlyFromNuGetFeed }}
+    nugetConfigPath: ${{ parameters.nugetConfigPath }}
+    internalFeed: ${{ parameters.internalFeed }}
 
-- ${{ each dotNetSDKVersion in parameters.dotNetSDKVersions }}:
-  - task: UseDotNet@2
-    displayName: 'Use .NET Core SDK ${{ dotNetSDKVersion }}'
-    inputs:
-      packageType: sdk
-      version: ${{ dotNetSDKVersion }}
-
-- task: DotNetCoreCLI@2
-  displayName: 'dotnet restore only from NuGet feed'
-  condition: |
-    or
-    (
-      and
-      (
-        succeeded(),
-        eq(${{ parameters.restoreOnlyFromNuGetFeed }}, true)
-      ),
-      and
-      (
-        succeeded(),
-        eq(${{ parameters.restoreOnlyFromNuGetFeed }}, false),
-        eq('${{ parameters.nugetConfigPath }}', ''),
-        eq('${{ parameters.internalFeed }}', '')
-      )
-    )
-  inputs:
-    command: 'restore'
-    projects: '**/*.csproj'
-    feedsToUse: 'select'
-
-- task: DotNetCoreCLI@2
-  displayName: 'dotnet restore with NuGet config'
-  condition: |
-    and
-    (
-      succeeded(),
-      eq(${{ parameters.restoreOnlyFromNuGetFeed }}, false),
-      ne('${{ parameters.nugetConfigPath }}', ''),
-      eq('${{ parameters.internalFeed }}', '')
-    )
-  inputs:
-    command: 'restore'
-    projects: '**/*.csproj'
-    feedsToUse: 'config'
-    nugetConfigPath: '${{ parameters.nugetConfigPath }}'
-
-- task: DotNetCoreCLI@2
-  displayName: 'dotnet restore from both NuGet and Azure Artifacts feeds'
-  condition: |
-    and
-    (
-      succeeded(),
-      eq(${{ parameters.restoreOnlyFromNuGetFeed }}, false),
-      eq('${{ parameters.nugetConfigPath }}', ''),
-      ne('${{ parameters.internalFeed }}', '')
-    )
-  inputs:
-    command: 'restore'
-    projects: '**/*.csproj'
-    feedsToUse: 'select'
-    vstsFeed: '${{ parameters.internalFeed }}'
-
-- task: DotNetCoreCLI@2
-  displayName: 'dotnet build'
-  inputs:
-    command: 'build'
-    projects: '**/*.csproj'
-    arguments: --configuration ${{ parameters.buildConfiguration }}
-      --no-restore
+- template: 'NuGet/validation.yml'
 
 - task: DotNetCoreCLI@2
   displayName: 'dotnet format'
@@ -200,8 +133,6 @@ steps:
     custom: 'format'
     arguments: --verify-no-changes
       --no-restore
-
-- template: 'NuGet/validation.yml'
 
 - task: DotNetCoreCLI@2
   displayName: 'dotnet test'
