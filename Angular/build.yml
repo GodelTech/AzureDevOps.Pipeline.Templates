@@ -110,7 +110,7 @@ steps:
   displayName: "Run lint"
   inputs:
     command: 'custom'
-    customCommand: 'run ng lint'
+    customCommand: 'run ng lint ${{ parameters.appName }}'
 
 - task: Npm@1
   displayName: 'Run unit tests'
