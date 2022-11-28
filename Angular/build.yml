@@ -80,7 +80,7 @@ steps:
       sonar.tests=${{ parameters.sonarCloudTestsPath }}
       sonar.test.inclusions=${{ parameters.sonarCloudTestsPath }}/**/*.spec.ts
       sonar.exclusions=${{ parameters.sonarCloudTestsPath }}/**/*.spec.ts
-      sonar.coverage.exclusions=${{ parameters.sonarCloudTestsPath }}/main.ts,${{ parameters.sonarCloudTestsPath }}/polyfills.ts,${{ parameters.sonarCloudTestsPath }}/test.ts,${{ parameters.sonarCloudTestsPath }}/**/*environment*.ts,${{ parameters.sonarCloudTestsPath }}/**/*module.ts
+      sonar.coverage.exclusions=${{ parameters.sonarCloudTestsPath }}/bootstrap.ts,${{ parameters.sonarCloudTestsPath }}/main.ts,${{ parameters.sonarCloudTestsPath }}/polyfills.ts,${{ parameters.sonarCloudTestsPath }}/test.ts,${{ parameters.sonarCloudTestsPath }}/**/*environment*.ts,${{ parameters.sonarCloudTestsPath }}/**/*module.ts
       sonar.javascript.lcov.reportPaths=$(Build.SourcesDirectory)/coverage/${{ parameters.appName }}/lcov/lcov.info
       sonar.testExecutionReportPaths=$(Build.SourcesDirectory)/TestResults/${{ parameters.appName }}/SonarQube/SonarQube.xml
 
