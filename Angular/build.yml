@@ -71,7 +71,7 @@ steps:
     cliProjectKey: $(Build.Repository.Name)
     configMode: manual
     extraProperties: |
-      sonar.tests=src
+      sonar.tests=src,projects
       sonar.test.inclusions=**/*.spec.ts
       sonar.exclusions=**/*.spec.ts
       sonar.coverage.exclusions=**/src/main.ts,**/src/polyfills.ts,**/src/test.ts,**/*environment*.ts,**/*module.ts
