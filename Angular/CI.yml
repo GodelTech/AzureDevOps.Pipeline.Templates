@@ -19,6 +19,11 @@ parameters:
   type: boolean
   default: true
 
+- name: sonarCloudTestsPath
+  displayName: 'Comma-separated paths to directories containing test source files.'
+  type: string
+  default: 'src'
+
 - name: sonarCloudOrganizationName
   displayName: 'Organization name for SonarCloud'
   type: string
@@ -69,6 +74,7 @@ stages:
         preBuildSteps: ${{ parameters.preBuildSteps }}
         appName: ${{ parameters.appName }}
         enableSonarCloud: ${{ parameters.enableSonarCloud }}
+        sonarCloudTestsPath: ${{ parameters.sonarCloudTestsPath }}
         sonarCloudOrganizationName: ${{ parameters.sonarCloudOrganizationName }}
         sonarCloudProjectKey: ${{ parameters.sonarCloudProjectKey }}
         sonarCloudProjectName: ${{ parameters.sonarCloudProjectName }}
