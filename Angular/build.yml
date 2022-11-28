@@ -67,14 +67,14 @@ steps:
     scannerMode: CLI
     projectKey: '${{ parameters.sonarCloudProjectKey }}'
     projectName: '${{ parameters.sonarCloudProjectName }}'
-    cliSources: src
+    cliSources: '$(Build.SourcesDirectory)'
     cliProjectKey: $(Build.Repository.Name)
     configMode: manual
     extraProperties: |
       sonar.tests=src
       sonar.test.inclusions=**/*.spec.ts
       sonar.exclusions=**/*.spec.ts
-      sonar.coverage.exclusions=src/main.ts,src/polyfills.ts,src/test.ts,**/*environment*.ts,**/*module.ts
+      sonar.coverage.exclusions=**/src/main.ts,**/src/polyfills.ts,**/src/test.ts,**/*environment*.ts,**/*module.ts
       sonar.javascript.lcov.reportPaths=$(Build.SourcesDirectory)/coverage/${{ parameters.appName }}/lcov/lcov.info
       sonar.testExecutionReportPaths=$(Build.SourcesDirectory)/TestResults/SonarQube/SonarQube.xml
 
