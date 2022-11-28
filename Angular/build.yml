@@ -81,7 +81,7 @@ steps:
       sonar.exclusions=**/*.spec.ts
       sonar.coverage.exclusions=**/src/main.ts,**/src/polyfills.ts,**/src/test.ts,**/*environment*.ts,**/*module.ts
       sonar.javascript.lcov.reportPaths=$(Build.SourcesDirectory)/coverage/${{ parameters.appName }}/lcov/lcov.info
-      sonar.testExecutionReportPaths=$(Build.SourcesDirectory)/TestResults/SonarQube/SonarQube.xml
+      sonar.testExecutionReportPaths=$(Build.SourcesDirectory)/TestResults/${{ parameters.appName }}/SonarQube/SonarQube.xml
 
 - task: NodeTool@0
   displayName: 'Install Node.js 16.x'
@@ -116,13 +116,13 @@ steps:
   displayName: 'Run unit tests'
   inputs:
     command: 'custom'
-    customCommand: 'run ng test -- --browsers=ChromeHeadless --code-coverage --watch=false'
+    customCommand: 'run ng test ${{ parameters.appName }} -- --browsers=ChromeHeadless --code-coverage --watch=false'
 
 - task: PublishTestResults@2
   displayName: "Publish test results"
   inputs:
     testResultsFormat: 'JUnit'
-    testResultsFiles: 'TestResults/junit/TESTS*.xml'
+    testResultsFiles: 'TestResults/${{ parameters.appName }}/junit/TESTS*.xml'
     mergeTestResults: true
 
 - task: PublishCodeCoverageResults@1
