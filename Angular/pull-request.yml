@@ -14,15 +14,15 @@ parameters:
   type: string
   default: 'app'
 
+- name: appSourcePath
+  displayName: 'Angular application source path'
+  type: string
+  default: 'src'
+
 - name: enableSonarCloud
   displayName: 'Enable SonarCloud'
   type: boolean
   default: true
-
-- name: sonarCloudTestsPath
-  displayName: 'Comma-separated paths to directories containing test source files.'
-  type: string
-  default: 'src'
 
 - name: sonarCloudOrganizationName
   displayName: 'Organization name for SonarCloud'
@@ -68,8 +68,8 @@ stages:
       parameters:
         preBuildSteps: ${{ parameters.preBuildSteps }}
         appName: ${{ parameters.appName }}
+        appSourcePath: ${{ parameters.appSourcePath }}
         enableSonarCloud: ${{ parameters.enableSonarCloud }}
-        sonarCloudTestsPath: ${{ parameters.sonarCloudTestsPath }}
         sonarCloudOrganizationName: ${{ parameters.sonarCloudOrganizationName }}
         sonarCloudProjectKey: ${{ parameters.sonarCloudProjectKey }}
         sonarCloudProjectName: ${{ parameters.sonarCloudProjectName }}

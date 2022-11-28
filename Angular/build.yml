@@ -9,15 +9,15 @@ parameters:
   type: string
   default: 'app'
 
+- name: appSourcePath
+  displayName: 'Angular application source path'
+  type: string
+  default: 'src'
+
 - name: enableSonarCloud
   displayName: 'Enable SonarCloud'
   type: boolean
   default: true
-
-- name: sonarCloudTestsPath
-  displayName: 'Comma-separated paths to directories containing test source files.'
-  type: string
-  default: 'src'
 
 - name: sonarCloudOrganizationName
   displayName: 'Organization name for SonarCloud'
@@ -76,11 +76,11 @@ steps:
     cliProjectKey: $(Build.Repository.Name)
     configMode: manual
     extraProperties: |
-      sonar.sources=${{ parameters.sonarCloudTestsPath }}
-      sonar.tests=${{ parameters.sonarCloudTestsPath }}
-      sonar.test.inclusions=${{ parameters.sonarCloudTestsPath }}/**/*.spec.ts
-      sonar.exclusions=${{ parameters.sonarCloudTestsPath }}/**/*.spec.ts
-      sonar.coverage.exclusions=${{ parameters.sonarCloudTestsPath }}/bootstrap.ts,${{ parameters.sonarCloudTestsPath }}/main.ts,${{ parameters.sonarCloudTestsPath }}/polyfills.ts,${{ parameters.sonarCloudTestsPath }}/test.ts,${{ parameters.sonarCloudTestsPath }}/**/*environment*.ts,${{ parameters.sonarCloudTestsPath }}/**/*module.ts
+      sonar.sources=${{ parameters.appSourcePath }}
+      sonar.tests=${{ parameters.appSourcePath }}
+      sonar.test.inclusions=${{ parameters.appSourcePath }}/**/*.spec.ts
+      sonar.exclusions=${{ parameters.appSourcePath }}/**/*.spec.ts
+      sonar.coverage.exclusions=${{ parameters.appSourcePath }}/bootstrap.ts,${{ parameters.appSourcePath }}/main.ts,${{ parameters.appSourcePath }}/polyfills.ts,${{ parameters.appSourcePath }}/test.ts,${{ parameters.appSourcePath }}/**/*environment*.ts,${{ parameters.appSourcePath }}/**/*module.ts
       sonar.javascript.lcov.reportPaths=$(Build.SourcesDirectory)/coverage/${{ parameters.appName }}/lcov/lcov.info
       sonar.testExecutionReportPaths=$(Build.SourcesDirectory)/TestResults/${{ parameters.appName }}/SonarQube/SonarQube.xml
 
