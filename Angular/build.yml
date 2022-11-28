@@ -99,7 +99,7 @@ steps:
   displayName: 'Build'
   inputs:
     command: 'custom'
-    customCommand: 'run ng build'
+    customCommand: 'run ng build ${{ parameters.appName }}'
 
 - task: Npm@1
   displayName: "Run lint"
