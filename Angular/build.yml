@@ -77,9 +77,9 @@ steps:
     configMode: manual
     extraProperties: |
       sonar.tests=${{ parameters.sonarCloudTestsPath }}
-      sonar.test.inclusions=**/*.spec.ts
-      sonar.exclusions=**/*.spec.ts
-      sonar.coverage.exclusions=**/src/main.ts,**/src/polyfills.ts,**/src/test.ts,**/*environment*.ts,**/*module.ts
+      sonar.test.inclusions=${{ parameters.sonarCloudTestsPath }}/**/*.spec.ts
+      sonar.exclusions=${{ parameters.sonarCloudTestsPath }}/**/*.spec.ts
+      sonar.coverage.exclusions=${{ parameters.sonarCloudTestsPath }}/main.ts,${{ parameters.sonarCloudTestsPath }}/polyfills.ts,${{ parameters.sonarCloudTestsPath }}/test.ts,${{ parameters.sonarCloudTestsPath }}/**/*environment*.ts,${{ parameters.sonarCloudTestsPath }}/**/*module.ts
       sonar.javascript.lcov.reportPaths=$(Build.SourcesDirectory)/coverage/${{ parameters.appName }}/lcov/lcov.info
       sonar.testExecutionReportPaths=$(Build.SourcesDirectory)/TestResults/${{ parameters.appName }}/SonarQube/SonarQube.xml
 
@@ -122,7 +122,7 @@ steps:
   displayName: "Publish test results"
   inputs:
     testResultsFormat: 'JUnit'
-    testResultsFiles: 'TestResults/${{ parameters.appName }}/junit/TESTS*.xml'
+    testResultsFiles: '$(Build.SourcesDirectory)/TestResults/${{ parameters.appName }}/junit/TESTS*.xml'
     mergeTestResults: true
 
 - task: PublishCodeCoverageResults@1
