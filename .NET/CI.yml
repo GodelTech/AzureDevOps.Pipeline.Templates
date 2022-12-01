@@ -131,12 +131,7 @@ stages:
   jobs:
   - job: Terraform
     displayName: 'Terraform'
-    condition: |
-      and
-      (
-        succeeded(),
-        ${{ gt(length(parameters.terraformEnvironmentFolderPaths), 0) }}
-      )
+    condition: ${{ gt(length(parameters.terraformEnvironmentFolderPaths), 0) }}
     pool:
       vmImage: ${{ parameters.vmImage }}
     steps:
@@ -151,6 +146,7 @@ stages:
     pool:
       vmImage: ${{ parameters.vmImage }}
     dependsOn: Terraform
+    condition: in(dependencies.Terraform.result, 'Succeeded', 'Skipped')
     steps:
     - template: 'build.yml'
       parameters:
