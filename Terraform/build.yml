@@ -1,0 +1,77 @@
+parameters:
+- name: artifactName
+  displayName: 'Terraform artifact name'
+  type: string
+  default: 'terraform'
+
+- name: rootFolderPath
+  displayName: 'Terraform root folder path'
+  type: string
+  default: '/.terraform'
+
+- name: environmentFolderPaths
+  displayName: 'List of Terraform environment folder paths'
+  type: object
+  default: []
+
+steps:
+- task: CopyFiles@2
+  displayName: 'Copy Terraform files into artifacts'
+  condition: |
+    and
+    (
+      succeeded(),
+      ${{ gt(length(parameters.environmentFolderPaths), 0) }}
+    )
+  inputs:
+    Contents: '${{ parameters.rootFolderPath }}/**'
+    TargetFolder: '$(Build.ArtifactStagingDirectory)/Terraform'
+
+- task: TerraformInstaller@0
+  displayName: 'Install Terraform'
+  condition: |
+    and
+    (
+      succeeded(),
+      ${{ gt(length(parameters.environmentFolderPaths), 0) }}
+    )
+  inputs:
+    terraformVersion: 'latest'
+
+- task: TerraformCLI@0
+  displayName: 'Terraform recursive format check ${{ parameters.rootFolderPath }}'
+  condition: |
+    and
+    (
+      succeeded(),
+      ${{ gt(length(parameters.environmentFolderPaths), 0) }}
+    )
+  inputs:
+    command: 'fmt'
+    workingDirectory: '$(System.DefaultWorkingDirectory)${{ parameters.rootFolderPath }}'
+    commandOptions: '-recursive -check'
+
+- ${{ each environmentFolderPath in parameters.environmentFolderPaths }}:
+  - task: TerraformCLI@0
+    displayName: 'Terraform init for path ${{ parameters.rootFolderPath }}${{ environmentFolderPath }}'
+    inputs:
+      command: 'init'
+      workingDirectory: '$(System.DefaultWorkingDirectory)${{ parameters.rootFolderPath }}${{ environmentFolderPath }}'
+
+  - task: TerraformCLI@0
+    displayName: 'Terraform validate for path ${{ parameters.rootFolderPath }}${{ environmentFolderPath }}'
+    inputs:
+      command: 'validate'
+      workingDirectory: '$(System.DefaultWorkingDirectory)${{ parameters.rootFolderPath }}${{ environmentFolderPath }}'
+
+- task: PublishBuildArtifacts@1
+  displayName: 'Publish Terraform in artifacts'
+  condition: |
+    and
+    (
+      succeeded(),
+      ${{ gt(length(parameters.environmentFolderPaths), 0) }}
+    )
+  inputs:
+    pathtoPublish: '$(Build.ArtifactStagingDirectory)/Terraform'
+    artifactName: ${{ parameters.artifactName }}
