@@ -15,27 +15,29 @@ parameters:
   default: []
 
 steps:
-- task: DotNetCoreCLI@2
-  displayName: 'Initialize Entity Framework Core'
-  inputs:
-    command: custom
-    custom: tool
-    arguments: 'install --global dotnet-ef'
+- ${{ if gt(length(parameters.migrationDbContexts), 0) }}:
+  - task: DotNetCoreCLI@2
+    displayName: 'Initialize Entity Framework Core'
+    inputs:
+      command: custom
+      custom: tool
+      arguments: 'install --global dotnet-ef'
 
 - ${{ each dbContext in parameters.migrationDbContexts }}:
   - task: DotNetCoreCLI@2
-    displayName: 'Create sql migration script for dbContext'
+    displayName: 'Create sql migration script for ${{ dbContext }}'
     inputs:
       command: custom
       custom: ef
       arguments: 'migrations script --verbose --project ${{ parameters.migrationProjectPath }} --context ${{ dbContext }} -i -o ${{ dbContext }}.sql'
 
   - task: CopyFiles@2
-    displayName: 'Copy sql into artifacts'
+    displayName: 'Copy ${{ dbContext }}.sql into artifacts'
     inputs:
       Contents: '${{ dbContext }}.sql'
       TargetFolder: '$(Build.ArtifactStagingDirectory)'
 
+- ${{ if gt(length(parameters.migrationDbContexts), 0) }}:
   - task: PublishBuildArtifacts@1
     displayName: 'Publish scripts in artifacts'
     inputs:
