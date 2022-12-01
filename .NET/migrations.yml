@@ -40,7 +40,7 @@ steps:
     displayName: 'Copy ${{ dbContext }}.sql into artifacts'
     inputs:
       Contents: '${{ dbContext }}.sql'
-      TargetFolder: '$(Build.ArtifactStagingDirectory)'
+      TargetFolder: '$(Build.ArtifactStagingDirectory)/Migrations'
 
 - task: PublishBuildArtifacts@1
   displayName: 'Publish scripts in artifacts'
@@ -51,5 +51,5 @@ steps:
       ${{ gt(length(parameters.migrationDbContexts), 0) }}
     )
   inputs:
-    pathtoPublish: '$(Build.ArtifactStagingDirectory)'
+    pathtoPublish: '$(Build.ArtifactStagingDirectory)/Migrations'
     artifactName: ${{ parameters.migrationArtifactName }}
