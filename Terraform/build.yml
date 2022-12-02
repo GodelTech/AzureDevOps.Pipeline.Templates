@@ -57,6 +57,7 @@ steps:
     inputs:
       command: 'init'
       workingDirectory: '$(System.DefaultWorkingDirectory)${{ parameters.rootFolderPath }}${{ environmentFolderPath }}'
+      commandOptions: '-backend=false'
 
   - task: TerraformCLI@0
     displayName: 'Terraform validate for path ${{ parameters.rootFolderPath }}${{ environmentFolderPath }}'
