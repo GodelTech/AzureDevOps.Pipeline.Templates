@@ -7,7 +7,7 @@ parameters:
 - name: rootFolderPath
   displayName: 'Terraform root folder path'
   type: string
-  default: '/.terraform'
+  default: '.terraform'
 
 - name: environmentFolderPaths
   displayName: 'List of Terraform environment folder paths'
@@ -39,7 +39,7 @@ steps:
     terraformVersion: 'latest'
 
 - task: TerraformCLI@0
-  displayName: 'Terraform recursive format check ${{ parameters.rootFolderPath }}'
+  displayName: 'Terraform recursive format check /${{ parameters.rootFolderPath }}'
   condition: |
     and
     (
@@ -48,22 +48,22 @@ steps:
     )
   inputs:
     command: 'fmt'
-    workingDirectory: '$(System.DefaultWorkingDirectory)${{ parameters.rootFolderPath }}'
+    workingDirectory: '$(System.DefaultWorkingDirectory)/${{ parameters.rootFolderPath }}'
     commandOptions: '-recursive -check'
 
 - ${{ each environmentFolderPath in parameters.environmentFolderPaths }}:
   - task: TerraformCLI@0
-    displayName: 'Terraform init for path ${{ parameters.rootFolderPath }}${{ environmentFolderPath }}'
+    displayName: 'Terraform init for path /${{ parameters.rootFolderPath }}/${{ environmentFolderPath }}'
     inputs:
       command: 'init'
-      workingDirectory: '$(System.DefaultWorkingDirectory)${{ parameters.rootFolderPath }}${{ environmentFolderPath }}'
+      workingDirectory: '$(System.DefaultWorkingDirectory)/${{ parameters.rootFolderPath }}/${{ environmentFolderPath }}'
       commandOptions: '-backend=false'
 
   - task: TerraformCLI@0
-    displayName: 'Terraform validate for path ${{ parameters.rootFolderPath }}${{ environmentFolderPath }}'
+    displayName: 'Terraform validate for path /${{ parameters.rootFolderPath }}/${{ environmentFolderPath }}'
     inputs:
       command: 'validate'
-      workingDirectory: '$(System.DefaultWorkingDirectory)${{ parameters.rootFolderPath }}${{ environmentFolderPath }}'
+      workingDirectory: '$(System.DefaultWorkingDirectory)/${{ parameters.rootFolderPath }}/${{ environmentFolderPath }}'
 
 - task: PublishBuildArtifacts@1
   displayName: 'Publish Terraform in artifacts'

@@ -12,7 +12,7 @@ parameters:
 - name: terraformRootFolderPath
   displayName: 'Terraform root folder path'
   type: string
-  default: '/.terraform'
+  default: '.terraform'
 
 - name: terraformEnvironmentFolderPaths
   displayName: 'List of Terraform environment folder paths'
