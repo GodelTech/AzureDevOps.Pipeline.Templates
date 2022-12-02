@@ -74,5 +74,5 @@ steps:
       ${{ gt(length(parameters.environmentFolderPaths), 0) }}
     )
   inputs:
-    pathtoPublish: '$(Build.ArtifactStagingDirectory)/Terraform'
+    pathtoPublish: '$(Build.ArtifactStagingDirectory)/Terraform/${{ parameters.rootFolderPath }}'
     artifactName: ${{ parameters.artifactName }}
