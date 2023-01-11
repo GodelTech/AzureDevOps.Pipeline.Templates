@@ -129,21 +129,11 @@ stages:
   displayName: 'Build'
 
   jobs:
-  - job: Terraform
-    displayName: 'Terraform'
-    pool:
-      vmImage: ${{ parameters.vmImage }}
-    steps:
-    - template: '../Terraform/build.yml'
-      parameters:
-        rootFolderPath: ${{ parameters.terraformRootFolderPath }}
-        environmentFolderPaths: ${{ parameters.terraformEnvironmentFolderPaths }}
-
-    - template: '../Terraform/pulish.yml'
-      parameters:
-        artifactName: ${{ parameters.terraformArtifactName }}
-        rootFolderPath: ${{ parameters.terraformRootFolderPath }}
-        environmentFolderPaths: ${{ parameters.terraformEnvironmentFolderPaths }}
+  - template: '../Terraform/CI.yml'
+    parameters:
+      rootFolderPath: ${{ parameters.terraformRootFolderPath }}
+      environmentFolderPaths: ${{ parameters.terraformEnvironmentFolderPaths }}
+      artifactName: ${{ parameters.terraformArtifactName }}
 
   - job: Build
     displayName: 'Build'
