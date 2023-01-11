@@ -4,17 +4,17 @@ parameters:
   type: string
   default: 'ubuntu-latest'
 
-- name: terraformRootFolderPath
+- name: rootFolderPath
   displayName: 'Terraform root folder path'
   type: string
   default: '.terraform'
 
-- name: terraformEnvironmentFolderPaths
+- name: environmentFolderPaths
   displayName: 'List of Terraform environment folder paths'
   type: object
   default: []
 
-- name: terraformArtifactName
+- name: artifactName
   displayName: 'Terraform artifact name'
   type: string
   default: 'terraform'
@@ -27,11 +27,11 @@ jobs:
   steps:
   - template: 'build.yml'
     parameters:
-      rootFolderPath: ${{ parameters.terraformRootFolderPath }}
-      environmentFolderPaths: ${{ parameters.terraformEnvironmentFolderPaths }}
+      rootFolderPath: ${{ parameters.rootFolderPath }}
+      environmentFolderPaths: ${{ parameters.environmentFolderPaths }}
 
   - template: 'pulish.yml'
     parameters:
-      artifactName: ${{ parameters.terraformArtifactName }}
-      rootFolderPath: ${{ parameters.terraformRootFolderPath }}
-      environmentFolderPaths: ${{ parameters.terraformEnvironmentFolderPaths }}
+      rootFolderPath: ${{ parameters.rootFolderPath }}
+      environmentFolderPaths: ${{ parameters.environmentFolderPaths }}
+      artifactName: ${{ parameters.artifactName }}

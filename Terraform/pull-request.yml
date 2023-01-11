@@ -4,12 +4,12 @@ parameters:
   type: string
   default: 'ubuntu-latest'
 
-- name: terraformRootFolderPath
+- name: rootFolderPath
   displayName: 'Terraform root folder path'
   type: string
   default: '.terraform'
 
-- name: terraformEnvironmentFolderPaths
+- name: environmentFolderPaths
   displayName: 'List of Terraform environment folder paths'
   type: object
   default: []
@@ -22,5 +22,5 @@ jobs:
   steps:
   - template: 'build.yml'
     parameters:
-      rootFolderPath: ${{ parameters.terraformRootFolderPath }}
-      environmentFolderPaths: ${{ parameters.terraformEnvironmentFolderPaths }}
+      rootFolderPath: ${{ parameters.rootFolderPath }}
+      environmentFolderPaths: ${{ parameters.environmentFolderPaths }}
