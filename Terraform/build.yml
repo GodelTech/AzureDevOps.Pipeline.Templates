@@ -1,9 +1,4 @@
 parameters:
-- name: artifactName
-  displayName: 'Terraform artifact name'
-  type: string
-  default: 'terraform'
-
 - name: rootFolderPath
   displayName: 'Terraform root folder path'
   type: string
@@ -15,18 +10,6 @@ parameters:
   default: []
 
 steps:
-- task: CopyFiles@2
-  displayName: 'Copy Terraform files into artifacts'
-  condition: |
-    and
-    (
-      succeeded(),
-      ${{ gt(length(parameters.environmentFolderPaths), 0) }}
-    )
-  inputs:
-    Contents: '${{ parameters.rootFolderPath }}/**'
-    TargetFolder: '$(Build.ArtifactStagingDirectory)/Terraform'
-
 - task: TerraformInstaller@0
   displayName: 'Install Terraform'
   condition: |
@@ -64,15 +47,3 @@ steps:
     inputs:
       command: 'validate'
       workingDirectory: '$(System.DefaultWorkingDirectory)/${{ parameters.rootFolderPath }}/${{ environmentFolderPath }}'
-
-- task: PublishBuildArtifacts@1
-  displayName: 'Publish Terraform in artifacts'
-  condition: |
-    and
-    (
-      succeeded(),
-      ${{ gt(length(parameters.environmentFolderPaths), 0) }}
-    )
-  inputs:
-    pathtoPublish: '$(Build.ArtifactStagingDirectory)/Terraform/${{ parameters.rootFolderPath }}'
-    artifactName: ${{ parameters.artifactName }}

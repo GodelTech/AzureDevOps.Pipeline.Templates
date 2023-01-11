@@ -4,6 +4,16 @@ parameters:
   type: string
   default: 'ubuntu-latest'
 
+- name: terraformRootFolderPath
+  displayName: 'Terraform root folder path'
+  type: string
+  default: '.terraform'
+
+- name: terraformEnvironmentFolderPaths
+  displayName: 'List of Terraform environment folder paths'
+  type: object
+  default: []
+
 - name: preBuildSteps
   displayName: 'Steps to run before build'
   type: stepList
@@ -59,6 +69,16 @@ stages:
   displayName: 'Build'
 
   jobs:
+  - job: Terraform
+    displayName: 'Terraform'
+    pool:
+      vmImage: ${{ parameters.vmImage }}
+    steps:
+    - template: '../Terraform/build.yml'
+      parameters:
+        rootFolderPath: ${{ parameters.terraformRootFolderPath }}
+        environmentFolderPaths: ${{ parameters.terraformEnvironmentFolderPaths }}
+
   - job: Build
     displayName: 'Build'
     pool:
