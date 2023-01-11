@@ -39,6 +39,11 @@ parameters:
   type: string
   default: ''
 
+- name: notifyUsers
+  displayName: 'Notify users'
+  type: string
+  default: '[$(System.TeamProject)]\Build Administrators'
+
 jobs:
 - deployment: Terraform
   displayName: 'Terraform'
@@ -49,8 +54,6 @@ jobs:
     runOnce:
       deploy:
         steps:
-        - checkout: self
-
         - task: TerraformInstaller@0
           displayName: 'Install Terraform'
           inputs:
@@ -68,30 +71,51 @@ jobs:
             backendAzureRmResourceGroupLocation: '${{ parameters.azureResourceGroupLocation }}'
             backendAzureRmStorageAccountName: '${{ parameters.azureStorageAccountName }}'
             backendAzureRmContainerName: '${{ parameters.azureStorageContainerName }}'
-            allowTelemetryCollection: true
 
         - task: TerraformCLI@0
-          displayName: 'Terraform validate'
-          inputs:
-            command: 'validate'
-            workingDirectory: '$(System.DefaultWorkingDirectory)/${{ parameters.workingDirectoryPath }}'
-            allowTelemetryCollection: true
-
-        - task: TerraformCLI@0
-          displayName: 'Terraform plan destroy'
+          displayName: 'Terraform plan'
           inputs:
             command: 'plan'
             workingDirectory: '$(System.DefaultWorkingDirectory)/${{ parameters.workingDirectoryPath }}'
             environmentServiceName: '${{ parameters.azureServiceConnectionName }}'
-            allowTelemetryCollection: true
-            publishPlanResults: '${{ parameters.environmentName }}'
-            commandOptions: '-destroy'
+            publishPlanResults: '${{ parameters.environmentName }}.tfplan'
+            commandOptions: '-out=${{ parameters.environmentName }}.tfplan -detailed-exitcode'
 
         - task: TerraformCLI@0
-          displayName: 'Terraform apply destroy'
+          displayName: 'Terraform show'
+          condition: |
+            and
+            (
+              succeeded(),
+              eq(variables['TERRAFORM_PLAN_HAS_DESTROY_CHANGES'], 'true')
+            )
+          inputs:
+            command: show
+            workingDirectory: '$(System.DefaultWorkingDirectory)/${{ parameters.workingDirectoryPath }}'
+            inputTargetPlanOrStateFilePath: '${{ parameters.environmentName }}.tfplan'
+
+        - task: ManualValidation@0
+          displayName: 'Manual validation'
+          condition: |
+            and
+            (
+              succeeded(),
+              eq(variables['TERRAFORM_PLAN_HAS_DESTROY_CHANGES'], 'true')
+            )
+          inputs:
+            notifyUsers: '${{ parameters.notifyUsers }}'
+            instructions: 'Terraform plan has DESTROY changes, please review: ${{ parameters.environmentName }}.tfplan'
+
+        - task: TerraformCLI@0
+          displayName: 'Terraform apply'
+          condition: |
+            and
+            (
+              succeeded(),
+              eq(variables['TERRAFORM_PLAN_HAS_CHANGES'], 'true')
+            )
           inputs:
             command: 'apply'
             workingDirectory: '$(System.DefaultWorkingDirectory)/${{ parameters.workingDirectoryPath }}'
             environmentServiceName: '${{ parameters.azureServiceConnectionName }}'
-            allowTelemetryCollection: true
-            commandOptions: '-destroy'
+            commandOptions: '${{ parameters.environmentName }}.tfplan'
