@@ -101,6 +101,7 @@ jobs:
 
         - task: ManualValidation@0
           displayName: 'Manual validation'
+          pool: server
           condition: |
             and
             (
