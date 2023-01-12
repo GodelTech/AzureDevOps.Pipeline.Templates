@@ -1,9 +1,4 @@
 parameters:
-- name: vmImage
-  displayName: 'Pool VM image'
-  type: string
-  default: 'ubuntu-latest'
-
 - name: environmentName
   displayName: 'Environment name'
   type: string
@@ -52,8 +47,7 @@ parameters:
 jobs:
 - deployment: Terraform
   displayName: 'Terraform'
-  pool:
-    vmImage: ${{ parameters.vmImage }}
+  pool: server
   environment: ${{ parameters.environmentName }}
   strategy:
     runOnce:
@@ -101,7 +95,6 @@ jobs:
 
         - task: ManualValidation@0
           displayName: 'Manual validation'
-          pool: server
           condition: |
             and
             (
