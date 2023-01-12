@@ -39,6 +39,11 @@ parameters:
   type: string
   default: ''
 
+- name: planCommandVariables
+  displayName: 'Plan command variables'
+  type: string
+  default: ''
+
 - name: notifyUsers
   displayName: 'Notify users'
   type: string
@@ -79,7 +84,7 @@ jobs:
             workingDirectory: '$(System.DefaultWorkingDirectory)/${{ parameters.workingDirectoryPath }}'
             environmentServiceName: '${{ parameters.azureServiceConnectionName }}'
             publishPlanResults: '${{ parameters.environmentName }}.tfplan'
-            commandOptions: '-out=${{ parameters.environmentName }}.tfplan -detailed-exitcode'
+            commandOptions: '-out=${{ parameters.environmentName }}.tfplan -detailed-exitcode ${{ parameters.planCommandVariables }}'
 
         - task: TerraformCLI@0
           displayName: 'Terraform show'
