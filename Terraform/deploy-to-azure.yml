@@ -9,6 +9,11 @@ parameters:
   type: string
   default: ''
 
+- name: artifactName
+  displayName: 'Terraform artifact name'
+  type: string
+  default: 'terraform'
+
 - name: workingDirectoryPath
   displayName: 'Path to Terraform folder'
   type: string
@@ -59,6 +64,9 @@ jobs:
     runOnce:
       deploy:
         steps:
+        - download: ci
+          artifact: ${{ parameters.artifactName }}
+
         - task: TerraformInstaller@0
           displayName: 'Install Terraform'
           inputs:
