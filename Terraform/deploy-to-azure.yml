@@ -1,4 +1,9 @@
 parameters:
+- name: vmImage
+  displayName: 'Pool VM image'
+  type: string
+  default: 'ubuntu-latest'
+
 - name: environmentName
   displayName: 'Environment name'
   type: string
@@ -47,7 +52,8 @@ parameters:
 jobs:
 - deployment: Terraform
   displayName: 'Terraform'
-  pool: server
+  pool:
+    vmImage: ${{ parameters.vmImage }}
   environment: ${{ parameters.environmentName }}
   strategy:
     runOnce:
@@ -92,18 +98,6 @@ jobs:
             command: show
             workingDirectory: '$(System.DefaultWorkingDirectory)/${{ parameters.workingDirectoryPath }}'
             inputTargetPlanOrStateFilePath: '${{ parameters.environmentName }}.tfplan'
-
-        - task: ManualValidation@0
-          displayName: 'Manual validation'
-          condition: |
-            and
-            (
-              succeeded(),
-              eq(variables['TERRAFORM_PLAN_HAS_DESTROY_CHANGES'], 'true')
-            )
-          inputs:
-            notifyUsers: '${{ parameters.notifyUsers }}'
-            instructions: 'Terraform plan has DESTROY changes, please review: ${{ parameters.environmentName }}.tfplan'
 
         - task: TerraformCLI@0
           displayName: 'Terraform apply'
