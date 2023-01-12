@@ -25,13 +25,13 @@ jobs:
   pool:
     vmImage: ${{ parameters.vmImage }}
   steps:
-  - template: 'build.yml'
-    parameters:
-      rootFolderPath: ${{ parameters.rootFolderPath }}
-      environmentFolderPaths: ${{ parameters.environmentFolderPaths }}
-
   - template: 'publish.yml'
     parameters:
       rootFolderPath: ${{ parameters.rootFolderPath }}
       environmentFolderPaths: ${{ parameters.environmentFolderPaths }}
       artifactName: ${{ parameters.artifactName }}
+
+  - template: 'build.yml'
+    parameters:
+      rootFolderPath: ${{ parameters.rootFolderPath }}
+      environmentFolderPaths: ${{ parameters.environmentFolderPaths }}

@@ -76,6 +76,7 @@ jobs:
             backendAzureRmResourceGroupLocation: '${{ parameters.azureResourceGroupLocation }}'
             backendAzureRmStorageAccountName: '${{ parameters.azureStorageAccountName }}'
             backendAzureRmContainerName: '${{ parameters.azureStorageContainerName }}'
+            commandOptions: '-input=false'
 
         - task: TerraformCLI@0
           displayName: 'Terraform plan'
@@ -84,16 +85,10 @@ jobs:
             workingDirectory: '$(System.DefaultWorkingDirectory)/${{ parameters.workingDirectoryPath }}'
             environmentServiceName: '${{ parameters.azureServiceConnectionName }}'
             publishPlanResults: '${{ parameters.environmentName }}.tfplan'
-            commandOptions: '-out=${{ parameters.environmentName }}.tfplan -detailed-exitcode ${{ parameters.planCommandVariables }}'
+            commandOptions: '-out=${{ parameters.environmentName }}.tfplan -input=false -detailed-exitcode ${{ parameters.planCommandVariables }}'
 
         - task: TerraformCLI@0
           displayName: 'Terraform show'
-          condition: |
-            and
-            (
-              succeeded(),
-              eq(variables['TERRAFORM_PLAN_HAS_DESTROY_CHANGES'], 'true')
-            )
           inputs:
             command: show
             workingDirectory: '$(System.DefaultWorkingDirectory)/${{ parameters.workingDirectoryPath }}'
@@ -111,4 +106,4 @@ jobs:
             command: 'apply'
             workingDirectory: '$(System.DefaultWorkingDirectory)/${{ parameters.workingDirectoryPath }}'
             environmentServiceName: '${{ parameters.azureServiceConnectionName }}'
-            commandOptions: '${{ parameters.environmentName }}.tfplan'
+            commandOptions: '-input=false ${{ parameters.environmentName }}.tfplan'
