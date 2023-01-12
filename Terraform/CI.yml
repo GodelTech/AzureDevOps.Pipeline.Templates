@@ -30,7 +30,7 @@ jobs:
       rootFolderPath: ${{ parameters.rootFolderPath }}
       environmentFolderPaths: ${{ parameters.environmentFolderPaths }}
 
-  - template: 'pulish.yml'
+  - template: 'publish.yml'
     parameters:
       rootFolderPath: ${{ parameters.rootFolderPath }}
       environmentFolderPaths: ${{ parameters.environmentFolderPaths }}
