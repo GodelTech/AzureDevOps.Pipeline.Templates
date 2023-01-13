@@ -66,12 +66,13 @@ jobs:
     vmImage: ${{ parameters.vmImage }}
   environment: ${{ parameters.environmentName }}
   variables:
-    artifactWorkingDirectory: '$(System.DefaultWorkingDirectory)/${{ parameters.ciPipelineResourcesName }}/${{ parameters.artifactName }}'
+    artifactWorkingDirectory: '$(Pipeline.Workspace)/${{ parameters.ciPipelineResourcesName }}/${{ parameters.artifactName }}'
   strategy:
     runOnce:
       deploy:
         steps:
         - download: ci
+          displayName: 'Download artifact: ${{ parameters.artifactName }}'
           artifact: ${{ parameters.artifactName }}
 
         - task: TerraformInstaller@0
