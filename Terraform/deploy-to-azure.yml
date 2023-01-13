@@ -9,6 +9,11 @@ parameters:
   type: string
   default: ''
 
+- name: ciPipelineResourcesName
+  displayName: 'CI pipeline resources name'
+  type: string
+  default: 'ci'
+
 - name: artifactName
   displayName: 'Terraform artifact name'
   type: string
@@ -60,6 +65,8 @@ jobs:
   pool:
     vmImage: ${{ parameters.vmImage }}
   environment: ${{ parameters.environmentName }}
+  variables:
+    artifactWorkingDirectory: '$(System.DefaultWorkingDirectory)/${{ parameters.ciPipelineResourcesName }}/${{ parameters.artifactName }}'
   strategy:
     runOnce:
       deploy:
@@ -76,7 +83,7 @@ jobs:
           displayName: 'Terraform init'
           inputs:
             command: 'init'
-            workingDirectory: '$(System.DefaultWorkingDirectory)/${{ parameters.workingDirectoryPath }}'
+            workingDirectory: '$(artifactWorkingDirectory)/${{ parameters.workingDirectoryPath }}'
             backendType: 'azurerm'
             backendServiceArm: '${{ parameters.azureServiceConnectionName }}'
             ensureBackend: true
@@ -90,7 +97,7 @@ jobs:
           displayName: 'Terraform plan'
           inputs:
             command: 'plan'
-            workingDirectory: '$(System.DefaultWorkingDirectory)/${{ parameters.workingDirectoryPath }}'
+            workingDirectory: '$(artifactWorkingDirectory)/${{ parameters.workingDirectoryPath }}'
             environmentServiceName: '${{ parameters.azureServiceConnectionName }}'
             publishPlanResults: '${{ parameters.environmentName }}.tfplan'
             commandOptions: '-out=${{ parameters.environmentName }}.tfplan -input=false -detailed-exitcode ${{ parameters.planCommandVariables }}'
@@ -99,7 +106,7 @@ jobs:
           displayName: 'Terraform show'
           inputs:
             command: show
-            workingDirectory: '$(System.DefaultWorkingDirectory)/${{ parameters.workingDirectoryPath }}'
+            workingDirectory: '$(artifactWorkingDirectory)/${{ parameters.workingDirectoryPath }}'
             inputTargetPlanOrStateFilePath: '${{ parameters.environmentName }}.tfplan'
 
         - task: TerraformCLI@0
@@ -112,6 +119,6 @@ jobs:
             )
           inputs:
             command: 'apply'
-            workingDirectory: '$(System.DefaultWorkingDirectory)/${{ parameters.workingDirectoryPath }}'
+            workingDirectory: '$(artifactWorkingDirectory)/${{ parameters.workingDirectoryPath }}'
             environmentServiceName: '${{ parameters.azureServiceConnectionName }}'
             commandOptions: '-input=false ${{ parameters.environmentName }}.tfplan'
