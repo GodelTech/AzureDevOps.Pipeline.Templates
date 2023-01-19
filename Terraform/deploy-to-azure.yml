@@ -9,8 +9,8 @@ parameters:
   type: string
   default: ''
 
-- name: ciPipelineResourcesName
-  displayName: 'CI pipeline resources name'
+- name: ciPipelineResourceName
+  displayName: 'CI pipeline resource name'
   type: string
   default: 'ci'
 
@@ -60,18 +60,18 @@ parameters:
   default: '[$(System.TeamProject)]\Build Administrators'
 
 jobs:
-- deployment: Terraform
-  displayName: 'Terraform'
+- deployment: TerraformPlan
+  displayName: 'Terraform plan'
   pool:
     vmImage: ${{ parameters.vmImage }}
   environment: ${{ parameters.environmentName }}
   variables:
-    artifactWorkingDirectory: '$(Pipeline.Workspace)/${{ parameters.ciPipelineResourcesName }}/${{ parameters.artifactName }}'
+    artifactWorkingDirectory: '$(Pipeline.Workspace)/${{ parameters.ciPipelineResourceName }}/${{ parameters.artifactName }}'
   strategy:
     runOnce:
       deploy:
         steps:
-        - download: ci
+        - download: ${{ parameters.ciPipelineResourceName }}
           displayName: 'Download artifact: ${{ parameters.artifactName }}'
           artifact: ${{ parameters.artifactName }}
 
@@ -113,11 +113,10 @@ jobs:
             )
           inputs:
             command: 'show'
-            workingDirectory: '$(artifactWorkingDirectory)/${{ parameters.workingDirectoryPath }}'
             inputTargetPlanOrStateFilePath: '$(System.DefaultWorkingDirectory)/${{ parameters.environmentName }}.tfplan'
 
-        - task: TerraformCLI@0
-          displayName: 'Terraform apply'
+        - task: PublishBuildArtifacts@1
+          displayName: 'Publish Terraform plan in artifacts'
           condition: |
             and
             (
@@ -125,7 +124,59 @@ jobs:
               eq(variables['TERRAFORM_PLAN_HAS_CHANGES'], 'true')
             )
           inputs:
-            command: 'apply'
-            workingDirectory: '$(artifactWorkingDirectory)/${{ parameters.workingDirectoryPath }}'
-            environmentServiceName: '${{ parameters.azureServiceConnectionName }}'
-            commandOptions: '-input=false $(System.DefaultWorkingDirectory)/${{ parameters.environmentName }}.tfplan'
+            pathtoPublish: '$(System.DefaultWorkingDirectory)/${{ parameters.environmentName }}.tfplan'
+            artifactName: 'tfplan'
+
+        - bash: |
+            echo "##vso[task.setvariable variable=HAS_CHANGES;isoutput=true;isreadonly=true]$TERRAFORM_PLAN_HAS_CHANGES"
+            echo "##vso[task.setvariable variable=HAS_DESTROY_CHANGES;isoutput=true;isreadonly=true]$TERRAFORM_PLAN_HAS_DESTROY_CHANGES"
+          displayName: 'Set Terraform plan output variables'
+          condition: |
+            and
+            (
+              succeeded(),
+              eq(variables['TERRAFORM_PLAN_HAS_CHANGES'], 'true')
+            )
+          name: tfplanOutput
+
+- job: TerraformValidate
+  displayName: 'Terraform validate'
+  pool: server
+  timeoutInMinutes: 7200 # job times out in 5 days
+  dependsOn: TerraformPlan
+  condition: |
+    and
+    (
+      succeeded(),
+      eq(dependencies.TerraformPlan.outputs['tfplanOutput.HAS_CHANGES'], 'true')
+    )
+  steps:
+  - task: ManualValidation@0
+    displayName: 'Manual validation'
+    timeoutInMinutes: 4320 # task times out in 3 days
+    condition: eq(dependencies.TerraformPlan.outputs['tfplanOutput.HAS_DESTROY_CHANGES'], 'true')
+    inputs:
+      notifyUsers: '${{ parameters.notifyUsers }}'
+      instructions: 'Terraform plan has DESTROY changes, please review: ${{ parameters.environmentName }}.tfplan'
+
+- job: TerraformApply
+  displayName: 'Terraform apply'
+  pool:
+    vmImage: ${{ parameters.vmImage }}
+  dependsOn: TerraformValidate
+  steps:
+  - download: current
+    displayName: 'Download artifact'
+    artifact: tfplan
+
+  - task: TerraformInstaller@0
+    displayName: 'Install Terraform'
+    inputs:
+      terraformVersion: 'latest'
+
+  - task: TerraformCLI@0
+    displayName: 'Terraform apply'
+    inputs:
+      command: 'apply'
+      environmentServiceName: '${{ parameters.azureServiceConnectionName }}'
+      commandOptions: '-input=false $(Pipeline.Workspace)/tfplan/${{ parameters.environmentName }}.tfplan'
