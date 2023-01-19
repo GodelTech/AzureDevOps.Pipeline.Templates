@@ -114,7 +114,7 @@ jobs:
           inputs:
             command: show
             workingDirectory: '$(artifactWorkingDirectory)/${{ parameters.workingDirectoryPath }}'
-            inputTargetPlanOrStateFilePath: '${{ parameters.environmentName }}.tfplan'
+            inputTargetPlanOrStateFilePath: '$(artifactWorkingDirectory)/${{ parameters.workingDirectoryPath }}/${{ parameters.environmentName }}.tfplan'
 
         - task: TerraformCLI@0
           displayName: 'Terraform apply'
