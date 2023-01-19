@@ -113,6 +113,7 @@ jobs:
             )
           inputs:
             command: 'show'
+            workingDirectory: '$(artifactWorkingDirectory)/${{ parameters.workingDirectoryPath }}'
             inputTargetPlanOrStateFilePath: '$(System.DefaultWorkingDirectory)/${{ parameters.environmentName }}.tfplan'
 
         - task: PublishBuildArtifacts@1
@@ -164,6 +165,8 @@ jobs:
   pool:
     vmImage: ${{ parameters.vmImage }}
   dependsOn: TerraformValidate
+  variables:
+    artifactWorkingDirectory: '$(Pipeline.Workspace)/tfplan'
   steps:
   - download: current
     displayName: 'Download artifact'
@@ -178,5 +181,6 @@ jobs:
     displayName: 'Terraform apply'
     inputs:
       command: 'apply'
+      workingDirectory: '$(artifactWorkingDirectory)/${{ parameters.environmentName }}.tfplan'
       environmentServiceName: '${{ parameters.azureServiceConnectionName }}'
-      commandOptions: '-input=false $(Pipeline.Workspace)/tfplan/${{ parameters.environmentName }}.tfplan'
+      commandOptions: '-input=false $(artifactWorkingDirectory)/${{ parameters.environmentName }}.tfplan'
