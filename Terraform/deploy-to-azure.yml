@@ -149,13 +149,12 @@ jobs:
     and
     (
       succeeded(),
-      eq(dependencies.TerraformPlan.outputs['TerraformPlan.tfplanOutput.HAS_CHANGES'], 'true')
+      eq(dependencies.TerraformPlan.outputs['TerraformPlan.tfplanOutput.HAS_DESTROY_CHANGES'], 'true')
     )
   steps:
   - task: ManualValidation@0
     displayName: 'Manual validation'
     timeoutInMinutes: 4320 # task times out in 3 days
-    condition: eq(dependencies.TerraformPlan.outputs['TerraformPlan.tfplanOutput.HAS_DESTROY_CHANGES'], 'true')
     inputs:
       notifyUsers: '${{ parameters.notifyUsers }}'
       instructions: 'Terraform plan has DESTROY changes, please review: ${{ parameters.environmentName }}.tfplan'
@@ -165,6 +164,7 @@ jobs:
   pool:
     vmImage: ${{ parameters.vmImage }}
   dependsOn: TerraformValidate
+  condition: in(dependencies.TerraformValidate.result, 'Succeeded', 'Skipped')
   variables:
     artifactWorkingDirectory: '$(Pipeline.Workspace)/tfplan'
   steps:
