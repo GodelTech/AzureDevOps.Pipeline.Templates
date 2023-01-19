@@ -101,7 +101,7 @@ jobs:
             workingDirectory: '$(artifactWorkingDirectory)/${{ parameters.workingDirectoryPath }}'
             environmentServiceName: '${{ parameters.azureServiceConnectionName }}'
             publishPlanResults: '${{ parameters.environmentName }}.tfplan'
-            commandOptions: '-out=${{ parameters.environmentName }}.tfplan -input=false -detailed-exitcode ${{ parameters.planCommandVariables }}'
+            commandOptions: '-out=$(System.DefaultWorkingDirectory)/${{ parameters.environmentName }}.tfplan -input=false -detailed-exitcode ${{ parameters.planCommandVariables }}'
 
         - task: TerraformCLI@0
           displayName: 'Terraform show'
@@ -114,7 +114,7 @@ jobs:
           inputs:
             command: 'show'
             workingDirectory: '$(artifactWorkingDirectory)/${{ parameters.workingDirectoryPath }}'
-            inputTargetPlanOrStateFilePath: '${{ parameters.environmentName }}.tfplan'
+            inputTargetPlanOrStateFilePath: '$(System.DefaultWorkingDirectory)/${{ parameters.environmentName }}.tfplan'
 
         - task: TerraformCLI@0
           displayName: 'Terraform apply'
@@ -128,4 +128,4 @@ jobs:
             command: 'apply'
             workingDirectory: '$(artifactWorkingDirectory)/${{ parameters.workingDirectoryPath }}'
             environmentServiceName: '${{ parameters.azureServiceConnectionName }}'
-            commandOptions: '-input=false ${{ parameters.environmentName }}.tfplan'
+            commandOptions: '-input=false $(System.DefaultWorkingDirectory)/${{ parameters.environmentName }}.tfplan'
