@@ -87,7 +87,7 @@ jobs:
             workingDirectory: '$(artifactWorkingDirectory)/${{ parameters.workingDirectoryPath }}'
             backendType: 'azurerm'
             backendServiceArm: '${{ parameters.azureServiceConnectionName }}'
-            ensureBackend: true
+            ensureBackend: false
             backendAzureRmResourceGroupName: '${{ parameters.azureResourceGroupName }}'
             backendAzureRmResourceGroupLocation: '${{ parameters.azureResourceGroupLocation }}'
             backendAzureRmStorageAccountName: '${{ parameters.azureStorageAccountName }}'
