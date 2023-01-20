@@ -13,7 +13,8 @@ parameters:
   type: object
   default: []
 
-- name: azureSubscription
+- name: azureServiceConnectionName
+  displayName: 'Name of connection to Azure'
   type: string
   default: ''
 
@@ -78,7 +79,7 @@ jobs:
               ne('${{ parameters.appSettings }}', '')
             )
           inputs:
-            azureSubscription: ${{ parameters.azureSubscription }}
+            azureSubscription: ${{ parameters.azureServiceConnectionName }}
             resourceGroupName: ${{ parameters.resourceGroupName }}
             appName: ${{ parameters.appName }}
             generalSettings: ${{ parameters.generalSettings }}
@@ -89,7 +90,7 @@ jobs:
           displayName: 'Deploy in App Service'
           inputs:
             ConnectionType: 'AzureRM'
-            azureSubscription: ${{ parameters.azureSubscription }}
+            azureSubscription: ${{ parameters.azureServiceConnectionName }}
             appType: 'apiApp'
             WebAppName: ${{ parameters.appName }}
             packageForLinux: '$(Pipeline.Workspace)/**/${{ parameters.projectArtifactName }}/*.zip'
@@ -108,7 +109,7 @@ jobs:
           - task: SqlAzureDacpacDeployment@1
             displayName: 'Apply ${{ fileName }} migration script'
             inputs:
-              azureSubscription: ${{ parameters.azureSubscription }}
+              azureSubscription: ${{ parameters.azureServiceConnectionName }}
               AuthenticationType: 'connectionString'
               ConnectionString: ${{ parameters.migrationConnectionString }}
               deployType: 'SqlTask'

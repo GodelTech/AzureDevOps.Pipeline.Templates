@@ -13,7 +13,8 @@ parameters:
   type: object
   default: []
 
-- name: azureSubscription
+- name: azureServiceConnectionName
+  displayName: 'Name of connection to Azure'
   type: string
   default: ''
 
@@ -48,7 +49,7 @@ jobs:
         - task: AzureFunctionApp@1
           displayName: 'Deploy in Azure Function'
           inputs:
-            azureSubscription: ${{ parameters.azureSubscription }}
+            azureSubscription: ${{ parameters.azureServiceConnectionName }}
             appType: ${{ parameters.appType }}
             appName: ${{ parameters.appName }}
             package: '$(Pipeline.Workspace)/**/${{ parameters.projectArtifactName }}/*.zip'
