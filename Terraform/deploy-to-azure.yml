@@ -116,13 +116,6 @@ jobs:
             workingDirectory: '$(artifactWorkingDirectory)'
             inputTargetPlanOrStateFilePath: '$(System.DefaultWorkingDirectory)/${{ parameters.environmentName }}.tfplan'
 
-        - task: CopyFiles@2
-          displayName: 'Copy Terraform plan'
-          inputs:
-            SourceFolder: '$(System.DefaultWorkingDirectory)'
-            Contents: '${{ parameters.environmentName }}.tfplan'
-            TargetFolder: '$(artifactWorkingDirectory)'
-
         - task: PublishBuildArtifacts@1
           displayName: 'Publish Terraform in artifacts'
           condition: |
@@ -133,6 +126,18 @@ jobs:
             )
           inputs:
             pathtoPublish: '$(artifactWorkingDirectory)'
+            artifactName: 'terraform'
+
+        - task: PublishBuildArtifacts@1
+          displayName: 'Publish Terraform plan in artifacts'
+          condition: |
+            and
+            (
+              succeeded(),
+              eq(variables['TERRAFORM_PLAN_HAS_CHANGES'], 'true')
+            )
+          inputs:
+            pathtoPublish: '$(System.DefaultWorkingDirectory)/${{ parameters.environmentName }}.tfplan'
             artifactName: 'tfplan'
 
         - bash: |
@@ -173,12 +178,16 @@ jobs:
   dependsOn: TerraformValidate
   condition: in(dependencies.TerraformValidate.result, 'Succeeded', 'Skipped')
   variables:
-    artifactWorkingDirectory: '$(Pipeline.Workspace)/tfplan'
+    artifactWorkingDirectory: '$(Pipeline.Workspace)/terraform'
   steps:
   - checkout: none
 
   - download: current
-    displayName: 'Download artifact'
+    displayName: 'Download Terraform artifact'
+    artifact: terraform
+
+  - download: current
+    displayName: 'Download Terraform plan artifact'
     artifact: tfplan
 
   - task: TerraformInstaller@0
@@ -192,4 +201,4 @@ jobs:
       command: 'apply'
       workingDirectory: '$(artifactWorkingDirectory)'
       environmentServiceName: '${{ parameters.azureServiceConnectionName }}'
-      commandOptions: '-input=false $(artifactWorkingDirectory)/${{ parameters.environmentName }}.tfplan'
+      commandOptions: '-input=false $(Pipeline.Workspace)/tfplan/${{ parameters.environmentName }}.tfplan'
