@@ -100,8 +100,8 @@ jobs:
             command: 'plan'
             workingDirectory: '$(artifactWorkingDirectory)'
             environmentServiceName: '${{ parameters.azureServiceConnectionName }}'
-            publishPlanResults: '${{ parameters.environmentName }}.tfplan'
-            commandOptions: '-out=$(System.DefaultWorkingDirectory)/${{ parameters.environmentName }}.tfplan -input=false -detailed-exitcode ${{ parameters.planCommandVariables }}'
+            publishPlanResults: '${{ parameters.environmentName }}'
+            commandOptions: '-out=$(artifactWorkingDirectory)/${{ parameters.environmentName }}.tfplan -input=false -detailed-exitcode ${{ parameters.planCommandVariables }}'
 
         - task: TerraformCLI@0
           displayName: 'Terraform show'
@@ -114,7 +114,7 @@ jobs:
           inputs:
             command: 'show'
             workingDirectory: '$(artifactWorkingDirectory)'
-            inputTargetPlanOrStateFilePath: '$(System.DefaultWorkingDirectory)/${{ parameters.environmentName }}.tfplan'
+            inputTargetPlanOrStateFilePath: '$(artifactWorkingDirectory)/${{ parameters.environmentName }}.tfplan'
 
         - task: PublishBuildArtifacts@1
           displayName: 'Publish Terraform in artifacts'
@@ -127,18 +127,6 @@ jobs:
           inputs:
             pathtoPublish: '$(artifactWorkingDirectory)'
             artifactName: 'terraform'
-
-        - task: PublishBuildArtifacts@1
-          displayName: 'Publish Terraform plan in artifacts'
-          condition: |
-            and
-            (
-              succeeded(),
-              eq(variables['TERRAFORM_PLAN_HAS_CHANGES'], 'true')
-            )
-          inputs:
-            pathtoPublish: '$(System.DefaultWorkingDirectory)/${{ parameters.environmentName }}.tfplan'
-            artifactName: 'tfplan'
 
         - bash: |
             echo "##vso[task.setvariable variable=HAS_CHANGES;isoutput=true;isreadonly=true]$TERRAFORM_PLAN_HAS_CHANGES"
@@ -186,10 +174,6 @@ jobs:
     displayName: 'Download Terraform artifact'
     artifact: terraform
 
-  - download: current
-    displayName: 'Download Terraform plan artifact'
-    artifact: tfplan
-
   - task: TerraformInstaller@0
     displayName: 'Install Terraform'
     inputs:
@@ -201,4 +185,4 @@ jobs:
       command: 'apply'
       workingDirectory: '$(artifactWorkingDirectory)'
       environmentServiceName: '${{ parameters.azureServiceConnectionName }}'
-      commandOptions: '-input=false $(Pipeline.Workspace)/tfplan/${{ parameters.environmentName }}.tfplan'
+      commandOptions: '-input=false $(artifactWorkingDirectory)/${{ parameters.environmentName }}.tfplan'
