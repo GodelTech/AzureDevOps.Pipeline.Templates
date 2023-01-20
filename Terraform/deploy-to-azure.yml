@@ -153,7 +153,12 @@ jobs:
     vmImage: ${{ parameters.vmImage }}
   environment: ${{ parameters.environmentName }}
   dependsOn: TerraformValidate
-  condition: in(dependencies.TerraformValidate.result, 'Succeeded', 'Skipped')
+  condition: |
+    and
+    (
+      eq(dependencies.TerraformPlan.outputs['TerraformPlan.tfplanOutput.HAS_CHANGES'], 'true'),
+      in(dependencies.TerraformValidate.result, 'Succeeded', 'Skipped')
+    )
   variables:
     artifactWorkingDirectory: '$(Pipeline.Workspace)/${{ parameters.ciPipelineResourceName }}/${{ parameters.artifactName }}/${{ parameters.workingDirectoryPath }}'
   strategy:
