@@ -101,7 +101,7 @@ jobs:
             workingDirectory: '$(artifactWorkingDirectory)'
             environmentServiceName: '${{ parameters.azureServiceConnectionName }}'
             publishPlanResults: '${{ parameters.environmentName }}.tfplan'
-            commandOptions: '-out=$(artifactWorkingDirectory)/${{ parameters.environmentName }}.tfplan -input=false -detailed-exitcode ${{ parameters.planCommandVariables }}'
+            commandOptions: '-out=$(System.DefaultWorkingDirectory)/${{ parameters.environmentName }}.tfplan -input=false -detailed-exitcode ${{ parameters.planCommandVariables }}'
 
         - task: TerraformCLI@0
           displayName: 'Terraform show'
@@ -114,10 +114,17 @@ jobs:
           inputs:
             command: 'show'
             workingDirectory: '$(artifactWorkingDirectory)'
-            inputTargetPlanOrStateFilePath: '$(artifactWorkingDirectory)/${{ parameters.environmentName }}.tfplan'
+            inputTargetPlanOrStateFilePath: '$(System.DefaultWorkingDirectory)/${{ parameters.environmentName }}.tfplan'
+
+        - task: CopyFiles@2
+          displayName: 'Copy Terraform plan'
+          inputs:
+            SourceFolder: '$(System.DefaultWorkingDirectory)'
+            Contents: '${{ parameters.environmentName }}.tfplan'
+            TargetFolder: '$(artifactWorkingDirectory)'
 
         - task: PublishBuildArtifacts@1
-          displayName: 'Publish Terraform plan in artifacts'
+          displayName: 'Publish Terraform in artifacts'
           condition: |
             and
             (
