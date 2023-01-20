@@ -189,4 +189,4 @@ jobs:
             command: 'apply'
             workingDirectory: '$(artifactWorkingDirectory)'
             environmentServiceName: '${{ parameters.azureServiceConnectionName }}'
-            commandOptions: '-input=false -auto-approve'
+            commandOptions: '-input=false -auto-approve ${{ parameters.planCommandVariables }}'
