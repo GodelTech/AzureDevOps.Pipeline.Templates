@@ -107,6 +107,7 @@ jobs:
     vmImage: windows-latest
   environment: ${{ parameters.environmentName }}
   dependsOn: Deploy
+  condition: eq(dependencies.Deploy.result, 'Succeeded')
   strategy:
     runOnce:
       deploy:
