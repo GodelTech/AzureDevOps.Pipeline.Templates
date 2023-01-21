@@ -198,6 +198,9 @@ jobs:
 
 - job: TerraformComplete
   displayName: 'Terraform complete'
-  pool: server
+  pool:
+    vmImage: ${{ parameters.vmImage }}
   dependsOn: TerraformApply
   condition: in(dependencies.TerraformApply.result, 'Succeeded', 'Skipped')
+  steps:
+  - checkout: none
