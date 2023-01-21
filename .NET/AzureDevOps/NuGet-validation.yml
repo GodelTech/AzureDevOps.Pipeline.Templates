@@ -43,6 +43,8 @@ stages:
     pool:
       vmImage: ubuntu-latest
     steps:
+    - checkout: none
+
     - task: PowerShell@2
       displayName: 'Get list of repositories in Organization'
       inputs:

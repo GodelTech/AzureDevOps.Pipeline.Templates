@@ -8,6 +8,11 @@ parameters:
   type: string
   default: ''
 
+- name: ciPipelineResourceName
+  displayName: 'CI pipeline resource name'
+  type: string
+  default: 'ci'
+
 - name: dependsOn
   displayName: 'Depends On'
   type: object
@@ -17,11 +22,6 @@ parameters:
   displayName: 'Condition'
   type: string
   default: 'succeeded()'
-
-- name: pipelineName
-  displayName: 'Pipeline name. Used as folder for downloads'
-  type: string
-  default: 'ci'
 
 - name: projectArtifactName
   displayName: 'Project artifact name'
@@ -45,10 +45,14 @@ jobs:
     runOnce:
       deploy:
         steps:
+        - download: ${{ parameters.ciPipelineResourceName }}
+          displayName: 'Download artifact: ${{ parameters.projectArtifactName }}'
+          artifact: ${{ parameters.projectArtifactName }}
+
         - task: AzureStaticWebApp@0
           displayName: 'Deploy in Static Web App'
           inputs:
-            workingDirectory: '$(Pipeline.Workspace)/${{ parameters.pipelineName }}'
+            workingDirectory: '$(Pipeline.Workspace)/${{ parameters.ciPipelineResourceName }}'
             app_location: '/${{ parameters.projectArtifactName }}'
             skip_app_build: true
             skip_api_build: true

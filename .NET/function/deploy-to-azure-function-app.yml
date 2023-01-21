@@ -8,6 +8,11 @@ parameters:
   type: string
   default: ''
 
+- name: ciPipelineResourceName
+  displayName: 'CI pipeline resource name'
+  type: string
+  default: 'ci'
+
 - name: dependsOn
   displayName: 'Depends On'
   type: object
@@ -52,11 +57,15 @@ jobs:
     runOnce:
       deploy:
         steps:
+        - download: ${{ parameters.ciPipelineResourceName }}
+          displayName: 'Download artifact: ${{ parameters.projectArtifactName }}'
+          artifact: ${{ parameters.projectArtifactName }}
+
         - task: AzureFunctionApp@1
           displayName: 'Deploy in Azure Function'
           inputs:
             azureSubscription: ${{ parameters.azureServiceConnectionName }}
             appType: ${{ parameters.appType }}
             appName: ${{ parameters.appName }}
-            package: '$(Pipeline.Workspace)/**/${{ parameters.projectArtifactName }}/*.zip'
+            package: '$(Pipeline.Workspace)/${{ parameters.ciPipelineResourceName }}/${{ parameters.projectArtifactName }}/*.zip'
             appSettings: ${{ parameters.appSettings }}

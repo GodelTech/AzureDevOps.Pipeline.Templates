@@ -8,6 +8,11 @@ parameters:
   type: string
   default: ''
 
+- name: ciPipelineResourceName
+  displayName: 'CI pipeline resource name'
+  type: string
+  default: 'ci'
+
 - name: dependsOn
   displayName: 'Depends On'
   type: object
@@ -75,6 +80,10 @@ jobs:
     runOnce:
       deploy:
         steps:
+        - download: ${{ parameters.ciPipelineResourceName }}
+          displayName: 'Download artifact: ${{ parameters.projectArtifactName }}'
+          artifact: ${{ parameters.projectArtifactName }}
+
         - task: AzureAppServiceSettings@1
           displayName: 'Replace App Service settings'
           condition: |
@@ -98,7 +107,7 @@ jobs:
             azureSubscription: ${{ parameters.azureServiceConnectionName }}
             appType: 'webAppLinux'
             appName: ${{ parameters.appName }}
-            package: '$(Pipeline.Workspace)/**/${{ parameters.projectArtifactName }}/*.zip'
+            package: '$(Pipeline.Workspace)/${{ parameters.ciPipelineResourceName }}/${{ parameters.projectArtifactName }}/*.zip'
 
 - deployment: Migrations
   displayName: 'Migrations'
@@ -111,6 +120,10 @@ jobs:
     runOnce:
       deploy:
         steps:
+        - download: ${{ parameters.ciPipelineResourceName }}
+          displayName: 'Download artifact: ${{ parameters.migrationArtifactName }}'
+          artifact: ${{ parameters.migrationArtifactName }}
+
         - ${{ each fileName in parameters.migrationSqlFiles }}:
           - task: SqlAzureDacpacDeployment@1
             displayName: 'Apply ${{ fileName }} migration script'
@@ -119,5 +132,5 @@ jobs:
               AuthenticationType: 'connectionString'
               ConnectionString: ${{ parameters.migrationConnectionString }}
               deployType: 'SqlTask'
-              SqlFile: '$(Pipeline.Workspace)/**/${{ parameters.migrationArtifactName }}/${{ fileName }}'
+              SqlFile: '$(Pipeline.Workspace)/${{ parameters.ciPipelineResourceName }}/${{ parameters.migrationArtifactName }}/${{ fileName }}'
               IpDetectionMethod: 'AutoDetect'
