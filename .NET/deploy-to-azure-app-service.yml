@@ -92,14 +92,13 @@ jobs:
             connectionStrings: ${{ parameters.connectionStrings }}
             appSettings: ${{ parameters.appSettings }}
 
-        - task: AzureRmWebAppDeployment@4
+        - task: AzureWebApp@1
           displayName: 'Deploy in App Service'
           inputs:
-            ConnectionType: 'AzureRM'
             azureSubscription: ${{ parameters.azureServiceConnectionName }}
-            appType: 'apiApp'
-            WebAppName: ${{ parameters.appName }}
-            packageForLinux: '$(Pipeline.Workspace)/**/${{ parameters.projectArtifactName }}/*.zip'
+            appType: 'webAppLinux'
+            appName: ${{ parameters.appName }}
+            package: '$(Pipeline.Workspace)/**/${{ parameters.projectArtifactName }}/*.zip'
 
 - deployment: Migrations
   displayName: 'Migrations'
