@@ -13,6 +13,11 @@ parameters:
   type: object
   default: []
 
+- name: condition
+  displayName: 'Condition'
+  type: string
+  default: 'succeeded()'
+
 - name: azureServiceConnectionName
   displayName: 'Name of connection to Azure'
   type: string
@@ -42,6 +47,7 @@ jobs:
     vmImage: ${{ parameters.vmImage }}
   environment: ${{ parameters.environmentName }}
   dependsOn: ${{ parameters.dependsOn }}
+  condition: ${{ parameters.condition }}
   strategy:
     runOnce:
       deploy:
