@@ -195,12 +195,3 @@ jobs:
             workingDirectory: '$(artifactWorkingDirectory)'
             environmentServiceName: '${{ parameters.azureServiceConnectionName }}'
             commandOptions: '-input=false -auto-approve ${{ parameters.planCommandVariables }}'
-
-- job: TerraformComplete
-  displayName: 'Terraform complete'
-  pool:
-    vmImage: ${{ parameters.vmImage }}
-  dependsOn: TerraformApply
-  condition: in(dependencies.TerraformApply.result, 'Succeeded', 'Skipped')
-  steps:
-  - checkout: none
