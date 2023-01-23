@@ -40,7 +40,8 @@ jobs:
     vmImage: ${{ parameters.vmImage }}
   environment: ${{ parameters.environmentName }}
   dependsOn: ${{ parameters.dependsOn }}
-  condition: ${{ parameters.condition }}
+  condition: |
+    ${{ parameters.condition }}
   strategy:
     runOnce:
       deploy:
