@@ -26,6 +26,7 @@ parameters:
 
 steps:
 - task: AzureCLI@2
+  displayName: 'Create SQL firewall rule'
   inputs:
     azureSubscription: ${{ parameters.azureServiceConnectionName }}
     scriptType: 'pscore'
@@ -37,5 +38,5 @@ steps:
           --server ${{ parameters.sqlServerName }}
           --name ${{ parameters.firewallRuleName }}
           --start-ip-address ${{ parameters.startIpAddress }}
-          --end-ip-address $(endIpAddress)
+          --end-ip-address ${{ parameters.endIpAddress }}
       '

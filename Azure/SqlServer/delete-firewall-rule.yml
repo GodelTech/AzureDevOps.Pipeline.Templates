@@ -23,6 +23,7 @@ parameters:
 
 steps:
 - task: AzureCLI@2
+  displayName: 'Delete SQL firewall rule ''${{ parameters.firewallRuleName }}'''
   condition: ${{ parameters.condition }}
   inputs:
     azureSubscription: ${{ parameters.azureServiceConnectionName }}
