@@ -24,12 +24,6 @@ parameters:
   type: string
   default: ''
 
-variables:
-  ${{ if eq('${{ parameters.endIpAddress }}', '') }}:
-    endIpAddress: '${{ parameters.startIpAddress }}'
-  ${{ if ne('${{ parameters.endIpAddress }}', '') }}:
-    endIpAddress: '${{ parameters.endIpAddress }}'
-
 steps:
 - task: AzureCLI@2
   inputs:

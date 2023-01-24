@@ -21,3 +21,4 @@ steps:
     resourceGroupName: ${{ parameters.resourceGroupName }}
     sqlServerName: ${{ parameters.sqlServerName }}
     startIpAddress: $(buildAgentIPAddress)
+    endIpAddress: $(buildAgentIPAddress)
