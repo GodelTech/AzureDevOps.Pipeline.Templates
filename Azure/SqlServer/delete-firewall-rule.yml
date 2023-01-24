@@ -1,3 +1,4 @@
+parameters:
 - name: condition
   displayName: 'Condition'
   type: string

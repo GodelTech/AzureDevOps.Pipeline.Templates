@@ -1,3 +1,4 @@
+parameters:
 - name: azureServiceConnectionName
   displayName: 'Name of connection to Azure'
   type: string
