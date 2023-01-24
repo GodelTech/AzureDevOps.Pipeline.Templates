@@ -152,7 +152,7 @@ stages:
         script:
           $lastTag = $(git describe --tags --abbrev=0);
           $shouldCreateNewTag = $($lastTag -ne $Build.BuildNumber);
-          Write-Host "##vso[task.setvariable variable=shouldCreateNewTag]$shouldCreateNewTag";
+          Write-Host "##vso[task.setvariable variable=shouldCreateNewTag;]$shouldCreateNewTag";
 
     - task: git-tag-on-release-task@9
       condition: |

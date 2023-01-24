@@ -63,7 +63,7 @@ stages:
 
           $json = $response.value | ConvertTo-Json -Compress
 
-          Write-Host "##vso[task.setvariable variable=repositoriesAsJsonString]$json"
+          Write-Host "##vso[task.setvariable variable=repositoriesAsJsonString;]$json"
 
     - task: PowerShell@2
       displayName: 'Check specified repositories'

@@ -49,6 +49,19 @@ parameters:
   type: string
   default: ''
 
+- name: enableSqlFirewallRuleForBuildAgentIPAddress
+  displayName: 'Creates (then removes) SQL firewall rule for Build Agent IP address'
+  type: boolean
+  default: false
+
+- name: sqlServerResourceGroupName
+  type: string
+  default: ''
+
+- name: sqlServerName
+  type: string
+  default: ''
+
 - name: planCommandVariables
   displayName: 'Plan command variables'
   type: string
@@ -94,6 +107,16 @@ jobs:
             backendAzureRmContainerName: '${{ parameters.azureStorageContainerName }}'
             commandOptions: '-input=false'
 
+        - ${{ if eq(parameters.enableSqlFirewallRuleForBuildAgentIPAddress, true) }}:
+          - template: '../AzureDevOps/get-build-agent-ip-address.yml'
+
+          - template: '../Azure/SqlServer/create-firewall-rule.yml'
+            parameters:
+              azureServiceConnectionName: ${{ parameters.azureServiceConnectionName }}
+              resourceGroupName: ${{ parameters.sqlServerResourceGroupName }}
+              sqlServerName: ${{ parameters.sqlServerName }}
+              startIpAddress: $(buildAgentIPAddress)
+
         - task: TerraformCLI@0
           displayName: 'Terraform plan'
           inputs:
@@ -102,6 +125,14 @@ jobs:
             environmentServiceName: '${{ parameters.azureServiceConnectionName }}'
             publishPlanResults: '${{ parameters.environmentName }}'
             commandOptions: '-out=$(artifactWorkingDirectory)/${{ parameters.environmentName }}.tfplan -input=false -detailed-exitcode ${{ parameters.planCommandVariables }}'
+
+        - ${{ if eq(parameters.enableSqlFirewallRuleForBuildAgentIPAddress, true) }}:
+          - template: '../Azure/SqlServer/delete-firewall-rule.yml'
+            parameters:
+              condition: 'always()'
+              azureServiceConnectionName: ${{ parameters.azureServiceConnectionName }}
+              resourceGroupName: ${{ parameters.sqlServerResourceGroupName }}
+              sqlServerName: ${{ parameters.sqlServerName }}
 
         - task: TerraformCLI@0
           displayName: 'Terraform show'
@@ -117,8 +148,8 @@ jobs:
             inputTargetPlanOrStateFilePath: '$(artifactWorkingDirectory)/${{ parameters.environmentName }}.tfplan'
 
         - bash: |
-            echo "##vso[task.setvariable variable=HAS_CHANGES;isoutput=true;isreadonly=true]$TERRAFORM_PLAN_HAS_CHANGES"
-            echo "##vso[task.setvariable variable=HAS_DESTROY_CHANGES;isoutput=true;isreadonly=true]$TERRAFORM_PLAN_HAS_DESTROY_CHANGES"
+            echo "##vso[task.setvariable variable=HAS_CHANGES;isoutput=true;isreadonly=true;]$TERRAFORM_PLAN_HAS_CHANGES"
+            echo "##vso[task.setvariable variable=HAS_DESTROY_CHANGES;isoutput=true;isreadonly=true;]$TERRAFORM_PLAN_HAS_DESTROY_CHANGES"
           displayName: 'Set Terraform plan output variables'
           condition: |
             and

@@ -1,0 +1,8 @@
+steps:
+- task: Bash@3
+  displayName: 'Get Build Agent IP address'
+  inputs:
+    targetType: 'inline'
+    script: |
+      ipAddress=$(curl -s http://ipinfo.io/ip)
+      echo "##vso[task.setvariable variable=buildAgentIPAddress;]$ipAddress"

@@ -1,0 +1,36 @@
+- name: condition
+  displayName: 'Condition'
+  type: string
+  default: ''
+
+- name: azureServiceConnectionName
+  displayName: 'Name of connection to Azure'
+  type: string
+  default: ''
+
+- name: resourceGroupName
+  type: string
+  default: ''
+
+- name: sqlServerName
+  type: string
+  default: ''
+
+- name: firewallRuleName
+  type: string
+  default: 'BuildAgentIPAddress_$(Build.DefinitionName)_$(Build.BuildNumber)'
+
+steps:
+- task: AzureCLI@2
+  condition: ${{ parameters.condition }}
+  inputs:
+    azureSubscription: ${{ parameters.azureServiceConnectionName }}
+    scriptType: 'pscore'
+    scriptLocation: 'inlineScript'
+    inlineScript:
+      '
+        az sql server firewall-rule delete
+          --resource-group ${{ parameters.resourceGroupName }}
+          --server ${{ parameters.sqlServerName }}
+          --name ${{ parameters.firewallRuleName }}
+      '
