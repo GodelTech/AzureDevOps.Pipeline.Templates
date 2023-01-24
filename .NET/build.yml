@@ -192,20 +192,20 @@ steps:
 
 - ${{ each mutationTestingProject in parameters.mutationTestingProjects }}:
   - task: PowerShell@2
-    displayName: 'Mutation Testing for project ${{ mutationTestingProject.displayName }}'
+    displayName: 'Mutation Testing for project ''${{ mutationTestingProject.displayName }}'''
     inputs:
       targetType: 'inline'
       script: 'dotnet stryker'
       workingDirectory: '$(Build.SourcesDirectory)${{ mutationTestingProject.folderPath }}'
 
   - task: PublishMutationReport@1
-    displayName: 'Publish Mutation Testing Report for project ${{ mutationTestingProject.displayName }}'
+    displayName: 'Publish Mutation Testing Report for project ''${{ mutationTestingProject.displayName }}'''
     inputs:
       reportDisplayName: '${{ mutationTestingProject.displayName }} Mutation Testing Report'
       reportPattern: '$(Build.SourcesDirectory)${{ mutationTestingProject.folderPath }}/StrykerOutput/**/mutation-report.html'
 
 - task: PowerShell@2
-  displayName: 'Set solution name from repository name'
+  displayName: 'Get solution name from repository name'
   condition: |
     and
     (

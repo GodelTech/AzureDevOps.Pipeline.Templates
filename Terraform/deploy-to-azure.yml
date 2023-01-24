@@ -85,7 +85,7 @@ jobs:
       deploy:
         steps:
         - download: ${{ parameters.ciPipelineResourceName }}
-          displayName: 'Download artifact: ${{ parameters.artifactName }}'
+          displayName: 'Download artifact ''${{ parameters.artifactName }}'''
           artifact: ${{ parameters.artifactName }}
 
         - task: TerraformInstaller@0
@@ -173,7 +173,7 @@ jobs:
     timeoutInMinutes: 4320 # task times out in 3 days
     inputs:
       notifyUsers: '${{ parameters.notifyUsers }}'
-      instructions: 'Terraform plan has DESTROY changes, please review: ${{ parameters.environmentName }}.tfplan'
+      instructions: 'Terraform plan has DESTROY changes, please review ''${{ parameters.environmentName }}'''
 
 - deployment: TerraformApply
   displayName: 'Terraform apply'
@@ -194,7 +194,7 @@ jobs:
       deploy:
         steps:
         - download: ${{ parameters.ciPipelineResourceName }}
-          displayName: 'Download artifact: ${{ parameters.artifactName }}'
+          displayName: 'Download artifact ''${{ parameters.artifactName }}'''
           artifact: ${{ parameters.artifactName }}
 
         - task: TerraformInstaller@0

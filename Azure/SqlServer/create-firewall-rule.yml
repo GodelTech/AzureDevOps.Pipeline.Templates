@@ -26,7 +26,7 @@ parameters:
 
 steps:
 - task: AzureCLI@2
-  displayName: 'Create SQL firewall rule'
+  displayName: 'Create SQL firewall rule ''${{ parameters.firewallRuleName }}'''
   inputs:
     azureSubscription: ${{ parameters.azureServiceConnectionName }}
     scriptType: 'pscore'

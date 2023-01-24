@@ -22,7 +22,7 @@ steps:
     terraformVersion: 'latest'
 
 - task: TerraformCLI@0
-  displayName: 'Terraform recursive format check /${{ parameters.rootFolderPath }}'
+  displayName: 'Terraform recursive format check ''/${{ parameters.rootFolderPath }}'''
   condition: |
     and
     (
@@ -36,14 +36,14 @@ steps:
 
 - ${{ each environmentFolderPath in parameters.environmentFolderPaths }}:
   - task: TerraformCLI@0
-    displayName: 'Terraform init for path /${{ parameters.rootFolderPath }}/${{ environmentFolderPath }}'
+    displayName: 'Terraform init for path ''/${{ parameters.rootFolderPath }}/${{ environmentFolderPath }}'''
     inputs:
       command: 'init'
       workingDirectory: '$(System.DefaultWorkingDirectory)/${{ parameters.rootFolderPath }}/${{ environmentFolderPath }}'
       commandOptions: '-backend=false'
 
   - task: TerraformCLI@0
-    displayName: 'Terraform validate for path /${{ parameters.rootFolderPath }}/${{ environmentFolderPath }}'
+    displayName: 'Terraform validate for path ''/${{ parameters.rootFolderPath }}/${{ environmentFolderPath }}'''
     inputs:
       command: 'validate'
       workingDirectory: '$(System.DefaultWorkingDirectory)/${{ parameters.rootFolderPath }}/${{ environmentFolderPath }}'

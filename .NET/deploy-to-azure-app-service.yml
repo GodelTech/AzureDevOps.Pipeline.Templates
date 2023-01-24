@@ -81,7 +81,7 @@ jobs:
       deploy:
         steps:
         - download: ${{ parameters.ciPipelineResourceName }}
-          displayName: 'Download artifact: ${{ parameters.projectArtifactName }}'
+          displayName: 'Download artifact ''${{ parameters.projectArtifactName }}'''
           artifact: ${{ parameters.projectArtifactName }}
 
         - task: AzureAppServiceSettings@1
@@ -121,12 +121,12 @@ jobs:
       deploy:
         steps:
         - download: ${{ parameters.ciPipelineResourceName }}
-          displayName: 'Download artifact: ${{ parameters.migrationArtifactName }}'
+          displayName: 'Download artifact ''${{ parameters.migrationArtifactName }}'''
           artifact: ${{ parameters.migrationArtifactName }}
 
         - ${{ each fileName in parameters.migrationSqlFiles }}:
           - task: SqlAzureDacpacDeployment@1
-            displayName: 'Apply ${{ fileName }} migration script'
+            displayName: 'Apply ''${{ fileName }}'' migration script'
             inputs:
               azureSubscription: ${{ parameters.azureServiceConnectionName }}
               AuthenticationType: 'connectionString'

@@ -58,7 +58,7 @@ jobs:
       deploy:
         steps:
         - download: ${{ parameters.ciPipelineResourceName }}
-          displayName: 'Download artifact: ${{ parameters.projectArtifactName }}'
+          displayName: 'Download artifact ''${{ parameters.projectArtifactName }}'''
           artifact: ${{ parameters.projectArtifactName }}
 
         - task: AzureFunctionApp@1

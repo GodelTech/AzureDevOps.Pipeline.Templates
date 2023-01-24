@@ -30,14 +30,14 @@ steps:
 
 - ${{ each dbContext in parameters.migrationDbContexts }}:
   - task: DotNetCoreCLI@2
-    displayName: 'Create sql migration script for ${{ dbContext }}'
+    displayName: 'Create sql migration script for ''${{ dbContext }}'''
     inputs:
       command: custom
       custom: ef
       arguments: 'migrations script --verbose --project ${{ parameters.migrationProjectPath }} --context ${{ dbContext }} -i -o ${{ dbContext }}.sql'
 
   - task: CopyFiles@2
-    displayName: 'Copy ${{ dbContext }}.sql into artifacts'
+    displayName: 'Copy ''${{ dbContext }}.sql'' into artifacts'
     inputs:
       Contents: '${{ dbContext }}.sql'
       TargetFolder: '$(Build.ArtifactStagingDirectory)/Migrations'

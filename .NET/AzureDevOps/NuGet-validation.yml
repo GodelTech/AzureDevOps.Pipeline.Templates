@@ -46,7 +46,7 @@ stages:
     - checkout: none
 
     - task: PowerShell@2
-      displayName: 'Get list of repositories in Organization'
+      displayName: 'Get list of repositories in ''${{ parameters.organizationName }}'''
       inputs:
         targetType: 'inline'
         script: |
@@ -166,7 +166,7 @@ stages:
 
   - ${{ each repository in parameters.repositories }}:
     - job: ${{ replace(repository.name, '.', '_') }}
-      displayName: 'Validate ${{ repository.name }}'
+      displayName: 'Validate ''${{ repository.name }}'''
       dependsOn: CheckList
       condition: |
         ne(${{ repository.skip }}, true)
