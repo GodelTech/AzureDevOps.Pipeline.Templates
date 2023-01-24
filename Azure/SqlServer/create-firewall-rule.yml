@@ -22,7 +22,13 @@ parameters:
 
 - name: endIpAddress
   type: string
-  default: ${{ parameters.startIpAddress }}
+  default: ''
+
+variables:
+  ${{ if eq('${{ parameters.endIpAddress }}', '') }}:
+    endIpAddress: '${{ parameters.startIpAddress }}'
+  ${{ if ne('${{ parameters.endIpAddress }}', '') }}:
+    endIpAddress: '${{ parameters.endIpAddress }}'
 
 steps:
 - task: AzureCLI@2
@@ -37,5 +43,5 @@ steps:
           --server ${{ parameters.sqlServerName }}
           --name ${{ parameters.firewallRuleName }}
           --start-ip-address ${{ parameters.startIpAddress }}
-          --end-ip-address ${{ parameters.endIpAddress }}
+          --end-ip-address $(endIpAddress)
       '
