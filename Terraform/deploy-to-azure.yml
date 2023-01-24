@@ -108,14 +108,11 @@ jobs:
             commandOptions: '-input=false'
 
         - ${{ if eq(parameters.enableSqlFirewallRuleForBuildAgentIPAddress, true) }}:
-          - template: '../AzureDevOps/get-build-agent-ip-address.yml'
-
-          - template: '../Azure/SqlServer/create-firewall-rule.yml'
+          - template: '../AzureDevOps/create-sql-server-firewall-rule-for-build-agent-ip-address.yml'
             parameters:
               azureServiceConnectionName: ${{ parameters.azureServiceConnectionName }}
               resourceGroupName: ${{ parameters.sqlServerResourceGroupName }}
               sqlServerName: ${{ parameters.sqlServerName }}
-              startIpAddress: $(buildAgentIPAddress)
 
         - task: TerraformCLI@0
           displayName: 'Terraform plan'

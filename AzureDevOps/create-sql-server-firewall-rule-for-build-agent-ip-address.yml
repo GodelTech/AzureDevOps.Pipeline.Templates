@@ -1,0 +1,22 @@
+- name: azureServiceConnectionName
+  displayName: 'Name of connection to Azure'
+  type: string
+  default: ''
+
+- name: resourceGroupName
+  type: string
+  default: ''
+
+- name: sqlServerName
+  type: string
+  default: ''
+
+steps:
+- template: 'get-build-agent-ip-address.yml'
+
+- template: '../Azure/SqlServer/create-firewall-rule.yml'
+  parameters:
+    azureServiceConnectionName: ${{ parameters.azureServiceConnectionName }}
+    resourceGroupName: ${{ parameters.resourceGroupName }}
+    sqlServerName: ${{ parameters.sqlServerName }}
+    startIpAddress: $(buildAgentIPAddress)
