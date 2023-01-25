@@ -84,8 +84,8 @@ jobs:
     vmImage: ${{ parameters.vmImage }}
   environment: ${{ parameters.environmentName }}
   variables:
-  - ${{ each group in parameters.variableGroups }}:
-    - ${{ group.key }}: ${{ group.value }}
+  - ${{ each variableGroup in parameters.variableGroups }}:
+    - group: ${{ variableGroup }}
   - name: artifactWorkingDirectory
     value: '$(Pipeline.Workspace)/${{ parameters.ciPipelineResourceName }}/${{ parameters.artifactName }}/${{ parameters.workingDirectoryPath }}'
   strategy:
