@@ -85,7 +85,8 @@ jobs:
   environment: ${{ parameters.environmentName }}
   variables:
     ${{ parameters.variables }}
-    artifactWorkingDirectory: '$(Pipeline.Workspace)/${{ parameters.ciPipelineResourceName }}/${{ parameters.artifactName }}/${{ parameters.workingDirectoryPath }}'
+    - name: artifactWorkingDirectory
+      value: '$(Pipeline.Workspace)/${{ parameters.ciPipelineResourceName }}/${{ parameters.artifactName }}/${{ parameters.workingDirectoryPath }}'
   strategy:
     runOnce:
       deploy:
