@@ -9,8 +9,8 @@ parameters:
   type: string
   default: ''
 
-- name: variables
-  displayName: 'Variables'
+- name: variableGroups
+  displayName: 'Variable group list'
   type: object
   default: []
 
@@ -84,9 +84,10 @@ jobs:
     vmImage: ${{ parameters.vmImage }}
   environment: ${{ parameters.environmentName }}
   variables:
-    ${{ parameters.variables }}
-    - name: artifactWorkingDirectory
-      value: '$(Pipeline.Workspace)/${{ parameters.ciPipelineResourceName }}/${{ parameters.artifactName }}/${{ parameters.workingDirectoryPath }}'
+  - ${{ each group in parameters.variableGroups }}:
+    - ${{ group.key }}: ${{ group.value }}
+  - name: artifactWorkingDirectory
+    value: '$(Pipeline.Workspace)/${{ parameters.ciPipelineResourceName }}/${{ parameters.artifactName }}/${{ parameters.workingDirectoryPath }}'
   strategy:
     runOnce:
       deploy:
