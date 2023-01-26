@@ -202,7 +202,7 @@ jobs:
       (
         eq(dependencies.TerraformPlan.outputs['TerraformPlan.tfplanOutput.HAS_CHANGES'], 'true'),
         eq(${{ parameters.enableOutputVariables }}, true)
-      )
+      ),
       in(dependencies.TerraformValidate.result, 'Succeeded', 'Skipped')
     )
   variables:
