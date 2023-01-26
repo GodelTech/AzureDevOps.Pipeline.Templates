@@ -196,7 +196,10 @@ jobs:
       in(dependencies.TerraformValidate.result, 'Succeeded', 'Skipped')
     )
   variables:
-    artifactWorkingDirectory: '$(Pipeline.Workspace)/${{ parameters.ciPipelineResourceName }}/${{ parameters.artifactName }}/${{ parameters.workingDirectoryPath }}'
+  - ${{ each variableGroup in parameters.variableGroups }}:
+    - group: ${{ variableGroup }}
+  - name: artifactWorkingDirectory
+    value: '$(Pipeline.Workspace)/${{ parameters.ciPipelineResourceName }}/${{ parameters.artifactName }}/${{ parameters.workingDirectoryPath }}'
   strategy:
     runOnce:
       deploy:
