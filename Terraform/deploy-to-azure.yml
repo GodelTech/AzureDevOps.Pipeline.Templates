@@ -77,6 +77,11 @@ parameters:
   type: string
   default: '[$(System.TeamProject)]\Build Administrators'
 
+- name: enableOutputVariables
+  displayName: 'Enable output variables'
+  type: boolean
+  default: false
+
 jobs:
 - deployment: TerraformPlan
   displayName: 'Terraform plan'
@@ -192,7 +197,12 @@ jobs:
   condition: |
     and
     (
-      eq(dependencies.TerraformPlan.outputs['TerraformPlan.tfplanOutput.HAS_CHANGES'], 'true'),
+      ne(failed()),
+      or
+      (
+        eq(dependencies.TerraformPlan.outputs['TerraformPlan.tfplanOutput.HAS_CHANGES'], 'true'),
+        eq(${{ parameters.enableOutputVariables }}, true)
+      )
       in(dependencies.TerraformValidate.result, 'Succeeded', 'Skipped')
     )
   variables:
@@ -227,6 +237,13 @@ jobs:
             backendAzureRmContainerName: '${{ parameters.azureStorageContainerName }}'
             commandOptions: '-input=false'
 
+        - ${{ if eq(parameters.enableSqlFirewallRuleForBuildAgentIPAddress, true) }}:
+          - template: '../AzureDevOps/create-sql-server-firewall-rule-for-build-agent-ip-address.yml'
+            parameters:
+              azureServiceConnectionName: ${{ parameters.azureServiceConnectionName }}
+              resourceGroupName: ${{ parameters.sqlServerResourceGroupName }}
+              sqlServerName: ${{ parameters.sqlServerName }}
+
         - task: TerraformCLI@0
           displayName: 'Terraform apply'
           inputs:
@@ -234,3 +251,23 @@ jobs:
             workingDirectory: '$(artifactWorkingDirectory)'
             environmentServiceName: '${{ parameters.azureServiceConnectionName }}'
             commandOptions: '-input=false -auto-approve ${{ parameters.planCommandVariables }}'
+
+        - ${{ if eq(parameters.enableSqlFirewallRuleForBuildAgentIPAddress, true) }}:
+          - template: '../Azure/SqlServer/delete-firewall-rule.yml'
+            parameters:
+              condition: 'always()'
+              azureServiceConnectionName: ${{ parameters.azureServiceConnectionName }}
+              resourceGroupName: ${{ parameters.sqlServerResourceGroupName }}
+              sqlServerName: ${{ parameters.sqlServerName }}
+
+        - task: TerraformCLI@0
+          displayName: 'Terraform output variables'
+          condition: |
+            and
+            (
+              succeeded(),
+              eq(${{ parameters.enableOutputVariables }}, true)
+            )
+          inputs:
+            command: 'output'
+            workingDirectory: '$(artifactWorkingDirectory)'
