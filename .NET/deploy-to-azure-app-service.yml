@@ -58,8 +58,13 @@ parameters:
   type: string
   default: 'migrations'
 
-- name: migrationConnectionString
-  displayName: 'Migration connection string'
+- name: migrationSqlServerName
+  displayName: 'Migration SQL server name without ''.database.windows.net'''
+  type: string
+  default: ''
+
+- name: migrationSqlDatabaseName
+  displayName: 'Migration SQL database name'
   type: string
   default: ''
 
@@ -129,8 +134,9 @@ jobs:
             displayName: 'Apply ''${{ fileName }}'' migration script'
             inputs:
               azureSubscription: ${{ parameters.azureServiceConnectionName }}
-              AuthenticationType: 'connectionString'
-              ConnectionString: ${{ parameters.migrationConnectionString }}
+              AuthenticationType: 'servicePrincipal'
+              ServerName: '${{ parameters.migrationSqlServerName }}.database.windows.net'
+              DatabaseName: ${{ parameters.migrationSqlDatabaseName }}
               deployType: 'SqlTask'
               SqlFile: '$(Pipeline.Workspace)/${{ parameters.ciPipelineResourceName }}/${{ parameters.migrationArtifactName }}/${{ fileName }}'
               IpDetectionMethod: 'AutoDetect'
