@@ -197,7 +197,7 @@ jobs:
   condition: |
     and
     (
-      ne(failed()),
+      not(failed()),
       or
       (
         eq(dependencies.TerraformPlan.outputs['TerraformPlan.tfplanOutput.HAS_CHANGES'], 'true'),
