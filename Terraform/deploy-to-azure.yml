@@ -261,6 +261,7 @@ jobs:
               sqlServerName: ${{ parameters.sqlServerName }}
 
         - task: TerraformCLI@0
+          name: TerraformOutput
           displayName: 'Terraform output variables'
           condition: |
             and
