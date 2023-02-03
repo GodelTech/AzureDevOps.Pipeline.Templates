@@ -87,5 +87,5 @@ jobs:
             skip_api_build: true
             ${{ if ne('${{ parameters.staticWebAppApiKey }}', '') }}:
               azure_static_web_apps_api_token: '${{ parameters.staticWebAppApiKey }}'
-            ${{ if ne(AzureStaticWebAppVariables.staticWebAppApiKey, '') }}:
+            ${{ if ne($(AzureStaticWebAppVariables.staticWebAppApiKey), '') }}:
               azure_static_web_apps_api_token: '$(AzureStaticWebAppVariables.staticWebAppApiKey)'
