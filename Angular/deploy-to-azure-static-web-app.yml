@@ -84,7 +84,7 @@ jobs:
             app_location: '/${{ parameters.projectArtifactName }}'
             skip_app_build: true
             skip_api_build: true
-            ${{ if ne('${{ parameters.staticWebAppApiKey }}', '') }}:
-              azure_static_web_apps_api_token: '${{ parameters.staticWebAppApiKey }}'
             ${{ if ne(variables.staticWebAppApiKey, '') }}:
               azure_static_web_apps_api_token: '$(staticWebAppApiKey)'
+            ${{ if ne('${{ parameters.staticWebAppApiKey }}', '') }}:
+              azure_static_web_apps_api_token: '${{ parameters.staticWebAppApiKey }}'
