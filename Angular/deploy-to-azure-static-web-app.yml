@@ -23,10 +23,20 @@ parameters:
   type: string
   default: 'succeeded()'
 
+- name: azureServiceConnectionName
+  displayName: 'Name of connection to Azure'
+  type: string
+  default: ''
+
 - name: projectArtifactName
   displayName: 'Project artifact name'
   type: string
   default: 'project'
+
+- name: staticWebAppName
+  displayName: 'Static Web App name'
+  type: string
+  default: ''
 
 - name: staticWebAppApiKey
   displayName: 'Static Web App Api Key'
@@ -49,6 +59,24 @@ jobs:
           displayName: 'Download artifact ''${{ parameters.projectArtifactName }}'''
           artifact: ${{ parameters.projectArtifactName }}
 
+        - task: AzureCLI@2
+          displayName: 'Load deploy token for Static Web App'
+          condition: |
+            and
+            (
+              succeeded(),
+              ne(${{ parameters.azureServiceConnectionName }}, ''),
+              ne(${{ parameters.staticWebAppName }}, '')
+            )
+          inputs:
+            azureSubscription: ${{ parameters.azureServiceConnectionName }}
+            scriptType: 'pscore' 
+            scriptLocation: 'inlineScript'
+            inlineScript: |
+              Write-Host "Getting deploy key for ${{ parameters.staticWebAppName }}"
+              $secretInfo = $(az staticwebapp secrets list --name ${{ parameters.staticWebAppName }}) | ConvertFrom-JSON
+              Write-Host "##vso[task.setvariable variable=staticWebAppApiKey;issecret=true;isreadonly=true;]$($secretInfo.properties.apiKey)"
+
         - task: AzureStaticWebApp@0
           displayName: 'Deploy in Static Web App'
           inputs:
@@ -56,4 +84,7 @@ jobs:
             app_location: '/${{ parameters.projectArtifactName }}'
             skip_app_build: true
             skip_api_build: true
-            azure_static_web_apps_api_token: '${{ parameters.staticWebAppApiKey }}'
+            ${{ if ne(parameters.staticWebAppApiKey, '') }}:
+              azure_static_web_apps_api_token: '${{ parameters.staticWebAppApiKey }}'
+            ${{ if ne(variables.staticWebAppApiKey, '') }}:
+              azure_static_web_apps_api_token: '$(staticWebAppApiKey)'
