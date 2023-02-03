@@ -65,8 +65,8 @@ jobs:
             and
             (
               succeeded(),
-              ne(${{ parameters.azureServiceConnectionName }}, ''),
-              ne(${{ parameters.staticWebAppName }}, '')
+              ne('${{ parameters.azureServiceConnectionName }}', ''),
+              ne('${{ parameters.staticWebAppName }}', '')
             )
           inputs:
             azureSubscription: ${{ parameters.azureServiceConnectionName }}
