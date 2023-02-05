@@ -51,6 +51,11 @@ jobs:
   environment: ${{ parameters.environmentName }}
   dependsOn: ${{ parameters.dependsOn }}
   condition: ${{ parameters.condition }}
+  variables:
+    ${{ if ne(parameters.staticWebAppApiKey, '') }}:
+      staticWebAppApiKey: ${{ parameters.staticWebAppApiKey }}
+    ${{ else }}:
+      staticWebAppApiKey: ''
   strategy:
     runOnce:
       deploy:
@@ -85,7 +90,4 @@ jobs:
             app_location: '/${{ parameters.projectArtifactName }}'
             skip_app_build: true
             skip_api_build: true
-            ${{ if ne('${{ parameters.staticWebAppApiKey }}', '') }}:
-              azure_static_web_apps_api_token: '${{ parameters.staticWebAppApiKey }}'
-            ${{ if ne(variables['AzureStaticWebAppVariables.staticWebAppApiKey'], '') }}:
-              azure_static_web_apps_api_token: '$(AzureStaticWebAppVariables.staticWebAppApiKey)'
+            azure_static_web_apps_api_token: $(staticWebAppApiKey)
