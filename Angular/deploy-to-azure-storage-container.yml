@@ -1,0 +1,75 @@
+parameters:
+- name: vmImage
+  displayName: 'Pool VM image'
+  type: string
+  default: 'ubuntu-latest'
+
+- name: environmentName
+  type: string
+  default: ''
+
+- name: ciPipelineResourceName
+  displayName: 'CI pipeline resource name'
+  type: string
+  default: 'ci'
+
+- name: dependsOn
+  displayName: 'Depends On'
+  type: object
+  default: []
+
+- name: condition
+  displayName: 'Condition'
+  type: string
+  default: 'succeeded()'
+
+- name: azureServiceConnectionName
+  displayName: 'Name of connection to Azure'
+  type: string
+  default: ''
+
+- name: projectArtifactName
+  displayName: 'Project artifact name'
+  type: string
+  default: 'project'
+
+- name: storageName
+  displayName: 'Storage name'
+  type: string
+  default: ''
+
+- name: containerName
+  displayName: 'Container name'
+  type: string
+  default: ''
+
+jobs:
+- deployment: Deploy
+  displayName: 'Deploy'
+  pool:
+    vmImage: ${{ parameters.vmImage }}
+  environment: ${{ parameters.environmentName }}
+  dependsOn: ${{ parameters.dependsOn }}
+  condition: ${{ parameters.condition }}
+  strategy:
+    runOnce:
+      deploy:
+        steps:
+        - download: ${{ parameters.ciPipelineResourceName }}
+          displayName: 'Download artifact ''${{ parameters.projectArtifactName }}'''
+          artifact: ${{ parameters.projectArtifactName }}
+
+        - task: AzureCLI@2
+          displayName: "Deploy in Storage Container"
+          inputs:
+            azureSubscription: ${{ parameters.azureServiceConnectionName }}
+            scriptType: batch
+            scriptLocation: inlineScript
+            inlineScript:
+              '
+                az storage blob upload-batch
+                  --account-name ${{ parameters.storageName }}
+                  --destination ${{ parameters.containerName }}
+                  --source "$(Pipeline.Workspace)/${{ parameters.ciPipelineResourceName }}/${{ parameters.projectArtifactName }}"
+                  --overwrite
+              '
