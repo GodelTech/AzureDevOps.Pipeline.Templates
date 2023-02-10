@@ -63,8 +63,8 @@ jobs:
           displayName: "Deploy in Storage Container"
           inputs:
             azureSubscription: ${{ parameters.azureServiceConnectionName }}
-            scriptType: batch
-            scriptLocation: inlineScript
+            scriptType: 'pscore'
+            scriptLocation: 'inlineScript'
             inlineScript:
               '
                 az storage blob upload-batch

@@ -76,7 +76,7 @@ jobs:
             )
           inputs:
             azureSubscription: ${{ parameters.azureServiceConnectionName }}
-            scriptType: 'pscore' 
+            scriptType: 'pscore'
             scriptLocation: 'inlineScript'
             inlineScript: |
               Write-Host "Getting deploy key for ${{ parameters.staticWebAppName }}"
