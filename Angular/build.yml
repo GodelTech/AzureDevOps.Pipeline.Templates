@@ -1,4 +1,9 @@
 parameters:
+- name: buildConfiguration
+  displayName: 'Build configuration'
+  type: string
+  default: 'production'
+
 - name: preBuildSteps
   displayName: 'Steps to run before build'
   type: stepList
@@ -105,7 +110,11 @@ steps:
   displayName: 'Build'
   inputs:
     command: 'custom'
-    customCommand: 'run ng build ${{ parameters.appName }}'
+    customCommand:
+      '
+        run ng build ${{ parameters.appName }}
+          --configuration ${{ parameters.buildConfiguration }}
+      '
 
 - task: Npm@1
   displayName: "Run lint"
@@ -117,7 +126,13 @@ steps:
   displayName: 'Run unit tests'
   inputs:
     command: 'custom'
-    customCommand: 'run ng test ${{ parameters.appName }} -- --browsers=ChromeHeadless --code-coverage --watch=false'
+    customCommand:
+      '
+        run ng test ${{ parameters.appName }}
+          --browsers=ChromeHeadless
+          --code-coverage=true
+          --watch=false
+      '
 
 - task: PublishTestResults@2
   displayName: "Publish test results"

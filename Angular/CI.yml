@@ -19,6 +19,11 @@ parameters:
   type: string
   default: 'terraform'
 
+- name: buildConfiguration
+  displayName: 'Build configuration'
+  type: string
+  default: 'production'
+
 - name: preBuildSteps
   displayName: 'Steps to run before build'
   type: stepList
@@ -94,6 +99,7 @@ stages:
     steps:
     - template: 'build.yml'
       parameters:
+        buildConfiguration: ${{ parameters.buildConfiguration }}
         preBuildSteps: ${{ parameters.preBuildSteps }}
         appName: ${{ parameters.appName }}
         appSourcePath: ${{ parameters.appSourcePath }}
