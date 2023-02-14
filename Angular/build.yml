@@ -113,6 +113,7 @@ steps:
     customCommand:
       '
         run ng build ${{ parameters.appName }}
+          --
           --configuration ${{ parameters.buildConfiguration }}
       '
 
@@ -129,6 +130,7 @@ steps:
     customCommand:
       '
         run ng test ${{ parameters.appName }}
+          --
           --browsers=ChromeHeadless
           --code-coverage=true
           --watch=false
