@@ -70,6 +70,19 @@ jobs:
             appBaseHref: ${{ parameters.appBaseHref }}
 
         - task: AzureCLI@2
+          displayName: "Clear Storage Container"
+          inputs:
+            azureSubscription: ${{ parameters.azureServiceConnectionName }}
+            scriptType: 'pscore'
+            scriptLocation: 'inlineScript'
+            inlineScript:
+              '
+                az storage blob delete-batch
+                  --account-name ${{ parameters.storageName }}
+                  --source ${{ parameters.containerName }}
+              '
+
+        - task: AzureCLI@2
           displayName: "Deploy in Storage Container"
           inputs:
             azureSubscription: ${{ parameters.azureServiceConnectionName }}
