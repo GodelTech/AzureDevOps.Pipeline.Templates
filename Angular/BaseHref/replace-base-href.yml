@@ -31,7 +31,7 @@ steps:
     actionOnNoFiles: 'fail'
     enableTransforms: false
     inlineVariables: |
-      '/': '${{ parameters.appBaseHref }}'
+      '/': '<base href="${{ parameters.appBaseHref }}">'
     enableRecursion: false
     useLegacyPattern: false
     enableTelemetry: true
