@@ -38,6 +38,11 @@ parameters:
   type: string
   default: '/'
 
+- name: environmentVariables
+  displayName: 'Inline environment variables'
+  type: string
+  default: ''
+
 - name: storageName
   displayName: 'Storage name'
   type: string
@@ -68,6 +73,11 @@ jobs:
           parameters:
             workingDirectory: '$(Pipeline.Workspace)/${{ parameters.ciPipelineResourceName }}/${{ parameters.projectArtifactName }}'
             appBaseHref: ${{ parameters.appBaseHref }}
+
+        - template: 'Environments/replace-environment-variables.yml'
+          parameters:
+            workingDirectory: '$(Pipeline.Workspace)/${{ parameters.ciPipelineResourceName }}/${{ parameters.projectArtifactName }}'
+            environmentVariables: ${{ parameters.environmentVariables }}
 
         - task: AzureCLI@2
           displayName: "Clear Storage Container"

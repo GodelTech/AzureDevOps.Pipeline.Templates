@@ -1,0 +1,38 @@
+parameters:
+- name: workingDirectory
+  displayName: 'Working directory'
+  type: string
+  default: ''
+
+- name: environmentVariables
+  displayName: 'Inline environment variables'
+  type: string
+  default: ''
+
+steps:
+- task: replacetokens@5
+  displayName: 'Replace environment variables'
+  condition: |
+    and
+    (
+      succeeded(),
+      ne('${{ parameters.environmentVariables }}', '')
+    )
+  inputs:
+    rootDirectory: ${{ parameters.workingDirectory }}
+    targetFiles: '*.js'
+    encoding: 'auto'
+    tokenPattern: 'custom'
+    tokenPrefix: '#{'
+    tokenSuffix: '}#'
+    writeBOM: true
+    actionOnMissing: 'fail'
+    keepToken: true
+    actionOnNoFiles: 'fail'
+    enableTransforms: true
+    transformPrefix: '('
+    transformSuffix: ')'
+    inlineVariables: ${{ parameters.environmentVariables }}
+    enableRecursion: true
+    useLegacyPattern: false
+    enableTelemetry: true
