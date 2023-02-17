@@ -33,6 +33,11 @@ parameters:
   type: string
   default: 'project'
 
+- name: appBaseHref
+  displayName: 'Angluar base href'
+  type: string
+  default: '/'
+
 - name: storageName
   displayName: 'Storage name'
   type: string
@@ -58,6 +63,11 @@ jobs:
         - download: ${{ parameters.ciPipelineResourceName }}
           displayName: 'Download artifact ''${{ parameters.projectArtifactName }}'''
           artifact: ${{ parameters.projectArtifactName }}
+
+        - template: 'BaseHref/replace-base-href.yml'
+          parameters:
+            workingDirectory: '$(Pipeline.Workspace)/${{ parameters.ciPipelineResourceName }}/${{ parameters.projectArtifactName }}'
+            appBaseHref: ${{ parameters.appBaseHref }}
 
         - task: AzureCLI@2
           displayName: "Deploy in Storage Container"

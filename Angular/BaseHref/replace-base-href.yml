@@ -1,0 +1,37 @@
+parameters:
+- name: workingDirectory
+  displayName: 'Working directory'
+  type: string
+  default: ''
+
+- name: appBaseHref
+  displayName: 'Angluar base href'
+  type: string
+  default: '/'
+
+steps:
+- task: replacetokens@5
+  displayName: 'Replace base href with ''${{ parameters.appBaseHref }}'''
+  condition: |
+    and
+    (
+      succeeded(),
+      ne('${{ parameters.appBaseHref }}', '/')
+    )
+  inputs:
+    rootDirectory: ${{ parameters.workingDirectory }}
+    targetFiles: 'index.html'
+    encoding: 'auto'
+    tokenPattern: 'custom'
+    tokenPrefix: '<base href="'
+    tokenSuffix: '">'
+    writeBOM: true
+    actionOnMissing: 'fail'
+    keepToken: true
+    actionOnNoFiles: 'fail'
+    enableTransforms: false
+    inlineVariables: |
+      '/': '${{ parameters.appBaseHref }}'
+    enableRecursion: false
+    useLegacyPattern: false
+    enableTelemetry: true
