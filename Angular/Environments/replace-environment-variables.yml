@@ -16,7 +16,7 @@ steps:
     and
     (
       succeeded(),
-      ne(${{ parameters.environmentVariables }}, '')
+      ne("${{ parameters.environmentVariables }}", '')
     )
   inputs:
     rootDirectory: ${{ parameters.workingDirectory }}
