@@ -16,7 +16,11 @@ steps:
     and
     (
       succeeded(),
-      ne(${{ parameters.environmentVariables }}, '')
+      gt
+      (
+        length(${{ parameters.environmentVariables }}),
+        0
+      )
     )
   inputs:
     rootDirectory: ${{ parameters.workingDirectory }}
