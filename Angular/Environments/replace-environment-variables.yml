@@ -20,7 +20,9 @@ steps:
     )
   inputs:
     rootDirectory: ${{ parameters.workingDirectory }}
-    targetFiles: '*.js'
+    targetFiles: |
+      **/*.js
+      **/*.json
     encoding: 'auto'
     tokenPattern: 'custom'
     tokenPrefix: '#{'
