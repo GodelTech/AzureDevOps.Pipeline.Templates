@@ -74,12 +74,11 @@ steps:
   inputs:
     SonarCloud: 'SonarCloud'
     organization: '${{ parameters.sonarCloudOrganizationName }}'
-    scannerMode: CLI
-    projectKey: '${{ parameters.sonarCloudProjectKey }}'
-    projectName: '${{ parameters.sonarCloudProjectName }}'
+    scannerMode: 'CLI'
     cliSources: '$(Build.SourcesDirectory)'
-    cliProjectKey: $(Build.Repository.Name)
-    configMode: manual
+    cliProjectKey: '${{ parameters.sonarCloudProjectKey }}'
+    cliProjectName: '${{ parameters.sonarCloudProjectName }}'
+    configMode: 'manual'
     extraProperties: |
       sonar.sources=${{ parameters.appSourcePath }}
       sonar.tests=${{ parameters.appSourcePath }}
