@@ -93,6 +93,8 @@ jobs:
     - group: ${{ variableGroup }}
   - name: artifactWorkingDirectory
     value: '$(Pipeline.Workspace)/${{ parameters.ciPipelineResourceName }}/${{ parameters.artifactName }}/${{ parameters.workingDirectoryPath }}'
+  - name: azureStorageContainerName
+    value: ${{ coalesce(parameters.azureStorageContainerName, parameters.environmentName) }}
   strategy:
     runOnce:
       deploy:
@@ -117,7 +119,7 @@ jobs:
             backendAzureRmResourceGroupName: '${{ parameters.azureResourceGroupName }}'
             backendAzureRmResourceGroupLocation: '${{ parameters.azureResourceGroupLocation }}'
             backendAzureRmStorageAccountName: '${{ parameters.azureStorageAccountName }}'
-            backendAzureRmContainerName: '${{ parameters.azureStorageContainerName }}'
+            backendAzureRmContainerName: '$(azureStorageContainerName)'
             commandOptions: '-input=false'
 
         - ${{ if eq(parameters.enableSqlFirewallRuleForBuildAgentIPAddress, true) }}:
@@ -210,6 +212,8 @@ jobs:
     - group: ${{ variableGroup }}
   - name: artifactWorkingDirectory
     value: '$(Pipeline.Workspace)/${{ parameters.ciPipelineResourceName }}/${{ parameters.artifactName }}/${{ parameters.workingDirectoryPath }}'
+  - name: azureStorageContainerName
+    value: ${{ coalesce(parameters.azureStorageContainerName, parameters.environmentName) }}
   strategy:
     runOnce:
       deploy:
@@ -234,7 +238,7 @@ jobs:
             backendAzureRmResourceGroupName: '${{ parameters.azureResourceGroupName }}'
             backendAzureRmResourceGroupLocation: '${{ parameters.azureResourceGroupLocation }}'
             backendAzureRmStorageAccountName: '${{ parameters.azureStorageAccountName }}'
-            backendAzureRmContainerName: '${{ parameters.azureStorageContainerName }}'
+            backendAzureRmContainerName: '$(azureStorageContainerName)'
             commandOptions: '-input=false'
 
         - ${{ if eq(parameters.enableSqlFirewallRuleForBuildAgentIPAddress, true) }}:
