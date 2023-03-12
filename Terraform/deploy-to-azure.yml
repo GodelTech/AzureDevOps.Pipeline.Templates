@@ -94,7 +94,7 @@ jobs:
   - name: artifactWorkingDirectory
     value: '$(Pipeline.Workspace)/${{ parameters.ciPipelineResourceName }}/${{ parameters.artifactName }}/${{ parameters.workingDirectoryPath }}'
   - name: azureStorageContainerName
-    value: ${{ coalesce(parameters.azureStorageContainerName, parameters.environmentName) }}
+    value: ${{ coalesce(parameters.azureStorageContainerName, lower(parameters.environmentName)) }}
   strategy:
     runOnce:
       deploy:
@@ -213,7 +213,7 @@ jobs:
   - name: artifactWorkingDirectory
     value: '$(Pipeline.Workspace)/${{ parameters.ciPipelineResourceName }}/${{ parameters.artifactName }}/${{ parameters.workingDirectoryPath }}'
   - name: azureStorageContainerName
-    value: ${{ coalesce(parameters.azureStorageContainerName, parameters.environmentName) }}
+    value: ${{ coalesce(parameters.azureStorageContainerName, lower(parameters.environmentName)) }}
   strategy:
     runOnce:
       deploy:
