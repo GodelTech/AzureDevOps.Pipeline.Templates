@@ -118,8 +118,6 @@ steps:
     nugetConfigPath: ${{ parameters.nugetConfigPath }}
     internalFeed: ${{ parameters.internalFeed }}
 
-- template: 'NuGet/validation.yml'
-
 - task: DotNetCoreCLI@2
   displayName: 'dotnet format'
   condition: |
@@ -133,6 +131,8 @@ steps:
     custom: 'format'
     arguments: --verify-no-changes
       --no-restore
+
+- template: 'NuGet/validation.yml'
 
 - task: DotNetCoreCLI@2
   displayName: 'dotnet test'
