@@ -1,0 +1,29 @@
+parameters:
+- name: mutationTestingProjects
+  displayName: 'List of projects for mutation testing using Stryker'
+  type: object
+  default: []
+
+steps:
+- script: 'dotnet tool install --global dotnet-stryker'
+  displayName: 'Install Stryker tool'
+  condition: |
+    and
+    (
+      succeeded(),
+      ${{ gt(length(parameters.mutationTestingProjects), 0) }}
+    )
+
+- ${{ each mutationTestingProject in parameters.mutationTestingProjects }}:
+  - task: PowerShell@2
+    displayName: 'Mutation Testing for project ''${{ mutationTestingProject.displayName }}'''
+    inputs:
+      targetType: 'inline'
+      script: 'dotnet stryker'
+      workingDirectory: '$(Build.SourcesDirectory)${{ mutationTestingProject.folderPath }}'
+
+  - task: PublishMutationReport@1
+    displayName: 'Publish Mutation Testing Report for project ''${{ mutationTestingProject.displayName }}'''
+    inputs:
+      reportDisplayName: '${{ mutationTestingProject.displayName }} Mutation Testing Report'
+      reportPattern: '$(Build.SourcesDirectory)${{ mutationTestingProject.folderPath }}/StrykerOutput/**/mutation-report.html'

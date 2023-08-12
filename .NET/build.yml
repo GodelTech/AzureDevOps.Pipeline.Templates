@@ -182,81 +182,14 @@ steps:
   inputs:
     pollingTimeoutSec: '300'
 
-- script: 'dotnet tool install --global dotnet-stryker'
-  displayName: 'Install Stryker tool'
-  condition: |
-    and
-    (
-      succeeded(),
-      ${{ gt(length(parameters.mutationTestingProjects), 0) }}
-    )
+- template: 'Stryker/mutation-testing.yml'
+  parameters:
+    mutationTestingProjects: ${{ parameters.mutationTestingProjects }}
 
-- ${{ each mutationTestingProject in parameters.mutationTestingProjects }}:
-  - task: PowerShell@2
-    displayName: 'Mutation Testing for project ''${{ mutationTestingProject.displayName }}'''
-    inputs:
-      targetType: 'inline'
-      script: 'dotnet stryker'
-      workingDirectory: '$(Build.SourcesDirectory)${{ mutationTestingProject.folderPath }}'
-
-  - task: PublishMutationReport@1
-    displayName: 'Publish Mutation Testing Report for project ''${{ mutationTestingProject.displayName }}'''
-    inputs:
-      reportDisplayName: '${{ mutationTestingProject.displayName }} Mutation Testing Report'
-      reportPattern: '$(Build.SourcesDirectory)${{ mutationTestingProject.folderPath }}/StrykerOutput/**/mutation-report.html'
-
-- task: PowerShell@2
-  displayName: 'Get solution name from repository name'
-  condition: |
-    and
-    (
-      succeeded(),
-      eq(${{ parameters.enableReSharperInspectCode }}, true)
-    )
-  inputs:
-    targetType: 'inline'
-    script: |
-      $solutionNameArray = "$(Build.Repository.Name)".Split("/")
-      $solutionName = $solutionNameArray[0]
-
-      if ($solutionNameArray.Length -gt 1) {
-        $solutionName = $solutionNameArray[1]
-      }
-
-      Write-Host "##vso[task.setvariable variable=solutionName;]$solutionName"
-
-- script: 'dotnet tool install --global JetBrains.ReSharper.GlobalTools'
-  displayName: 'Install ReSharper tool'
-  condition: |
-    and
-    (
-      succeeded(),
-      eq(${{ parameters.enableReSharperInspectCode }}, true)
-    )
-
-- script: jb inspectcode '$(Build.SourcesDirectory)/$(solutionName).sln'
-    "--output=$(Build.SourcesDirectory)/TestResults/ReSharper/ReSharper.xml"
-    "--properties:Configuration=${{ parameters.buildConfiguration }}"
-    "--no-build"
-  displayName: 'ReSharper inspect code'
-  condition: |
-    and
-    (
-      succeeded(),
-      eq(${{ parameters.enableReSharperInspectCode }}, true)
-    )
-
-- task: PublishPipelineArtifact@1
-  displayName: 'Publish ReSharper inspect code report'
-  condition: |
-    and
-    (
-      succeeded(),
-      eq(${{ parameters.enableReSharperInspectCode }}, true)
-    )
-  inputs:
-    targetPath: '$(Build.SourcesDirectory)/TestResults/ReSharper'
-    artifactName: 'ReSharperInspectCodeReport'
+- template: 'ReSharper/inspect-code.yml'
+  parameters:
+    buildConfiguration: ${{ parameters.buildConfiguration }}
+    enableReSharperInspectCode: ${{ parameters.enableReSharperInspectCode }}
 
 - task: BuildQualityChecks@8
   displayName: 'Warnings quality check'
