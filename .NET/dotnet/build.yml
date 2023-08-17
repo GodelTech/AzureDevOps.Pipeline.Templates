@@ -27,10 +27,10 @@ parameters:
 steps:
 - ${{ if eq(length(parameters.dotNetSDKVersions), 0) }}:
   - task: UseDotNet@2
-    displayName: 'Use .NET Core SDK 6.0.x'
+    displayName: 'Use .NET Core SDK 7.0.x'
     inputs:
       packageType: sdk
-      version: '6.0.x'
+      version: '7.0.x'
 
 - ${{ each dotNetSDKVersion in parameters.dotNetSDKVersions }}:
   - task: UseDotNet@2
