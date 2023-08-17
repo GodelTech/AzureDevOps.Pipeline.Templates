@@ -79,6 +79,11 @@ parameters:
   type: boolean
   default: true
 
+- name: mutationTestingLevel
+  displayName: 'Mutation testing level'
+  type: string
+  default: 'Complete'
+
 - name: mutationTestingProjects
   displayName: 'List of projects for mutation testing using Stryker'
   type: object
@@ -146,6 +151,7 @@ stages:
         nugetConfigPath: ${{ parameters.nugetConfigPath }}
         internalFeed: ${{ parameters.internalFeed }}
         enableDotNetFormat: ${{ parameters.enableDotNetFormat }}
+        mutationTestingLevel: ${{ parameters.mutationTestingLevel }}
         mutationTestingProjects: ${{ parameters.mutationTestingProjects }}
         enableReSharperInspectCode: ${{ parameters.enableReSharperInspectCode }}
         checkWarnings: ${{ parameters.checkWarnings }}

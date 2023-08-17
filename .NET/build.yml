@@ -59,6 +59,11 @@ parameters:
   type: boolean
   default: true
 
+- name: mutationTestingLevel
+  displayName: 'Mutation testing level'
+  type: string
+  default: 'Complete'
+
 - name: mutationTestingProjects
   displayName: 'List of projects for mutation testing using Stryker'
   type: object
@@ -81,6 +86,11 @@ parameters:
 
 - name: includeSonarcloudBuildBreaker
   displayName: 'Does Sonarcloud build breaker turn on?'
+  type: boolean
+  default: true
+
+- name: checkMutationTesting
+  displayName: 'Check mutation testing'
   type: boolean
   default: true
 
@@ -184,6 +194,7 @@ steps:
 
 - template: 'Stryker/mutation-testing.yml'
   parameters:
+    mutationTestingLevel: ${{ parameters.mutationTestingLevel }}
     mutationTestingProjects: ${{ parameters.mutationTestingProjects }}
 
 - template: 'ReSharper/inspect-code.yml'
@@ -247,3 +258,7 @@ steps:
   inputs:
     SonarCloud: 'SonarCloud'
     organization: '${{ parameters.sonarCloudOrganizationName }}'
+
+- template: 'Stryker/validation.yml'
+  parameters:
+    checkMutationTesting: ${{ parameters.checkMutationTesting }}

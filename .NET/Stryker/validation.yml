@@ -1,0 +1,22 @@
+parameters:
+- name: checkMutationTesting
+  displayName: 'Check mutation testing'
+  type: boolean
+  default: true
+
+steps:
+- task: PowerShell@2
+  displayName: 'Stryker mutation testing score check'
+  condition: |
+    and
+    (
+      succeeded(),
+      eq(${{ parameters.checkMutationTesting }}, true)
+    )
+  inputs:
+    targetType: 'inline'
+    script: |
+      if ($strykerExitCode -ne 0) {
+        Write-Output "Stryker mutation testing score less than 80."
+        exit 1
+      }

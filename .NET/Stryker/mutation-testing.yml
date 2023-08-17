@@ -1,4 +1,9 @@
 parameters:
+- name: mutationTestingLevel
+  displayName: 'Mutation testing level'
+  type: string
+  default: 'Complete'
+
 - name: mutationTestingProjects
   displayName: 'List of projects for mutation testing using Stryker'
   type: object
@@ -19,7 +24,10 @@ steps:
     displayName: 'Mutation Testing for project ''${{ mutationTestingProject.displayName }}'''
     inputs:
       targetType: 'inline'
-      script: 'dotnet stryker'
+      script: |
+        $strykerExitCode = $(dotnet stryker --mutation-level ${{ parameters.mutationTestingLevel }} --break-at 80)
+
+        Write-Host "##vso[task.setvariable variable=strykerExitCode;]$strykerExitCode"
       workingDirectory: '$(Build.SourcesDirectory)${{ mutationTestingProject.folderPath }}'
 
   - task: PublishMutationReport@1
