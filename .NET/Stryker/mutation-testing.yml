@@ -20,14 +20,18 @@ steps:
     )
 
 - ${{ each mutationTestingProject in parameters.mutationTestingProjects }}:
-  - task: PowerShell@2
+  - task: Bash@3
     displayName: 'Mutation Testing for project ''${{ mutationTestingProject.displayName }}'''
     inputs:
       targetType: 'inline'
       script: |
-        $strykerExitCode = $(dotnet stryker --mutation-level ${{ parameters.mutationTestingLevel }} --break-at 80)
+        ( dotnet stryker --mutation-level ${{ parameters.mutationTestingLevel }} --break-at 80 )
 
-        Write-Host "##vso[task.setvariable variable=strykerExitCode;]$strykerExitCode"
+        exitCode=$?
+        
+        if [[ -z $(STRYKER_EXIT_CODE) || $exitCode -ne 0 ]]; then
+          echo "##vso[task.setvariable variable=STRYKER_EXIT_CODE;]$exitCode"
+        fi
       workingDirectory: '$(Build.SourcesDirectory)${{ mutationTestingProject.folderPath }}'
 
   - task: PublishMutationReport@1

@@ -5,7 +5,7 @@ parameters:
   default: true
 
 steps:
-- task: PowerShell@2
+- task: Bash@3
   displayName: 'Stryker mutation testing score check'
   condition: |
     and
@@ -16,7 +16,7 @@ steps:
   inputs:
     targetType: 'inline'
     script: |
-      if ($strykerExitCode -ne 0) {
-        Write-Output "Stryker mutation testing score less than 80."
+      if [[ $(STRYKER_EXIT_CODE) -ne 0 ]]; then
+        echo "Stryker mutation testing score less than 80." >&2
         exit 1
-      }
+      fi
