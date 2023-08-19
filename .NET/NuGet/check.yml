@@ -1,0 +1,66 @@
+parameters:
+- name: displayName
+  displayName: 'Display name'
+  type: string
+  default: ''
+
+- name: optionCommand
+  displayName: 'Option command'
+  type: string
+  default: ''
+
+- name: validate
+  displayName: 'Enable validation'
+  type: boolean
+  default: true
+
+- name: includeTransitive
+  displayName: 'Include transitive'
+  type: boolean
+  default: false
+
+- name: errorMessage
+  displayName: 'Error message'
+  type: string
+  default: 'Error'
+
+steps:
+- task: PowerShell@2
+  displayName: ${{ parameters.displayName }}
+  condition: |
+    and
+    (
+      succeeded(),
+      eq(${{ parameters.validate }}, true)
+    )
+  inputs:
+    targetType: 'inline'
+    script: |
+      check_dotnet_packages ()
+      {
+          local option_command=$1
+          local validate=$2
+          local include_transitive=$3
+
+          if [[ $validate = false ]]; then
+              return
+          fi
+
+          if [[ -z $include_transitive || $include_transitive = true ]]; then
+              local option_include_transitive="--include-transitive"
+          fi
+
+          local json=$(dotnet list package $option_command $option_include_transitive --format json)
+
+          if [[ "$json" =~ .*"\"topLevelPackages\": [".* || ( $include_transitive = true && "$json" =~ .*"\"transitivePackages\": [".* ) ]]; then
+              dotnet list package $option_command $option_include_transitive
+              exit 1
+          fi
+      }
+
+      ( check_dotnet_packages "${{ parameters.displayName }}" ${{ parameters.validate }} ${{ parameters.includeTransitive }} )
+
+      if [[ $? -ne 0 ]]; then
+          echo "${{ parameters.errorMessage }}" >&2
+          exit 1
+      fi

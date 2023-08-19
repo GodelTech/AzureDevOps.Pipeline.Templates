@@ -5,48 +5,26 @@ parameters:
   default: true
 
 steps:
-- task: DotNetCoreCLI@2
-  displayName: 'NuGet list packages'
-  condition: |
-    and
-    (
-      succeeded(),
-      eq(${{ parameters.enableValidationOfNuGetOutdatedPackages }}, true)
-    )
-  inputs:
-    command: 'custom'
-    custom: 'list'
-    arguments: package
-      --include-transitive
+- template: 'check.yml'
+  parameters:
+    displayName: 'NuGet check for outdated packages'
+    optionCommand: '--outdated'
+    validate: ${{ parameters.enableValidationOfNuGetOutdatedPackages }}
+    includeTransitive: false
+    errorMessage: 'Outdated packages found.'
 
-- task: DotNetCoreCLI@2
-  displayName: 'NuGet check for outdated packages'
-  condition: |
-    and
-    (
-      succeeded(),
-      eq(${{ parameters.enableValidationOfNuGetOutdatedPackages }}, true)
-    )
-  inputs:
-    command: 'custom'
-    custom: 'list'
-    arguments: package
-      --outdated
+- template: 'check.yml'
+  parameters:
+    displayName: 'NuGet check for deprecated packages'
+    optionCommand: '--deprecated'
+    validate: true
+    includeTransitive: false
+    errorMessage: 'Deprecated packages found.'
 
-- task: DotNetCoreCLI@2
-  displayName: 'NuGet check for deprecated packages'
-  inputs:
-    command: 'custom'
-    custom: 'list'
-    arguments: package
-      --deprecated
-      --include-transitive
-
-- task: DotNetCoreCLI@2
-  displayName: 'NuGet check for vulnerable packages'
-  inputs:
-    command: 'custom'
-    custom: 'list'
-    arguments: package
-      --vulnerable
-      --include-transitive
+- template: 'check.yml'
+  parameters:
+    displayName: 'NuGet check for vulnerable packages'
+    optionCommand: '--vulnerable'
+    validate: true
+    includeTransitive: false
+    errorMessage: 'Vulnerable packages found.'
