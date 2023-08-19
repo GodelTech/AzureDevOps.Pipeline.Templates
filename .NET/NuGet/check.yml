@@ -58,7 +58,7 @@ steps:
           fi
       }
 
-      ( check_dotnet_packages "${{ parameters.displayName }}" ${{ parameters.validate }} ${{ parameters.includeTransitive }} )
+      ( check_dotnet_packages "${{ parameters.optionCommand }}" ${{ parameters.validate }} ${{ parameters.includeTransitive }} )
 
       if [[ $? -ne 0 ]]; then
           echo "${{ parameters.errorMessage }}" >&2
