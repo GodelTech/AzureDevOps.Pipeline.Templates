@@ -186,3 +186,5 @@ stages:
             internalFeed: ${{ repository.build.internalFeed }}
 
       - template: '../NuGet/validation.yml@templates'
+        parameters:
+          enableNuGetValidationOutdatedPackages: true

@@ -79,6 +79,11 @@ parameters:
   type: boolean
   default: true
 
+- name: enableNuGetValidationOutdatedPackages
+  displayName: 'Enable NuGet validation of outdated packages'
+  type: boolean
+  default: true
+
 - name: mutationTestingLevel
   displayName: 'Mutation testing level'
   type: string
@@ -151,6 +156,7 @@ stages:
         nugetConfigPath: ${{ parameters.nugetConfigPath }}
         internalFeed: ${{ parameters.internalFeed }}
         enableDotNetFormat: ${{ parameters.enableDotNetFormat }}
+        enableNuGetValidationOutdatedPackages: ${{ parameters.enableNuGetValidationOutdatedPackages }}
         mutationTestingLevel: ${{ parameters.mutationTestingLevel }}
         mutationTestingProjects: ${{ parameters.mutationTestingProjects }}
         enableReSharperInspectCode: ${{ parameters.enableReSharperInspectCode }}

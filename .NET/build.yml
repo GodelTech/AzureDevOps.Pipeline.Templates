@@ -59,6 +59,11 @@ parameters:
   type: boolean
   default: true
 
+- name: enableNuGetValidationOutdatedPackages
+  displayName: 'Enable NuGet validation of outdated packages'
+  type: boolean
+  default: true
+
 - name: mutationTestingLevel
   displayName: 'Mutation testing level'
   type: string
@@ -143,6 +148,8 @@ steps:
       --no-restore
 
 - template: 'NuGet/validation.yml'
+  parameters:
+    enableNuGetValidationOutdatedPackages: ${{ parameters.enableNuGetValidationOutdatedPackages }}
 
 - task: DotNetCoreCLI@2
   displayName: 'dotnet test'

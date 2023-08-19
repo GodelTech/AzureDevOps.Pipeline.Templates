@@ -1,6 +1,6 @@
 parameters:
-- name: enableValidationOfNuGetOutdatedPackages
-  displayName: 'Enable validation of NuGet outdated packages'
+- name: enableNuGetValidationOutdatedPackages
+  displayName: 'Enable NuGet validation of outdated packages'
   type: boolean
   default: true
 
@@ -9,7 +9,7 @@ steps:
   parameters:
     displayName: 'NuGet check for outdated packages'
     optionCommand: '--outdated'
-    validate: ${{ parameters.enableValidationOfNuGetOutdatedPackages }}
+    validate: ${{ parameters.enableNuGetValidationOutdatedPackages }}
     includeTransitive: false
     errorMessage: 'Outdated packages found.'
 
