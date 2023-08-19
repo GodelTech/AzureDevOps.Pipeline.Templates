@@ -200,7 +200,7 @@ steps:
     coverageThreshold: '80'
 
 - task: BuildQualityChecks@8
-  displayName: 'Branches Code coverage quality check'
+  displayName: 'Branch Code coverage quality check'
   condition: |
     and
     (
