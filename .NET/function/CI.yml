@@ -114,6 +114,11 @@ parameters:
   type: boolean
   default: true
 
+- name: checkMutationTesting
+  displayName: 'Check mutation testing'
+  type: boolean
+  default: true
+
 - name: projects
   displayName: 'The path to the csproj file(s) to use'
   type: string
@@ -163,6 +168,7 @@ stages:
         checkWarnings: ${{ parameters.checkWarnings }}
         checkCoverage: ${{ parameters.checkCoverage }}
         includeSonarcloudBuildBreaker: ${{ parameters.includeSonarcloudBuildBreaker }}
+        checkMutationTesting: ${{ parameters.checkMutationTesting }}
 
   - job: Publish
     displayName: 'Publish'

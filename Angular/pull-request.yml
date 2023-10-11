@@ -69,6 +69,11 @@ parameters:
   type: boolean
   default: true
 
+- name: checkMutationTesting
+  displayName: 'Check mutation testing'
+  type: boolean
+  default: true
+
 stages:
 - stage: Build
   displayName: 'Build'
@@ -99,3 +104,4 @@ stages:
         checkWarnings: ${{ parameters.checkWarnings }}
         checkCoverage: ${{ parameters.checkCoverage }}
         includeSonarcloudBuildBreaker: ${{ parameters.includeSonarcloudBuildBreaker }}
+        checkMutationTesting: ${{ parameters.checkMutationTesting }}

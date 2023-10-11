@@ -89,6 +89,11 @@ parameters:
   type: boolean
   default: true
 
+- name: checkMutationTesting
+  displayName: 'Check mutation testing'
+  type: boolean
+  default: true
+
 variables:
   ${{ if eq(variables['Build.SourceBranchName'], parameters.defaultBranch) }}:
     isDefaultBranch: true
@@ -132,6 +137,7 @@ stages:
         checkWarnings: ${{ parameters.checkWarnings }}
         checkCoverage: ${{ parameters.checkCoverage }}
         includeSonarcloudBuildBreaker: ${{ parameters.includeSonarcloudBuildBreaker }}
+        checkMutationTesting: ${{ parameters.checkMutationTesting }}
 
   - job: Pack
     displayName: 'Pack'

@@ -94,6 +94,11 @@ parameters:
   type: boolean
   default: true
 
+- name: checkMutationTesting
+  displayName: 'Check mutation testing'
+  type: boolean
+  default: true
+
 steps:
 # this task is here to solve issue of function build
 # https://dev.to/kenakamu/build-net-5-azure-functions-with-azure-devops-pipeline-b7o
@@ -124,3 +129,4 @@ steps:
     checkWarnings: ${{ parameters.checkWarnings }}
     checkCoverage: ${{ parameters.checkCoverage }}
     includeSonarcloudBuildBreaker: ${{ parameters.includeSonarcloudBuildBreaker }}
+    checkMutationTesting: ${{ parameters.checkMutationTesting }}
