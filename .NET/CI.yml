@@ -124,6 +124,11 @@ parameters:
   type: string
   default: 'project'
 
+- name: migrationEFCoreVersion
+  displayName: 'Entity Framework Core version'
+  type: string
+  default: ''
+
 - name: migrationArtifactName
   displayName: 'Migrations artifact name'
   type: string
@@ -201,6 +206,7 @@ stages:
     steps:
     - template: 'migrations.yml'
       parameters:
+        migrationEFCoreVersion: ${{ parameters.migrationEFCoreVersion }}
         migrationArtifactName: ${{ parameters.migrationArtifactName }}
         migrationProjectPath: ${{ parameters.migrationProjectPath }}
         migrationDbContexts: ${{ parameters.migrationDbContexts }}
