@@ -57,6 +57,8 @@ parameters:
 steps:
 - ${{ each step in parameters.preBuildSteps }}:
   - ${{ each pair in step }}:
+      ${{ if ne(pair.value, 'script') }}:
+        ${{ pair.key }}: ${{ pair.value }}
       ${{ if eq(pair.value, 'script') }}:
         ${{ pair.key }}: ${{ pair.value }}
       ${{ if eq(pair.value, 'task') }}:
