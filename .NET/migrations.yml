@@ -19,12 +19,6 @@ parameters:
   type: object
   default: []
 
-variables:
-  ${{ if eq(parameters.migrationEFCoreVersion, '') }}:
-    entityFrameworkCoreVersionOption: ''
-  ${{ else }}:
-    entityFrameworkCoreVersionOption: '--version ${{ parameters.migrationEFCoreVersion }}'
-
 steps:
 - task: DotNetCoreCLI@2
   displayName: 'Initialize Entity Framework Core ${{ parameters.migrationEFCoreVersion }}'
@@ -37,7 +31,10 @@ steps:
   inputs:
     command: custom
     custom: tool
-    arguments: 'install --global dotnet-ef ${{ variables.entityFrameworkCoreVersionOption }}'
+    ${{ if eq(parameters.migrationEFCoreVersion, '') }}:
+      arguments: 'install --global dotnet-ef'
+    ${{ else }}:
+      arguments: 'install --global dotnet-ef --version ${{ parameters.migrationEFCoreVersion }}'
 
 - ${{ each dbContext in parameters.migrationDbContexts }}:
   - task: DotNetCoreCLI@2
