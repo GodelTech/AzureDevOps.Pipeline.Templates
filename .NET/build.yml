@@ -59,8 +59,8 @@ parameters:
   type: boolean
   default: true
 
-- name: enableNuGetValidationOutdatedPackages
-  displayName: 'Enable NuGet validation of outdated packages'
+- name: continueOnErrorNuGetValidationOutdatedPackages
+  displayName: 'Continue build if NuGet validation found outdated packages'
   type: boolean
   default: true
 
@@ -149,7 +149,7 @@ steps:
 
 - template: 'NuGet/validation.yml'
   parameters:
-    enableNuGetValidationOutdatedPackages: ${{ parameters.enableNuGetValidationOutdatedPackages }}
+    continueOnErrorNuGetValidationOutdatedPackages: ${{ parameters.continueOnErrorNuGetValidationOutdatedPackages }}
 
 - task: DotNetCoreCLI@2
   displayName: 'dotnet test'

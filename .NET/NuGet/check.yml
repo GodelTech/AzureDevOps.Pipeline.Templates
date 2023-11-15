@@ -14,6 +14,11 @@ parameters:
   type: boolean
   default: true
 
+- name: continueOnError
+  displayName: 'Continue on error'
+  type: boolean
+  default: false
+
 - name: includeTransitive
   displayName: 'Include transitive'
   type: boolean
@@ -33,6 +38,7 @@ steps:
       succeeded(),
       eq(${{ parameters.validate }}, true)
     )
+  continueOnError: ${{ parameters.continueOnError }}
   inputs:
     targetType: 'inline'
     script: |

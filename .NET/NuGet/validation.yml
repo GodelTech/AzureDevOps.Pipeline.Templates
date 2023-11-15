@@ -1,6 +1,6 @@
 parameters:
-- name: enableNuGetValidationOutdatedPackages
-  displayName: 'Enable NuGet validation of outdated packages'
+- name: continueOnErrorNuGetValidationOutdatedPackages
+  displayName: 'Continue build if NuGet validation found outdated packages'
   type: boolean
   default: true
 
@@ -9,7 +9,8 @@ steps:
   parameters:
     displayName: 'NuGet check for outdated packages'
     optionCommand: '--outdated'
-    validate: ${{ parameters.enableNuGetValidationOutdatedPackages }}
+    validate: true
+    continueOnError: ${{ parameters.continueOnErrorNuGetValidationOutdatedPackages }}
     includeTransitive: false
     errorMessage: 'Outdated packages found.'
 
@@ -18,6 +19,7 @@ steps:
     displayName: 'NuGet check for deprecated packages'
     optionCommand: '--deprecated'
     validate: true
+    continueOnError: false
     includeTransitive: false
     errorMessage: 'Deprecated packages found.'
 
@@ -26,5 +28,6 @@ steps:
     displayName: 'NuGet check for vulnerable packages'
     optionCommand: '--vulnerable'
     validate: true
+    continueOnError: false
     includeTransitive: false
     errorMessage: 'Vulnerable packages found.'

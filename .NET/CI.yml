@@ -79,8 +79,8 @@ parameters:
   type: boolean
   default: true
 
-- name: enableNuGetValidationOutdatedPackages
-  displayName: 'Enable NuGet validation of outdated packages'
+- name: continueOnErrorNuGetValidationOutdatedPackages
+  displayName: 'Continue build if NuGet validation found outdated packages'
   type: boolean
   default: true
 
@@ -176,7 +176,7 @@ stages:
         nugetConfigPath: ${{ parameters.nugetConfigPath }}
         internalFeed: ${{ parameters.internalFeed }}
         enableDotNetFormat: ${{ parameters.enableDotNetFormat }}
-        enableNuGetValidationOutdatedPackages: ${{ parameters.enableNuGetValidationOutdatedPackages }}
+        continueOnErrorNuGetValidationOutdatedPackages: ${{ parameters.continueOnErrorNuGetValidationOutdatedPackages }}
         mutationTestingLevel: ${{ parameters.mutationTestingLevel }}
         mutationTestingProjects: ${{ parameters.mutationTestingProjects }}
         enableReSharperInspectCode: ${{ parameters.enableReSharperInspectCode }}

@@ -187,4 +187,4 @@ stages:
 
       - template: '../NuGet/validation.yml@templates'
         parameters:
-          enableNuGetValidationOutdatedPackages: true
+          continueOnErrorNuGetValidationOutdatedPackages: true
