@@ -160,7 +160,7 @@ stages:
     pool:
       vmImage: ${{ parameters.vmImage }}
     dependsOn: Terraform
-    condition: eq(dependencies.Terraform.result, 'Succeeded')
+    condition: eq(dependencies.Terraform.result, 'SucceededWithIssues')
     steps:
     - template: 'build.yml'
       parameters:
@@ -190,7 +190,7 @@ stages:
     pool:
       vmImage: ${{ parameters.vmImage }}
     dependsOn: Build
-    condition: eq(dependencies.Build.result, 'Succeeded')
+    condition: eq(dependencies.Build.result, 'SucceededWithIssues')
     steps:
     - template: 'publish.yml'
       parameters:
@@ -202,7 +202,7 @@ stages:
     pool:
       vmImage: ${{ parameters.vmImage }}
     dependsOn: Publish
-    condition: eq(dependencies.Publish.result, 'Succeeded')
+    condition: eq(dependencies.Publish.result, 'SucceededWithIssues')
     steps:
     - template: 'migrations.yml'
       parameters:
