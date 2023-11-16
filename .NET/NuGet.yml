@@ -142,7 +142,7 @@ stages:
   - job: Pack
     displayName: 'Pack'
     dependsOn: Build
-    condition: eq(dependencies.Build.result, 'SucceededWithIssues')
+    condition: eq(dependencies.Build.result, 'Succeeded')
     variables:
       shouldCreateNewTag: false
     steps:

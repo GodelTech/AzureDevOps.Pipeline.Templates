@@ -145,7 +145,7 @@ stages:
     pool:
       vmImage: ${{ parameters.vmImage }}
     dependsOn: Terraform
-    condition: eq(dependencies.Terraform.result, 'SucceededWithIssues')
+    condition: in(dependencies.Terraform.result, 'Succeeded', 'SucceededWithIssues')
     steps:
     - template: 'build.yml'
       parameters:
@@ -175,7 +175,7 @@ stages:
     pool:
       vmImage: ${{ parameters.vmImage }}
     dependsOn: Build
-    condition: eq(dependencies.Build.result, 'SucceededWithIssues')
+    condition: in(dependencies.Build.result, 'Succeeded', 'SucceededWithIssues')
     steps:
     - template: '../publish.yml'
       parameters:
