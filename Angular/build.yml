@@ -39,6 +39,11 @@ parameters:
   type: string
   default: ''
 
+- name: nodeToolVersions
+  displayName: 'Node.js versions'
+  type: object
+  default: []
+
 - name: continueOnErrorNpmValidationOutdatedPackages
   displayName: 'Continue build if npm validation found outdated packages'
   type: boolean
@@ -100,11 +105,19 @@ steps:
       sonar.javascript.lcov.reportPaths=$(Build.SourcesDirectory)/coverage/${{ parameters.appName }}/lcov/lcov.info
       sonar.testExecutionReportPaths=$(Build.SourcesDirectory)/TestResults/${{ parameters.appName }}/SonarQube/SonarQube.xml
 
-- task: NodeTool@0
-  displayName: 'Install Node.js 16.x'
-  inputs:
-    versionSpec: '16.x'
-    checkLatest: true
+- ${{ if eq(length(parameters.nodeToolVersions), 0) }}:
+  - task: NodeTool@0
+    displayName: 'Use Node.js 20.x'
+    inputs:
+      versionSpec: '20.x'
+      checkLatest: true
+
+- ${{ each nodeToolVersion in parameters.nodeToolVersions }}:
+  - task: NodeTool@0
+    displayName: 'Use Node.js ${{ nodeToolVersion }}'
+    inputs:
+      versionSpec: ${{ nodeToolVersion }}
+      checkLatest: true
 
 - task: Npm@1
   displayName: 'Install Angular CLI'
