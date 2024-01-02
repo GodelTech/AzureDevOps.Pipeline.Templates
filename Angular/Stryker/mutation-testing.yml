@@ -1,0 +1,28 @@
+parameters:
+- name: appName
+  displayName: 'Angular application name'
+  type: string
+  default: 'app'
+
+steps:
+- script: 'npm install --global stryker-cli'
+  displayName: 'Install Stryker tool'
+
+- task: Bash@3
+  displayName: 'Mutation Testing'
+  inputs:
+    targetType: 'inline'
+    script: |
+      ( stryker run projects/${{ parameters.appName }}/stryker.config.json )
+
+      exitCode=$?
+      
+      if [[ -z $(STRYKER_EXIT_CODE) || $exitCode -ne 0 ]]; then
+        echo "##vso[task.setvariable variable=STRYKER_EXIT_CODE;]$exitCode"
+      fi
+
+- task: PublishMutationReport@1
+  displayName: 'Publish Mutation Testing Report'
+  inputs:
+    reportDisplayName: 'Mutation Testing Report'
+    reportPattern: '$(Build.SourcesDirectory)/coverage/${{ parameters.appName }}/stryker/mutation.html'

@@ -1,0 +1,22 @@
+parameters:
+- name: checkMutationTesting
+  displayName: 'Check mutation testing'
+  type: boolean
+  default: true
+
+steps:
+- task: Bash@3
+  displayName: 'Stryker mutation testing score check'
+  condition: |
+    and
+    (
+      succeeded(),
+      eq(${{ parameters.checkMutationTesting }}, true)
+    )
+  inputs:
+    targetType: 'inline'
+    script: |
+      if [[ $(STRYKER_EXIT_CODE) -ne 0 ]]; then
+        echo "Stryker mutation testing score less than 80." >&2
+        exit 1
+      fi

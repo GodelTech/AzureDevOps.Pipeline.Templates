@@ -189,7 +189,9 @@ steps:
   inputs:
     pollingTimeoutSec: '300'
 
-# todo: add Styker
+- template: 'Stryker/mutation-testing.yml'
+  parameters:
+    appName: ${{ parameters.appName }}
 
 - task: BuildQualityChecks@8
   displayName: 'Warnings quality check'
@@ -247,3 +249,7 @@ steps:
   inputs:
     SonarCloud: 'SonarCloud'
     organization: '${{ parameters.sonarCloudOrganizationName }}'
+
+- template: 'Stryker/validation.yml'
+  parameters:
+    checkMutationTesting: ${{ parameters.checkMutationTesting }}
