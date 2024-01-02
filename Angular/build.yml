@@ -134,11 +134,8 @@ steps:
     command: 'custom'
     customCommand: 'run ng lint ${{ parameters.appName }}'
 
-- task: Npm@1
-  displayName: "Run tsc"
-  inputs:
-    command: 'custom'
-    customCommand: 'run tsc'
+- script: 'tsc'
+  displayName: 'Run tsc'
 
 - template: 'npm/validation.yml'
   parameters:
