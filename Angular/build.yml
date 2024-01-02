@@ -59,6 +59,11 @@ parameters:
   type: boolean
   default: true
 
+- name: checkMutationTesting
+  displayName: 'Check mutation testing'
+  type: boolean
+  default: true
+
 steps:
 - ${{ each step in parameters.preBuildSteps }}:
   - ${{ each pair in step }}:
