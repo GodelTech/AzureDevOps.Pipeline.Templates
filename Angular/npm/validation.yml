@@ -1,0 +1,20 @@
+parameters:
+- name: continueOnErrorNpmValidationOutdatedPackages
+  displayName: 'Continue build if npm validation found outdated packages'
+  type: boolean
+  default: true
+
+steps:
+- task: Npm@1
+  displayName: "npm check for outdated packages"
+  continueOnError: ${{ parameters.continueOnErrorNpmValidationOutdatedPackages }}
+  inputs:
+    command: 'custom'
+    customCommand: 'outdated'
+
+- task: Npm@1
+  displayName: "npm check for vulnerable packages"
+  continueOnError: false
+  inputs:
+    command: 'custom'
+    customCommand: 'audit'
