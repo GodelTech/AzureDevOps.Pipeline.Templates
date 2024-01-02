@@ -74,11 +74,6 @@ parameters:
   type: object
   default: []
 
-- name: enableReSharperInspectCode
-  displayName: 'Enable ReSharper inspect code'
-  type: boolean
-  default: true
-
 - name: checkWarnings
   displayName: 'Check warnings'
   type: boolean
@@ -205,11 +200,6 @@ steps:
   parameters:
     mutationTestingLevel: ${{ parameters.mutationTestingLevel }}
     mutationTestingProjects: ${{ parameters.mutationTestingProjects }}
-
-- template: 'ReSharper/inspect-code.yml'
-  parameters:
-    buildConfiguration: ${{ parameters.buildConfiguration }}
-    enableReSharperInspectCode: ${{ parameters.enableReSharperInspectCode }}
 
 - task: BuildQualityChecks@8
   displayName: 'Warnings quality check'

@@ -94,11 +94,6 @@ parameters:
   type: object
   default: []
 
-- name: enableReSharperInspectCode
-  displayName: 'Enable ReSharper inspect code'
-  type: boolean
-  default: true
-
 - name: checkWarnings
   displayName: 'Check warnings'
   type: boolean
@@ -179,7 +174,6 @@ stages:
         continueOnErrorNuGetValidationOutdatedPackages: ${{ parameters.continueOnErrorNuGetValidationOutdatedPackages }}
         mutationTestingLevel: ${{ parameters.mutationTestingLevel }}
         mutationTestingProjects: ${{ parameters.mutationTestingProjects }}
-        enableReSharperInspectCode: ${{ parameters.enableReSharperInspectCode }}
         checkWarnings: ${{ parameters.checkWarnings }}
         checkCoverage: ${{ parameters.checkCoverage }}
         includeSonarcloudBuildBreaker: ${{ parameters.includeSonarcloudBuildBreaker }}
