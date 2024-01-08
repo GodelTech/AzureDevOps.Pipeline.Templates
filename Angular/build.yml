@@ -103,11 +103,16 @@ steps:
     configMode: 'manual'
     extraProperties: |
       sonar.sources=${{ parameters.appSourcePath }}
+      sonar.inclusions=${{ parameters.appSourcePath }}/**/*.ts,${{ parameters.appSourcePath }}/**/*.scss,${{ parameters.appSourcePath }}/**/*.html
+      sonar.exclusions=**/node_modules/**,${{ parameters.appSourcePath }}/**/*.spec.ts
       sonar.tests=${{ parameters.appSourcePath }}
       sonar.test.inclusions=${{ parameters.appSourcePath }}/**/*.spec.ts
-      sonar.exclusions=${{ parameters.appSourcePath }}/**/*.spec.ts
+      sonar.typescript.tsconfigPath=tsconfig.json
+
       sonar.coverage.exclusions=${{ parameters.appSourcePath }}/bootstrap.ts,${{ parameters.appSourcePath }}/main.ts,${{ parameters.appSourcePath }}/polyfills.ts,${{ parameters.appSourcePath }}/test.ts,${{ parameters.appSourcePath }}/**/*environment*.ts,${{ parameters.appSourcePath }}/**/*module.ts
+
       sonar.javascript.lcov.reportPaths=$(Build.SourcesDirectory)/coverage/${{ parameters.appName }}/lcov/lcov.info
+      
       sonar.testExecutionReportPaths=$(Build.SourcesDirectory)/TestResults/${{ parameters.appName }}/SonarQube/SonarQube.xml
 
 - ${{ if eq(length(parameters.nodeToolVersions), 0) }}:
