@@ -54,6 +54,21 @@ parameters:
   type: string
   default: ''
 
+- name: nodeToolVersions
+  displayName: 'Node.js versions'
+  type: object
+  default: []
+
+- name: continueOnErrorTypeScript
+  displayName: 'Continue build if TypeScript compilation failed'
+  type: boolean
+  default: false
+
+- name: continueOnErrorNpmValidationOutdatedPackages
+  displayName: 'Continue build if npm validation found outdated packages'
+  type: boolean
+  default: true
+
 - name: checkWarnings
   displayName: 'Check warnings'
   type: boolean
@@ -101,6 +116,9 @@ stages:
         sonarCloudOrganizationName: ${{ parameters.sonarCloudOrganizationName }}
         sonarCloudProjectKey: ${{ parameters.sonarCloudProjectKey }}
         sonarCloudProjectName: ${{ parameters.sonarCloudProjectName }}
+        nodeToolVersions: ${{ parameters.nodeToolVersions }}
+        continueOnErrorTypeScript: ${{ parameters.continueOnErrorTypeScript }}
+        continueOnErrorNpmValidationOutdatedPackages: ${{ parameters.continueOnErrorNpmValidationOutdatedPackages }}
         checkWarnings: ${{ parameters.checkWarnings }}
         checkCoverage: ${{ parameters.checkCoverage }}
         includeSonarcloudBuildBreaker: ${{ parameters.includeSonarcloudBuildBreaker }}
