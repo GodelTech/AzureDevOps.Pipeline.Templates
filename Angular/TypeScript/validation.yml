@@ -1,0 +1,10 @@
+parameters:
+- name: continueOnErrorTypeScript
+  displayName: 'Continue build if TypeScript compilation failed'
+  type: boolean
+  default: false
+
+steps:
+- script: 'tsc'
+  displayName: 'Run tsc'
+  continueOnError: ${{ parameters.continueOnErrorTypeScript }}

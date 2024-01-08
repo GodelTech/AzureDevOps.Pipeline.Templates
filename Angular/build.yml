@@ -44,6 +44,11 @@ parameters:
   type: object
   default: []
 
+- name: continueOnErrorTypeScript
+  displayName: 'Continue build if TypeScript compilation failed'
+  type: boolean
+  default: false
+
 - name: continueOnErrorNpmValidationOutdatedPackages
   displayName: 'Continue build if npm validation found outdated packages'
   type: boolean
@@ -147,8 +152,9 @@ steps:
     command: 'custom'
     customCommand: 'run ng lint ${{ parameters.appName }}'
 
-- script: 'tsc'
-  displayName: 'Run tsc'
+- template: 'TypeScript/validation.yml'
+  parameters:
+    continueOnErrorTypeScript: ${{ parameters.continueOnErrorTypeScript }}
 
 - template: 'npm/validation.yml'
   parameters:
