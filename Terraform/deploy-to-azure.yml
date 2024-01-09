@@ -162,6 +162,7 @@ jobs:
         - bash: |
             echo "##vso[task.setvariable variable=HAS_CHANGES;isoutput=true;isreadonly=true;]$TERRAFORM_PLAN_HAS_CHANGES"
             echo "##vso[task.setvariable variable=HAS_DESTROY_CHANGES;isoutput=true;isreadonly=true;]$TERRAFORM_PLAN_HAS_DESTROY_CHANGES"
+          name: TerraformPlanOutput
           displayName: 'Set Terraform plan output variables'
           condition: |
             and
@@ -169,7 +170,6 @@ jobs:
               succeeded(),
               eq(variables['TERRAFORM_PLAN_HAS_CHANGES'], 'true')
             )
-          name: tfplanOutput
 
 - job: TerraformValidate
   displayName: 'Terraform validate'
@@ -180,7 +180,7 @@ jobs:
     and
     (
       succeeded(),
-      eq(dependencies.TerraformPlan.outputs['TerraformPlan.tfplanOutput.HAS_DESTROY_CHANGES'], 'true')
+      eq(dependencies.TerraformPlan.outputs['TerraformPlan.TerraformPlanOutput.HAS_DESTROY_CHANGES'], 'true')
     )
   steps:
   - task: ManualValidation@0
@@ -202,7 +202,7 @@ jobs:
       not(failed()),
       or
       (
-        eq(dependencies.TerraformPlan.outputs['TerraformPlan.tfplanOutput.HAS_CHANGES'], 'true'),
+        eq(dependencies.TerraformPlan.outputs['TerraformPlan.TerraformPlanOutput.HAS_CHANGES'], 'true'),
         eq(${{ parameters.enableOutputVariables }}, true)
       ),
       in(dependencies.TerraformValidate.result, 'Succeeded', 'SucceededWithIssues', 'Skipped')
