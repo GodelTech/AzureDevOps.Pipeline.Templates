@@ -99,5 +99,6 @@ steps:
   inputs:
     command: 'build'
     projects: '**/*.csproj'
-    arguments: --configuration ${{ parameters.buildConfiguration }}
+    arguments: >-
+      --configuration ${{ parameters.buildConfiguration }}
       --no-restore

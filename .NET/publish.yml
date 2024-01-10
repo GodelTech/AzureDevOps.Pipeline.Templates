@@ -26,7 +26,9 @@ steps:
     command: 'publish'
     publishWebProjects: ${{ parameters.isWebProjects }}
     projects: ${{ parameters.projects }}
-    arguments: '--configuration ${{ parameters.buildConfiguration }} --output $(Build.ArtifactStagingDirectory)'
+    arguments: >-
+      --configuration ${{ parameters.buildConfiguration }}
+      --output $(Build.ArtifactStagingDirectory)
     zipAfterPublish: true
 
 - task: PublishBuildArtifacts@1

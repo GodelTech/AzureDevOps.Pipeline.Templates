@@ -141,7 +141,8 @@ steps:
   inputs:
     command: 'custom'
     custom: 'format'
-    arguments: --verify-no-changes
+    arguments: >-
+      --verify-no-changes
       --no-restore
 
 - template: 'NuGet/validation.yml'
@@ -153,7 +154,8 @@ steps:
   inputs:
     command: 'test'
     projects: '**/*[Tt]ests/*.csproj'
-    arguments: --configuration ${{ parameters.buildConfiguration }}
+    arguments: >-
+      --configuration ${{ parameters.buildConfiguration }}
       --no-build
       --no-restore
       --collect:"XPlat Code Coverage"
