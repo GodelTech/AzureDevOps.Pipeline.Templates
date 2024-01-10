@@ -1,0 +1,37 @@
+parameters:
+- name: vmImage
+  displayName: 'Pool VM image'
+  type: string
+  default: 'ubuntu-latest'
+
+- name: dependsOn
+  displayName: 'Depends On'
+  type: object
+  default: []
+
+- name: condition
+  displayName: 'Condition'
+  type: string
+  default: ''
+
+- name: gitVersion
+  displayName: 'Git version'
+  type: string
+  default: ''
+
+jobs:
+- job: GitVersionTag
+  displayName: 'Git version tag'
+  pool:
+    vmImage: ${{ parameters.vmImage }}
+  dependsOn: ${{ parameters.dependsOn }}
+  condition: ${{ parameters.condition }}
+  steps:
+  - checkout: self
+    persistCredentials: true
+
+  - script: |
+      git tag ${{ parameters.gitVersion }}
+      git push origin ${{ parameters.gitVersion }}
+    displayName: 'Add Git version tag'
+    workingDirectory: $(Build.SourcesDirectory)

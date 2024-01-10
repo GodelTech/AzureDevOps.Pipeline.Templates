@@ -144,6 +144,8 @@ stages:
   displayName: 'Build'
 
   jobs:
+  - template: '../Git/version/get-version.yml'
+
   - template: '../Terraform/CI.yml'
     parameters:
       rootFolderPath: ${{ parameters.terraformRootFolderPath }}
@@ -183,12 +185,16 @@ stages:
     displayName: 'Publish'
     pool:
       vmImage: ${{ parameters.vmImage }}
-    dependsOn: Build
+    dependsOn:
+    - GitVersion
+    - Build
     condition: in(dependencies.Build.result, 'Succeeded', 'SucceededWithIssues')
     steps:
     - template: 'publish.yml'
       parameters:
         buildConfiguration: ${{ parameters.buildConfiguration }}
+        gitVersion: $[ dependencies.GitVersion.outputs['GitVersion.GitVersion.SemVer'] ]
+        gitInformationalVersion: $[ dependencies.GitVersion.outputs['GitVersion.GitVersion.InformationalVersion'] ]
         projectArtifactName: ${{ parameters.projectArtifactName }}
 
   - job: Migrations
@@ -204,3 +210,16 @@ stages:
         migrationArtifactName: ${{ parameters.migrationArtifactName }}
         migrationProjectPath: ${{ parameters.migrationProjectPath }}
         migrationDbContexts: ${{ parameters.migrationDbContexts }}
+
+  - template: '../Git/version/add-version-tag.yml'
+    parameters:
+      dependsOn:
+      - GitVersion
+      - Publish
+      condition: |
+        and
+        (
+          in(dependencies.Publish.result, 'Succeeded', 'SucceededWithIssues'),
+          ne(dependencies.GitVersion.outputs['GitVersion.GitVersion.SemVer'], '')
+        )
+      gitVersion: $[ dependencies.GitVersion.outputs['GitVersion.GitVersion.SemVer'] ]

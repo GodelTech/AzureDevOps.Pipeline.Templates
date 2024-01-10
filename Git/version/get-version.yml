@@ -1,0 +1,25 @@
+parameters:
+- name: vmImage
+  displayName: 'Pool VM image'
+  type: string
+  default: 'ubuntu-latest'
+
+jobs:
+- job: GitVersion
+  displayName: 'Git version'
+  pool:
+    vmImage: ${{ parameters.vmImage }}
+  steps:
+  - checkout: self
+    fetchDepth: 0
+
+  - task: gitversion/setup@0
+    displayName: 'Install GitVersion tool'
+    inputs:
+      versionSpec: '5.x'
+
+  - task: gitversion/execute@0
+    name: GitVersion
+    displayName: 'Determine Git version'
+    inputs:
+      additionalArguments: '/overrideconfig update-build-number=false'

@@ -4,6 +4,16 @@ parameters:
   type: string
   default: 'Release'
 
+- name: gitVersion
+  displayName: 'Git version'
+  type: string
+  default: ''
+
+- name: gitInformationalVersion
+  displayName: 'Git informational version'
+  type: string
+  default: ''
+
 - name: isWebProjects
   displayName: 'Is web project'
   type: boolean
@@ -26,13 +36,21 @@ steps:
     command: 'publish'
     publishWebProjects: ${{ parameters.isWebProjects }}
     projects: ${{ parameters.projects }}
-    arguments: >-
-      --configuration ${{ parameters.buildConfiguration }}
-      --output $(Build.ArtifactStagingDirectory)
+    ${{ if eq(parameters.gitVersion, '') }}:
+      arguments: >-
+        --configuration ${{ parameters.buildConfiguration }}
+        --output $(Build.ArtifactStagingDirectory)/${{ replace(variables['Build.Repository.Name'], '/', '_') }}_$(Build.BuildNumber)
+    ${{ else }}:
+      arguments: >-
+        --configuration ${{ parameters.buildConfiguration }}
+        /p:Version="${{ parameters.gitVersion }}"
+        /p:InformationalVersion="${{ coalesce(parameters.gitInformationalVersion, parameters.gitVersion) }}"
+        --output $(Build.ArtifactStagingDirectory)/${{ replace(variables['Build.Repository.Name'], '/', '_') }}_$(Build.BuildNumber)
+    modifyOutputPath: false
     zipAfterPublish: true
 
 - task: PublishBuildArtifacts@1
   displayName: 'Publish application in artifacts'
   inputs:
-    pathtoPublish: '$(Build.ArtifactStagingDirectory)'
+    pathtoPublish: '$(Build.ArtifactStagingDirectory)/${{ replace(variables['Build.Repository.Name'], '/', '_') }}_$(Build.BuildNumber)'
     artifactName: ${{ parameters.projectArtifactName }}
