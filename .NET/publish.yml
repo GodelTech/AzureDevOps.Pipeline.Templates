@@ -52,5 +52,5 @@ steps:
 - task: PublishBuildArtifacts@1
   displayName: 'Publish application in artifacts'
   inputs:
-    pathtoPublish: '$(Build.ArtifactStagingDirectory)/${{ replace(variables['Build.Repository.Name'], '/', '_') }}_$(Build.BuildNumber)'
+    pathtoPublish: '$(Build.ArtifactStagingDirectory)/${{ replace(variables[''Build.Repository.Name''], ''/'', ''_'') }}_$(Build.BuildNumber)'
     artifactName: ${{ parameters.projectArtifactName }}
