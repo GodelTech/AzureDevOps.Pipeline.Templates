@@ -20,6 +20,25 @@ parameters:
   default: 'project'
 
 steps:
+- task: Bash@3
+  displayName: 'Set publish version parameters'
+  inputs:
+    targetType: 'inline'
+    script: |
+      publishVersionParameter=''
+      publishInformationalVersionParameter=''
+      
+      if ! [[ -z "$(gitVersion)" ]]; then
+        publishVersionParameter='/p:Version="$(gitVersion)"'
+      fi
+
+      if ! [[ -z "$(gitInformationalVersion)" ]]; then
+        publishInformationalVersionParameter='/p:InformationalVersion="$(gitInformationalVersion)"'
+      fi
+
+      echo "##vso[task.setvariable variable=DOTNET_PUBLISH_VERSION_PARAMETER;]$publishVersionParameter"
+      echo "##vso[task.setvariable variable=DOTNET_PUBLISH_INFORMATIONAL_VERSION_PARAMETER;]$publishInformationalVersionParameter"
+
 - task: DotNetCoreCLI@2
   displayName: 'Publish application'
   inputs:
@@ -28,8 +47,8 @@ steps:
     projects: ${{ parameters.projects }}
     arguments: >-
       --configuration ${{ parameters.buildConfiguration }}
-      $[ replace('/p:Version="$(gitVersion)"', '/p:Version=""', '') ]
-      $[ replace('/p:InformationalVersion="$(gitInformationalVersion)"', '/p:InformationalVersion=""', '') ]
+      $(DOTNET_PUBLISH_VERSION_PARAMETER)
+      $(DOTNET_PUBLISH_INFORMATIONAL_VERSION_PARAMETER)
       --output $(Build.ArtifactStagingDirectory)/${{ replace(variables['Build.Repository.Name'], '/', '_') }}_$(Build.BuildNumber)
     modifyOutputPath: false
     zipAfterPublish: true
