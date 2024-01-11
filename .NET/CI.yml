@@ -188,7 +188,12 @@ stages:
     dependsOn:
     - GitVersion
     - Build
-    condition: in(dependencies.Build.result, 'Succeeded', 'SucceededWithIssues')
+    condition: |
+      and
+      (
+        eq(dependencies.GitVersion.result, 'Succeeded'),
+        in(dependencies.Build.result, 'Succeeded', 'SucceededWithIssues')
+      )
     steps:
     - template: 'publish.yml'
       parameters:
@@ -219,6 +224,7 @@ stages:
       condition: |
         and
         (
+          eq(dependencies.GitVersion.result, 'Succeeded'),
           in(dependencies.Publish.result, 'Succeeded', 'SucceededWithIssues'),
           ne(dependencies.GitVersion.outputs['GitVersion.GitVersion.SemVer'], '')
         )
