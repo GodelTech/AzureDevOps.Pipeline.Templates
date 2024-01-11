@@ -32,7 +32,7 @@ jobs:
     persistCredentials: true
 
   - script: |
-      git tag ${{ parameters.gitVersion }}
-      git push origin ${{ parameters.gitVersion }}
+      git tag $(gitVersion)
+      git push origin $(gitVersion)
     displayName: 'Add Git version tag'
     workingDirectory: $(Build.SourcesDirectory)
