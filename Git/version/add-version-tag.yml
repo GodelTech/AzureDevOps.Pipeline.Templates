@@ -14,10 +14,10 @@ parameters:
   type: string
   default: ''
 
-- name: gitVersion
+- name: variables
   displayName: 'Git version'
-  type: string
-  default: ''
+  type: object
+  default: []
 
 jobs:
 - job: GitVersionTag
@@ -26,6 +26,7 @@ jobs:
     vmImage: ${{ parameters.vmImage }}
   dependsOn: ${{ parameters.dependsOn }}
   condition: ${{ parameters.condition }}
+  variables: ${{ parameters.variables }}
   steps:
   - checkout: self
     persistCredentials: true

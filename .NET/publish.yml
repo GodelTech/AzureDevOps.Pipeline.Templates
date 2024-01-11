@@ -4,16 +4,6 @@ parameters:
   type: string
   default: 'Release'
 
-- name: gitVersion
-  displayName: 'Git version'
-  type: string
-  default: ''
-
-- name: gitInformationalVersion
-  displayName: 'Git informational version'
-  type: string
-  default: ''
-
 - name: isWebProjects
   displayName: 'Is web project'
   type: boolean
@@ -36,15 +26,15 @@ steps:
     command: 'publish'
     publishWebProjects: ${{ parameters.isWebProjects }}
     projects: ${{ parameters.projects }}
-    ${{ if eq(parameters.gitVersion, '') }}:
+    ${{ if eq(variables.gitVersion, '') }}:
       arguments: >-
         --configuration ${{ parameters.buildConfiguration }}
         --output $(Build.ArtifactStagingDirectory)/${{ replace(variables['Build.Repository.Name'], '/', '_') }}_$(Build.BuildNumber)
     ${{ else }}:
       arguments: >-
         --configuration ${{ parameters.buildConfiguration }}
-        /p:Version="${{ parameters.gitVersion }}"
-        /p:InformationalVersion="${{ coalesce(parameters.gitInformationalVersion, parameters.gitVersion) }}"
+        /p:Version="$(gitVersion)"
+        /p:InformationalVersion="$[ coalesce(variables['gitInformationalVersion'], variables['gitVersion']) ]"
         --output $(Build.ArtifactStagingDirectory)/${{ replace(variables['Build.Repository.Name'], '/', '_') }}_$(Build.BuildNumber)
     modifyOutputPath: false
     zipAfterPublish: true

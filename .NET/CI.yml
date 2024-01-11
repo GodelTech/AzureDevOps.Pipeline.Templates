@@ -194,12 +194,13 @@ stages:
         eq(dependencies.GitVersion.result, 'Succeeded'),
         in(dependencies.Build.result, 'Succeeded', 'SucceededWithIssues')
       )
+    variables:
+      gitVersion: $[ dependencies.GitVersion.outputs['GitVersion.GitVersion.SemVer'] ]
+      gitInformationalVersion: $[ dependencies.GitVersion.outputs['GitVersion.GitVersion.InformationalVersion'] ]
     steps:
     - template: 'publish.yml'
       parameters:
         buildConfiguration: ${{ parameters.buildConfiguration }}
-        gitVersion: $[ dependencies.GitVersion.outputs['GitVersion.GitVersion.SemVer'] ]
-        gitInformationalVersion: $[ dependencies.GitVersion.outputs['GitVersion.GitVersion.InformationalVersion'] ]
         projectArtifactName: ${{ parameters.projectArtifactName }}
 
   - job: Migrations
@@ -228,4 +229,6 @@ stages:
           in(dependencies.Publish.result, 'Succeeded', 'SucceededWithIssues'),
           ne(dependencies.GitVersion.outputs['GitVersion.GitVersion.SemVer'], '')
         )
-      gitVersion: $[ dependencies.GitVersion.outputs['GitVersion.GitVersion.SemVer'] ]
+      variables:
+      - name: gitVersion
+        value: $[ dependencies.GitVersion.outputs['GitVersion.GitVersion.SemVer'] ]
