@@ -10,7 +10,7 @@ parameters:
   default: []
 
 steps:
-- script: 'dotnet tool install --global dotnet-stryker'
+- script: 'dotnet tool install --global dotnet-stryker --version 3.11.0' # todo: https://github.com/stryker-mutator/stryker-net/issues/2776
   displayName: 'Install Stryker tool'
   condition: |
     and
