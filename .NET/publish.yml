@@ -26,16 +26,11 @@ steps:
     command: 'publish'
     publishWebProjects: ${{ parameters.isWebProjects }}
     projects: ${{ parameters.projects }}
-    ${{ if eq(variables.gitVersion, '') }}:
-      arguments: >-
-        --configuration ${{ parameters.buildConfiguration }}
-        --output $(Build.ArtifactStagingDirectory)/${{ replace(variables['Build.Repository.Name'], '/', '_') }}_$(Build.BuildNumber)
-    ${{ else }}:
-      arguments: >-
-        --configuration ${{ parameters.buildConfiguration }}
-        /p:Version="$(gitVersion)"
-        /p:InformationalVersion="$[ coalesce(variables['gitInformationalVersion'], variables['gitVersion']) ]"
-        --output $(Build.ArtifactStagingDirectory)/${{ replace(variables['Build.Repository.Name'], '/', '_') }}_$(Build.BuildNumber)
+    arguments: >-
+      --configuration ${{ parameters.buildConfiguration }}
+      $[ replace('/p:Version="$(gitVersion)"', '/p:Version=""', '') ]
+      $[ replace('/p:InformationalVersion="$(gitInformationalVersion)"', '/p:InformationalVersion=""', '') ]
+      --output $(Build.ArtifactStagingDirectory)/${{ replace(variables['Build.Repository.Name'], '/', '_') }}_$(Build.BuildNumber)
     modifyOutputPath: false
     zipAfterPublish: true
 
