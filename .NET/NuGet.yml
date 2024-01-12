@@ -170,22 +170,22 @@ stages:
         path: '$(Build.ArtifactStagingDirectory)/${{ replace(variables[''Build.Repository.Name''], ''/'', ''_'') }}_$(Build.BuildNumber)'
         artifact: ${{ parameters.packageArtifactName }}
 
-    - template: '../Git/version/add-version-tag.yml'
-      parameters:
-        dependsOn:
-        - GitVersion
-        - Pack
-        condition: |
-          and
-          (
-            eq(variables.isDefaultBranch, true),
-            eq(dependencies.GitVersion.result, 'Succeeded'),
-            in(dependencies.Pack.result, 'Succeeded', 'SucceededWithIssues'),
-            ne(dependencies.GitVersion.outputs['GitVersion.GitVersion.SemVer'], '')
-          )
-        variables:
-        - name: gitVersion
-          value: $[ dependencies.GitVersion.outputs['GitVersion.GitVersion.SemVer'] ]
+  - template: '../Git/version/add-version-tag.yml'
+    parameters:
+      dependsOn:
+      - GitVersion
+      - Pack
+      condition: |
+        and
+        (
+          eq(variables.isDefaultBranch, true),
+          eq(dependencies.GitVersion.result, 'Succeeded'),
+          in(dependencies.Pack.result, 'Succeeded', 'SucceededWithIssues'),
+          ne(dependencies.GitVersion.outputs['GitVersion.GitVersion.SemVer'], '')
+        )
+      variables:
+      - name: gitVersion
+        value: $[ dependencies.GitVersion.outputs['GitVersion.GitVersion.SemVer'] ]
 
 - stage: Artifacts
   displayName: 'Push package in internal feed'
