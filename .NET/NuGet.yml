@@ -223,7 +223,7 @@ stages:
     (
       eq(variables.isDefaultBranch, true),
       in(dependencies.Build.result, 'Succeeded', 'SucceededWithIssues'),
-      eq(dependencies.Artifacts.result, 'Succeeded'),
+      eq(dependencies.Artifacts.result, 'Succeeded')
     )
   pool:
     vmImage: ${{ parameters.vmImage }}
