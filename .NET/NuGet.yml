@@ -127,7 +127,7 @@ stages:
         sonarCloudProjectName: ${{ replace(variables['Build.Repository.Name'], '/', '_') }}
         dotNetSDKVersions: ${{ parameters.dotNetSDKVersions }}
         codeCoverageSettingsFullPath: ${{ parameters.codeCoverageSettingsFullPath }}
-        restoreOnlyFromNuGetFeed: $(restoreOnlyFromNuGetFeed)
+        restoreOnlyFromNuGetFeed: ${{ variables.restoreOnlyFromNuGetFeed }}
         nugetConfigPath: ${{ parameters.nugetConfigPath }}
         internalFeed: ${{ parameters.internalFeed }}
         enableDotNetFormat: ${{ parameters.enableDotNetFormat }}
