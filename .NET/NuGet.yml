@@ -95,7 +95,10 @@ parameters:
   default: 'package'
 
 variables:
-  isDefaultBranch: ${{ eq(variables['Build.SourceBranch'], parameters.defaultBranch) }}
+  ${{ if eq(variables['Build.SourceBranch'], parameters.defaultBranch) }}:
+    isDefaultBranch: true
+  ${{ else }}:
+    isDefaultBranch: false
 
 stages:
 - stage: Build
@@ -109,7 +112,10 @@ stages:
     pool:
       vmImage: ${{ parameters.vmImage }}
     variables:
-      restoreOnlyFromNuGetFeed: ${{ or(eq(variables.isDefaultBranch, true), eq(variables['Build.Reason'], 'PullRequest')) }}
+      ${{ if or(eq(variables.isDefaultBranch, true), eq(variables['Build.Reason'], 'PullRequest')) }}:
+        restoreOnlyFromNuGetFeed: true
+      ${{ else }}:
+        restoreOnlyFromNuGetFeed: false
     steps:
     - template: 'build.yml'
       parameters:
