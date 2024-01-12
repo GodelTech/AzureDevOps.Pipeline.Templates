@@ -32,17 +32,17 @@ parameters:
 - name: defaultBranch
   displayName: 'Name of the main branch'
   type: string
-  default: 'main'
-
-- name: artifactPackDirectory
-  displayName: 'Pipeline Artifact publishing directory'
-  type: string
-  default: ''
+  default: 'refs/heads/main'
 
 - name: codeCoverageSettingsFullPath
   displayName: 'The path of the code coverage settings file'
   type: string
   default: '.runsettings'
+
+- name: nugetConfigPath
+  displayName: 'NuGet configuration path'
+  type: string
+  default: ''
 
 - name: internalFeed
   displayName: 'Internal dotnet artifact feed'
@@ -89,25 +89,27 @@ parameters:
   type: boolean
   default: true
 
+- name: packageArtifactName
+  displayName: 'Package artifact name'
+  type: string
+  default: 'package'
+
 variables:
-  ${{ if eq(variables['Build.SourceBranchName'], parameters.defaultBranch) }}:
-    isDefaultBranch: true
-  ${{ if ne(variables['Build.SourceBranchName'], parameters.defaultBranch) }}:
-    isDefaultBranch: false
+  isDefaultBranch: ${{ eq(variables['Build.SourceBranch'], parameters.defaultBranch) }}
 
 stages:
 - stage: Build
   displayName: 'Build'
-  pool:
-    vmImage: ${{ parameters.vmImage }}
+
   jobs:
+  - template: '../Git/version/get-version.yml'
+
   - job: Build
     displayName: 'Build'
+    pool:
+      vmImage: ${{ parameters.vmImage }}
     variables:
-      ${{ if or(eq(variables.isDefaultBranch, true), eq(variables['Build.Reason'], 'PullRequest')) }}:
-        restoreOnlyFromNuGetFeed: true
-      ${{ if and(eq(variables.isDefaultBranch, false), ne(variables['Build.Reason'], 'PullRequest')) }}:
-        restoreOnlyFromNuGetFeed: false
+      restoreOnlyFromNuGetFeed: ${{ or(eq(variables.isDefaultBranch, true), eq(variables['Build.Reason'], 'PullRequest')) }}
     steps:
     - template: 'build.yml'
       parameters:
@@ -119,10 +121,8 @@ stages:
         sonarCloudProjectName: ${{ replace(variables['Build.Repository.Name'], '/', '_') }}
         dotNetSDKVersions: ${{ parameters.dotNetSDKVersions }}
         codeCoverageSettingsFullPath: ${{ parameters.codeCoverageSettingsFullPath }}
-        ${{ if eq(variables.restoreOnlyFromNuGetFeed, true) }}:
-          restoreOnlyFromNuGetFeed: true
-        ${{ if eq(variables.restoreOnlyFromNuGetFeed, false) }}:
-          restoreOnlyFromNuGetFeed: false
+        restoreOnlyFromNuGetFeed: $(restoreOnlyFromNuGetFeed)
+        nugetConfigPath: ${{ parameters.nugetConfigPath }}
         internalFeed: ${{ parameters.internalFeed }}
         enableDotNetFormat: ${{ parameters.enableDotNetFormat }}
         continueOnErrorNuGetValidationOutdatedPackages: ${{ parameters.continueOnErrorNuGetValidationOutdatedPackages }}
@@ -135,99 +135,108 @@ stages:
 
   - job: Pack
     displayName: 'Pack'
-    dependsOn: Build
-    condition: eq(dependencies.Build.result, 'Succeeded')
+    pool:
+      vmImage: ${{ parameters.vmImage }}
+    dependsOn:
+    - GitVersion
+    - Build
+    condition: |
+      and
+      (
+        eq(dependencies.GitVersion.result, 'Succeeded'),
+        in(dependencies.Build.result, 'Succeeded', 'SucceededWithIssues')
+      )
     variables:
-      shouldCreateNewTag: false
+      gitVersion: $[ dependencies.GitVersion.outputs['GitVersion.GitVersion.SemVer'] ]
     steps:
-    - template: '../git-versioning.yml'
-      parameters:
-        ${{ if eq(variables.isDefaultBranch, true) }}:
-          isDefaultBranch: true
-        ${{ if eq(variables.isDefaultBranch, false) }}:
-          isDefaultBranch: false
-
     - task: DotNetCoreCLI@2
-      displayName: 'Pack .NET Core NuGet packages'
+      displayName: 'Pack NuGet package'
       inputs:
         command: 'pack'
         packagesToPack: '**/*.csproj'
-        packDirectory: '$(Build.ArtifactStagingDirectory)/${{ parameters.artifactPackDirectory }}'
+        packDirectory: '$(Build.ArtifactStagingDirectory)/${{ replace(variables['Build.Repository.Name'], '/', '_') }}_$(Build.BuildNumber)'
         versioningScheme: byEnvVar
-        versionEnvVar: 'Build.BuildNumber'
-
-    - task: PowerShell@2
-      condition: eq(variables.isDefaultBranch, true)
-      displayName: 'Compare last tag with build number'
-      inputs:
-        targetType: "inline"
-        script:
-          $lastTag = $(git describe --tags --abbrev=0);
-          $shouldCreateNewTag = $($lastTag -ne $Build.BuildNumber);
-          Write-Host "##vso[task.setvariable variable=shouldCreateNewTag;]$shouldCreateNewTag";
-
-    - task: git-tag-on-release-task@9
-      condition: |
-        and
-        (
-          eq(variables.isDefaultBranch, true),
-          eq(variables.shouldCreateNewTag, true)
-        )
-      displayName: 'Add new tag to git'
-      inputs:
-        staticTagName: '$(Build.BuildNumber)'
+        versionEnvVar: 'gitVersion'
 
     - task: PublishPipelineArtifact@1
-      displayName: 'Publish Pipeline Artifact ''NuGet Packages'''
+      displayName: 'Publish package in artifacts'
       inputs:
-        path: '$(Build.ArtifactStagingDirectory)/${{ parameters.artifactPackDirectory }}'
-        artifact: 'NuGet Packages'
+        path: '$(Build.ArtifactStagingDirectory)/${{ replace(variables['Build.Repository.Name'], '/', '_') }}_$(Build.BuildNumber)'
+        artifact: ${{ parameters.packageArtifactName }}
+
+    - template: '../Git/version/add-version-tag.yml'
+      parameters:
+        dependsOn:
+        - GitVersion
+        - Pack
+        condition: |
+          and
+          (
+            eq(variables.isDefaultBranch, true),
+            eq(dependencies.GitVersion.result, 'Succeeded'),
+            in(dependencies.Pack.result, 'Succeeded', 'SucceededWithIssues'),
+            ne(dependencies.GitVersion.outputs['GitVersion.GitVersion.SemVer'], '')
+          )
+        variables:
+        - name: gitVersion
+          value: $[ dependencies.GitVersion.outputs['GitVersion.GitVersion.SemVer'] ]
 
 - stage: Artifacts
   displayName: 'Push package in internal feed'
   dependsOn: Build
-  condition: succeeded()
+  condition: in(dependencies.Build.result, 'Succeeded', 'SucceededWithIssues')
   pool:
     vmImage: ${{ parameters.vmImage }}
   jobs:
-  - deployment: Publish
-    displayName: 'Publish packages in Artifacts'
+  - deployment: Push
+    displayName: 'Push package in artifacts'
     environment: 'Artifacts'
     strategy:
       runOnce:
         deploy:
           steps:
+          - download: current
+            displayName: 'Download artifact ''${{ parameters.packageArtifactName }}'''
+            artifact: ${{ parameters.packageArtifactName }}
+
           - task: NuGetCommand@2
-            displayName: 'Push package in Artifacts'
+            displayName: 'Push package in artifacts'
             inputs:
               command: 'push'
-              packagesToPush: '$(Pipeline.Workspace)/**/*.nupkg;!$(Pipeline.Workspace)/**/*.symbols.nupkg'
+              packagesToPush: '$(Pipeline.Workspace)/${{ parameters.packageArtifactName }}/*.nupkg;!$(Pipeline.Workspace)/${{ parameters.packageArtifactName }}/*.symbols.nupkg'
               nuGetFeedType: 'internal'
               publishVstsFeed: '${{ parameters.internalFeed }}'
 
 - stage: NuGet
   displayName: 'Push package in external NuGet feed'
-  dependsOn: Artifacts
+  dependsOn:
+  - Build
+  - Artifacts
   condition: |
     and
     (
-      succeeded(),
-      eq(variables.isDefaultBranch, true)
+      eq(variables.isDefaultBranch, true),
+      in(dependencies.Build.result, 'Succeeded', 'SucceededWithIssues'),
+      eq(dependencies.Artifacts.result, 'Succeeded'),
     )
   pool:
     vmImage: ${{ parameters.vmImage }}
   jobs:
-  - deployment: Publish
-    displayName: 'Publish packages'
+  - deployment: Push
+    displayName: 'Push package in NuGet'
     environment: 'NuGet'
     strategy:
       runOnce:
         deploy:
           steps:
+          - download: current
+            displayName: 'Download artifact ''${{ parameters.packageArtifactName }}'''
+            artifact: ${{ parameters.packageArtifactName }}
+
           - task: NuGetCommand@2
-            displayName: 'NuGet push'
+            displayName: 'Push package in NuGet'
             inputs:
               command: 'push'
-              packagesToPush: '$(Pipeline.Workspace)/**/*.nupkg;!$(Pipeline.Workspace)/**/*.symbols.nupkg'
+              packagesToPush: '$(Pipeline.Workspace)/${{ parameters.packageArtifactName }}/*.nupkg;!$(Pipeline.Workspace)/${{ parameters.packageArtifactName }}/*.symbols.nupkg'
               nuGetFeedType: 'external'
               publishFeedCredentials: 'NuGet'
