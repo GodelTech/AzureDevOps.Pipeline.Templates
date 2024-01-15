@@ -1,4 +1,9 @@
 parameters:
+- name: dotNetSDKVersions
+  displayName: '.NET Core SDK versions'
+  type: object
+  default: []
+
 - name: mutationTestingProjects
   displayName: 'List of projects for mutation testing using Stryker'
   type: object
@@ -8,5 +13,6 @@ extends:
   template: '../../.NET/NuGet.yml'
   parameters:
     sonarCloudOrganizationName: 'godeltech'
+    dotNetSDKVersions: ${{ parameters.dotNetSDKVersions }}
     internalFeed: '19324bbd-9baf-4407-b86d-3e7f0d145399/1574777e-9941-4b90-baa9-d9938266ac24'
     mutationTestingProjects: ${{ parameters.mutationTestingProjects }}
