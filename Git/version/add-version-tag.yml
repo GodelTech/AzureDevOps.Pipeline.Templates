@@ -32,7 +32,7 @@ jobs:
     persistCredentials: true
 
   - script: |
-      git tag $(gitVersion)
-      git push origin $(gitVersion)
+      git tag v$(gitVersion)
+      git push origin v$(gitVersion)
     displayName: 'Add Git version tag'
     workingDirectory: $(Build.SourcesDirectory)
