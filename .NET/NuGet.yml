@@ -24,6 +24,16 @@ parameters:
   type: string
   default: ''
 
+- name: sonarCloudProjectKey
+  displayName: 'Project key for SonarCloud'
+  type: string
+  default: ''
+
+- name: sonarCloudProjectName
+  displayName: 'Project name for SonarCloud'
+  type: string
+  default: ''
+
 - name: dotNetSDKVersions
   displayName: '.NET Core SDK versions'
   type: object
@@ -123,8 +133,8 @@ stages:
         preBuildSteps: ${{ parameters.preBuildSteps }}
         enableSonarCloud: ${{ parameters.enableSonarCloud }}
         sonarCloudOrganizationName: ${{ parameters.sonarCloudOrganizationName }}
-        sonarCloudProjectKey: ${{ replace(variables['Build.Repository.Name'], '/', '_') }}
-        sonarCloudProjectName: ${{ replace(variables['Build.Repository.Name'], '/', '_') }}
+        sonarCloudProjectKey: ${{ parameters.sonarCloudProjectKey }}
+        sonarCloudProjectName: ${{ parameters.sonarCloudProjectName }}
         dotNetSDKVersions: ${{ parameters.dotNetSDKVersions }}
         codeCoverageSettingsFullPath: ${{ parameters.codeCoverageSettingsFullPath }}
         restoreOnlyFromNuGetFeed: ${{ variables.restoreOnlyFromNuGetFeed }}
