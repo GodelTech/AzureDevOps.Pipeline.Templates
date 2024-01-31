@@ -104,6 +104,8 @@ stages:
   displayName: 'Build'
 
   jobs:
+  - template: '../Git/version/get-version.yml'
+
   - template: '../Terraform/CI.yml'
     parameters:
       rootFolderPath: ${{ parameters.terraformRootFolderPath }}
@@ -114,8 +116,17 @@ stages:
     displayName: 'Build'
     pool:
       vmImage: ${{ parameters.vmImage }}
-    dependsOn: Terraform
-    condition: in(dependencies.Terraform.result, 'Succeeded', 'SucceededWithIssues')
+    dependsOn:
+    - GitVersion
+    - Terraform
+    condition: |
+      and
+      (
+        eq(dependencies.GitVersion.result, 'Succeeded'),
+        in(dependencies.Terraform.result, 'Succeeded', 'SucceededWithIssues')
+      )
+    variables:
+      gitVersion: $[ dependencies.GitVersion.outputs['GitVersion.GitVersion.SemVer'] ]
     steps:
     - template: 'build.yml'
       parameters:
@@ -139,3 +150,19 @@ stages:
       parameters:
         buildOutputPath: 'dist/${{ parameters.appName }}'
         projectArtifactName: ${{ parameters.projectArtifactName }}
+
+  - template: '../Git/version/add-version-tag.yml'
+    parameters:
+      dependsOn:
+      - GitVersion
+      - Build
+      condition: |
+        and
+        (
+          eq(dependencies.GitVersion.result, 'Succeeded'),
+          in(dependencies.Build.result, 'Succeeded', 'SucceededWithIssues'),
+          ne(dependencies.GitVersion.outputs['GitVersion.GitVersion.SemVer'], '')
+        )
+      variables:
+      - name: gitVersion
+        value: $[ dependencies.GitVersion.outputs['GitVersion.GitVersion.SemVer'] ]

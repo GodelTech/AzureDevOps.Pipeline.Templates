@@ -136,6 +136,24 @@ steps:
     customCommand: 'install -g @angular/cli'
 
 - task: Npm@1
+  displayName: 'npm version'
+  condition: |
+    and
+    (
+      succeeded(),
+      ne(variables.gitVersion, '')
+    )
+  inputs:
+    command: 'custom'
+    customCommand:
+      '
+        version $(gitVersion)
+          --allow-same-version=true
+          --commit-hooks=false
+          --git-tag-version=false
+      '
+
+- task: Npm@1
   displayName: 'Install packages'
   inputs:
     command: 'ci'
