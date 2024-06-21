@@ -85,7 +85,7 @@ steps:
         # Step is rejected by raising a YAML syntax error: Unexpected value 'task'
         '${{ pair.value }}': error
 
-- task: SonarCloudPrepare@1
+- task: SonarCloudPrepare@2
   displayName: 'Prepare analysis on SonarCloud'
   condition: |
     and
@@ -211,7 +211,7 @@ steps:
     codeCoverageTool: 'Cobertura'
     summaryFileLocation: '$(Build.SourcesDirectory)/coverage/${{ parameters.appName }}/cobertura/cobertura-coverage.xml'
 
-- task: SonarCloudAnalyze@1
+- task: SonarCloudAnalyze@2
   displayName: 'Run Code Analysis'
   condition: |
     and
@@ -220,7 +220,7 @@ steps:
       eq(${{ parameters.enableSonarCloud }}, true)
     )
 
-- task: SonarCloudPublish@1
+- task: SonarCloudPublish@2
   displayName: 'Publish Quality Gate Result'
   condition: |
     and
