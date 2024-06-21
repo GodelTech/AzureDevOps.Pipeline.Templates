@@ -172,10 +172,9 @@ steps:
     "-reporttypes:Cobertura;SonarQube"
   displayName: 'Create reports'
 
-- task: PublishCodeCoverageResults@1
+- task: PublishCodeCoverageResults@2
   displayName: 'Publish code coverage reports'
   inputs:
-    codeCoverageTool: 'Cobertura'
     summaryFileLocation: '$(Build.SourcesDirectory)/TestResults/Coverage/Cobertura.xml'
 
 - task: SonarCloudAnalyze@2

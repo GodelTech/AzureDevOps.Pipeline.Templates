@@ -204,11 +204,10 @@ steps:
     testResultsFiles: '$(Build.SourcesDirectory)/TestResults/${{ parameters.appName }}/junit/TESTS*.xml'
     mergeTestResults: true
 
-- task: PublishCodeCoverageResults@1
+- task: PublishCodeCoverageResults@2
   displayName: 'Publish code coverage reports'
   condition: succeededOrFailed()
   inputs:
-    codeCoverageTool: 'Cobertura'
     summaryFileLocation: '$(Build.SourcesDirectory)/coverage/${{ parameters.appName }}/cobertura/cobertura-coverage.xml'
 
 - task: SonarCloudAnalyze@2
