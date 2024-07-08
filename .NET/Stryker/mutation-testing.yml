@@ -12,12 +12,37 @@ parameters:
 steps:
 - script: 'dotnet tool install --global dotnet-stryker'
   displayName: 'Install Stryker tool'
+
+- task: Bash@3
+  displayName: 'Mutation Testing for solution'
   condition: |
     and
     (
       succeeded(),
-      ${{ gt(length(parameters.mutationTestingProjects), 0) }}
+      ${{ eq(length(parameters.mutationTestingProjects), 0) }}
     )
+  inputs:
+    targetType: 'inline'
+    script: |
+      ( dotnet stryker --mutation-level ${{ parameters.mutationTestingLevel }} --break-at 80 )
+
+      exitCode=$?
+      
+      if [[ -z $(STRYKER_EXIT_CODE) || $exitCode -ne 0 ]]; then
+        echo "##vso[task.setvariable variable=STRYKER_EXIT_CODE;]$exitCode"
+      fi
+
+- task: PublishMutationReport@1
+  displayName: 'Publish Mutation Testing Report for solution'
+  condition: |
+    and
+    (
+      succeeded(),
+      ${{ eq(length(parameters.mutationTestingProjects), 0) }}
+    )
+  inputs:
+    reportDisplayName: 'Solution Mutation Testing Report'
+    reportPattern: '$(Build.SourcesDirectory)/StrykerOutput/**/mutation-report.html'
 
 - ${{ each mutationTestingProject in parameters.mutationTestingProjects }}:
   - task: Bash@3
