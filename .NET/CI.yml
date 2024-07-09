@@ -129,11 +129,6 @@ parameters:
   type: string
   default: 'migrations'
 
-- name: migrationProjectPath
-  displayName: 'Migrations project path'
-  type: string
-  default: 'database/src/Database'
-
 - name: migrationDbContexts
   displayName: 'Migrations database contexts'
   type: object

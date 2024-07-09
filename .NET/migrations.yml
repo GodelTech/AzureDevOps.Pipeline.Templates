@@ -9,11 +9,6 @@ parameters:
   type: string
   default: 'migrations'
 
-- name: migrationProjectPath
-  displayName: 'Migrations project path'
-  type: string
-  default: 'database/src/Database'
-
 - name: migrationDbContexts
   displayName: 'Migrations database contexts'
   type: object
@@ -38,16 +33,16 @@ steps:
 
 - ${{ each dbContext in parameters.migrationDbContexts }}:
   - task: DotNetCoreCLI@2
-    displayName: 'Create sql migration script for ''${{ dbContext }}'''
+    displayName: 'Create sql migration script for ''${{ dbContext.name }}'''
     inputs:
       command: custom
       custom: ef
-      arguments: 'migrations script --verbose --project ${{ parameters.migrationProjectPath }} --context ${{ dbContext }} -i -o ${{ dbContext }}.sql'
+      arguments: 'dotnet ef migrations script --verbose --startup-project ${{ dbContext.startupProjectPath }} --project ${{ dbContext.projectPath }} --context ${{ dbContext.name }} --idempotent --output ${{ dbContext.name }}.sql'
 
   - task: CopyFiles@2
-    displayName: 'Copy ''${{ dbContext }}.sql'' into artifacts'
+    displayName: 'Copy ''${{ dbContext.name }}.sql'' into artifacts'
     inputs:
-      Contents: '${{ dbContext }}.sql'
+      Contents: '${{ dbContext.name }}.sql'
       TargetFolder: '$(Build.ArtifactStagingDirectory)/Migrations'
 
 - task: PublishBuildArtifacts@1
