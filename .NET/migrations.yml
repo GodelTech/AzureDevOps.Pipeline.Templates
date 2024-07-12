@@ -37,7 +37,7 @@ steps:
     inputs:
       command: custom
       custom: ef
-      arguments: 'dotnet ef migrations script --verbose --startup-project ${{ dbContext.startupProjectPath }} --project ${{ dbContext.projectPath }} --context ${{ dbContext.name }} --idempotent --output ${{ dbContext.name }}.sql'
+      arguments: 'migrations script --verbose --startup-project ${{ dbContext.startupProjectPath }} --project ${{ dbContext.projectPath }} --context ${{ dbContext.name }} --idempotent --output ${{ dbContext.name }}.sql'
 
   - task: CopyFiles@2
     displayName: 'Copy ''${{ dbContext.name }}.sql'' into artifacts'
