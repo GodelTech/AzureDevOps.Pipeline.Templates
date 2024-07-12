@@ -209,7 +209,6 @@ stages:
       parameters:
         migrationEFCoreVersion: ${{ parameters.migrationEFCoreVersion }}
         migrationArtifactName: ${{ parameters.migrationArtifactName }}
-        migrationProjectPath: ${{ parameters.migrationProjectPath }}
         migrationDbContexts: ${{ parameters.migrationDbContexts }}
 
   - template: '../Git/version/add-version-tag.yml'
