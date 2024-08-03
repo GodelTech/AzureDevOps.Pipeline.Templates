@@ -103,12 +103,12 @@ jobs:
           displayName: 'Download artifact ''${{ parameters.artifactName }}'''
           artifact: ${{ parameters.artifactName }}
 
-        - task: TerraformInstaller@0
+        - task: TerraformInstaller@1
           displayName: 'Install Terraform'
           inputs:
             terraformVersion: 'latest'
 
-        - task: TerraformCLI@0
+        - task: TerraformCLI@1
           displayName: 'Terraform init'
           inputs:
             command: 'init'
@@ -129,7 +129,7 @@ jobs:
               resourceGroupName: ${{ parameters.sqlServerResourceGroupName }}
               sqlServerName: ${{ parameters.sqlServerName }}
 
-        - task: TerraformCLI@0
+        - task: TerraformCLI@1
           displayName: 'Terraform plan'
           inputs:
             command: 'plan'
@@ -146,7 +146,7 @@ jobs:
               resourceGroupName: ${{ parameters.sqlServerResourceGroupName }}
               sqlServerName: ${{ parameters.sqlServerName }}
 
-        - task: TerraformCLI@0
+        - task: TerraformCLI@1
           displayName: 'Terraform show'
           condition: |
             and
@@ -222,12 +222,12 @@ jobs:
           displayName: 'Download artifact ''${{ parameters.artifactName }}'''
           artifact: ${{ parameters.artifactName }}
 
-        - task: TerraformInstaller@0
+        - task: TerraformInstaller@1
           displayName: 'Install Terraform'
           inputs:
             terraformVersion: 'latest'
 
-        - task: TerraformCLI@0
+        - task: TerraformCLI@1
           displayName: 'Terraform init'
           inputs:
             command: 'init'
@@ -248,7 +248,7 @@ jobs:
               resourceGroupName: ${{ parameters.sqlServerResourceGroupName }}
               sqlServerName: ${{ parameters.sqlServerName }}
 
-        - task: TerraformCLI@0
+        - task: TerraformCLI@1
           displayName: 'Terraform apply'
           inputs:
             command: 'apply'
@@ -264,7 +264,7 @@ jobs:
               resourceGroupName: ${{ parameters.sqlServerResourceGroupName }}
               sqlServerName: ${{ parameters.sqlServerName }}
 
-        - task: TerraformCLI@0
+        - task: TerraformCLI@1
           name: TerraformOutput
           displayName: 'Terraform output variables'
           condition: |
