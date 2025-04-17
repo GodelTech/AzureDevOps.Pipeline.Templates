@@ -105,7 +105,7 @@ steps:
         # Step is rejected by raising a YAML syntax error: Unexpected value 'task'
         '${{ pair.value }}': error
 
-- task: SonarCloudPrepare@2
+- task: SonarCloudPrepare@3
   displayName: 'Prepare analysis on SonarCloud'
   condition: |
     and
@@ -116,7 +116,7 @@ steps:
   inputs:
     SonarCloud: 'SonarCloud'
     organization: '${{ parameters.sonarCloudOrganizationName }}'
-    scannerMode: 'MSBuild'
+    scannerMode: 'dotnet'
     projectKey: '${{ parameters.sonarCloudProjectKey }}'
     projectName: '${{ parameters.sonarCloudProjectName }}'
     extraProperties: |
@@ -177,7 +177,7 @@ steps:
   inputs:
     summaryFileLocation: '$(Build.SourcesDirectory)/TestResults/Coverage/Cobertura.xml'
 
-- task: SonarCloudAnalyze@2
+- task: SonarCloudAnalyze@3
   displayName: 'Run Code Analysis'
   condition: |
     and
@@ -186,7 +186,7 @@ steps:
       eq(${{ parameters.enableSonarCloud }}, true)
     )
 
-- task: SonarCloudPublish@2
+- task: SonarCloudPublish@3
   displayName: 'Publish Quality Gate Result'
   condition: |
     and
