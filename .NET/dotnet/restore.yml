@@ -1,0 +1,71 @@
+parameters:
+- name: restoreOnlyFromNuGetFeed
+  displayName: 'Restore only from NuGet feed'
+  type: boolean
+  default: true
+
+- name: nugetConfigPath
+  displayName: 'NuGet configuration path'
+  type: string
+  default: ''
+
+- name: internalFeed
+  displayName: 'Internal feed'
+  type: string
+  default: ''
+
+steps:
+- task: DotNetCoreCLI@2
+  displayName: 'dotnet restore only from NuGet feed'
+  condition: |
+    or
+    (
+      and
+      (
+        succeeded(),
+        eq(${{ parameters.restoreOnlyFromNuGetFeed }}, true)
+      ),
+      and
+      (
+        succeeded(),
+        eq(${{ parameters.restoreOnlyFromNuGetFeed }}, false),
+        eq('${{ parameters.nugetConfigPath }}', ''),
+        eq('${{ parameters.internalFeed }}', '')
+      )
+    )
+  inputs:
+    command: 'restore'
+    projects: '**/*.csproj'
+    feedsToUse: 'select'
+
+- task: DotNetCoreCLI@2
+  displayName: 'dotnet restore with NuGet config'
+  condition: |
+    and
+    (
+      succeeded(),
+      eq(${{ parameters.restoreOnlyFromNuGetFeed }}, false),
+      ne('${{ parameters.nugetConfigPath }}', ''),
+      eq('${{ parameters.internalFeed }}', '')
+    )
+  inputs:
+    command: 'restore'
+    projects: '**/*.csproj'
+    feedsToUse: 'config'
+    nugetConfigPath: '${{ parameters.nugetConfigPath }}'
+
+- task: DotNetCoreCLI@2
+  displayName: 'dotnet restore from both NuGet and Azure Artifacts feeds'
+  condition: |
+    and
+    (
+      succeeded(),
+      eq(${{ parameters.restoreOnlyFromNuGetFeed }}, false),
+      eq('${{ parameters.nugetConfigPath }}', ''),
+      ne('${{ parameters.internalFeed }}', '')
+    )
+  inputs:
+    command: 'restore'
+    projects: '**/*.csproj'
+    feedsToUse: 'select'
+    vstsFeed: '${{ parameters.internalFeed }}'

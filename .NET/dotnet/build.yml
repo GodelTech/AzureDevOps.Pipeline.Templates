@@ -39,60 +39,11 @@ steps:
       packageType: sdk
       version: ${{ dotNetSDKVersion }}
 
-- task: DotNetCoreCLI@2
-  displayName: 'dotnet restore only from NuGet feed'
-  condition: |
-    or
-    (
-      and
-      (
-        succeeded(),
-        eq(${{ parameters.restoreOnlyFromNuGetFeed }}, true)
-      ),
-      and
-      (
-        succeeded(),
-        eq(${{ parameters.restoreOnlyFromNuGetFeed }}, false),
-        eq('${{ parameters.nugetConfigPath }}', ''),
-        eq('${{ parameters.internalFeed }}', '')
-      )
-    )
-  inputs:
-    command: 'restore'
-    projects: '**/*.csproj'
-    feedsToUse: 'select'
-
-- task: DotNetCoreCLI@2
-  displayName: 'dotnet restore with NuGet config'
-  condition: |
-    and
-    (
-      succeeded(),
-      eq(${{ parameters.restoreOnlyFromNuGetFeed }}, false),
-      ne('${{ parameters.nugetConfigPath }}', ''),
-      eq('${{ parameters.internalFeed }}', '')
-    )
-  inputs:
-    command: 'restore'
-    projects: '**/*.csproj'
-    feedsToUse: 'config'
-    nugetConfigPath: '${{ parameters.nugetConfigPath }}'
-
-- task: DotNetCoreCLI@2
-  displayName: 'dotnet restore from both NuGet and Azure Artifacts feeds'
-  condition: |
-    and
-    (
-      succeeded(),
-      eq(${{ parameters.restoreOnlyFromNuGetFeed }}, false),
-      eq('${{ parameters.nugetConfigPath }}', ''),
-      ne('${{ parameters.internalFeed }}', '')
-    )
-  inputs:
-    command: 'restore'
-    projects: '**/*.csproj'
-    feedsToUse: 'select'
-    vstsFeed: '${{ parameters.internalFeed }}'
+- template: 'restore.yml'
+  parameters:
+    restoreOnlyFromNuGetFeed: ${{ parameters.restoreOnlyFromNuGetFeed }}
+    nugetConfigPath: ${{ parameters.nugetConfigPath }}
+    internalFeed: ${{ parameters.internalFeed }}
 
 - task: DotNetCoreCLI@2
   displayName: 'dotnet build'
