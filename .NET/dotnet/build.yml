@@ -25,19 +25,9 @@ parameters:
   default: ''
 
 steps:
-- ${{ if eq(length(parameters.dotNetSDKVersions), 0) }}:
-  - task: UseDotNet@2
-    displayName: 'Use .NET Core SDK 9.x'
-    inputs:
-      packageType: sdk
-      version: '9.x'
-
-- ${{ each dotNetSDKVersion in parameters.dotNetSDKVersions }}:
-  - task: UseDotNet@2
-    displayName: 'Use .NET Core SDK ${{ dotNetSDKVersion }}'
-    inputs:
-      packageType: sdk
-      version: ${{ dotNetSDKVersion }}
+- template: 'version.yml'
+  parameters:
+    dotNetSDKVersions: ${{ parameters.dotNetSDKVersions }}
 
 - template: 'restore.yml'
   parameters:

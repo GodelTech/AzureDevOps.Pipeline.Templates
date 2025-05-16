@@ -163,17 +163,11 @@ stages:
         in(dependencies.Build.result, 'Succeeded', 'SucceededWithIssues')
       )
     variables:
-      ${{ if or(eq(variables.isDefaultBranch, true), eq(variables['Build.Reason'], 'PullRequest')) }}:
-        restoreOnlyFromNuGetFeed: true
-      ${{ else }}:
-        restoreOnlyFromNuGetFeed: false
       gitVersion: $[ dependencies.GitVersion.outputs['GitVersion.GitVersion.SemVer'] ]
     steps:
-    - template: 'dotnet/restore.yml'
+    - template: 'dotnet/version.yml'
       parameters:
-        restoreOnlyFromNuGetFeed: ${{ variables.restoreOnlyFromNuGetFeed }}
-        nugetConfigPath: ${{ parameters.nugetConfigPath }}
-        internalFeed: ${{ parameters.internalFeed }}
+        dotNetSDKVersions: ${{ parameters.dotNetSDKVersions }}
 
     - task: DotNetCoreCLI@2
       displayName: 'Pack NuGet package'
