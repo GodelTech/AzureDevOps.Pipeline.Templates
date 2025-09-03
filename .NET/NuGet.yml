@@ -219,7 +219,7 @@ stages:
             displayName: 'Download artifact ''${{ parameters.packageArtifactName }}'''
             artifact: ${{ parameters.packageArtifactName }}
 
-          - task: NuGetCommand@2
+          - task: DotNetCoreCLI@2
             displayName: 'Push package in artifacts'
             inputs:
               command: 'push'
@@ -253,7 +253,7 @@ stages:
             displayName: 'Download artifact ''${{ parameters.packageArtifactName }}'''
             artifact: ${{ parameters.packageArtifactName }}
 
-          - task: NuGetCommand@2
+          - task: DotNetCoreCLI@2
             displayName: 'Push package in NuGet'
             inputs:
               command: 'push'
