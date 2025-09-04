@@ -203,6 +203,7 @@ stages:
 
 - stage: Artifacts
   displayName: 'Push package in internal feed'
+  dependsOn: Build
   condition: in(dependencies.Build.result, 'Succeeded', 'SucceededWithIssues')
   pool:
     vmImage: ${{ parameters.vmImage }}
@@ -228,6 +229,9 @@ stages:
 
 - stage: NuGet
   displayName: 'Push package in external NuGet feed'
+  dependsOn:
+  - Build
+  - Artifacts
   condition: |
     and
     (
