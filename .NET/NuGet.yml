@@ -203,8 +203,7 @@ stages:
 
 - stage: Artifacts
   displayName: 'Push package in internal feed'
-  dependsOn: Build
-  condition: in(dependencies.Build.result, 'Succeeded', 'SucceededWithIssues')
+  condition: succeeded()
   pool:
     vmImage: ${{ parameters.vmImage }}
   jobs:
@@ -229,15 +228,11 @@ stages:
 
 - stage: NuGet
   displayName: 'Push package in external NuGet feed'
-  dependsOn:
-  - Build
-  - Artifacts
   condition: |
     and
     (
       eq(variables.isDefaultBranch, true),
-      in(dependencies.Build.result, 'Succeeded', 'SucceededWithIssues'),
-      in(dependencies.Artifacts.result, 'Succeeded', 'Skipped')
+      succeeded()
     )
   pool:
     vmImage: ${{ parameters.vmImage }}
