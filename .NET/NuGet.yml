@@ -235,7 +235,7 @@ stages:
       succeeded()
     )
   pool:
-    vmImage: ${{ parameters.vmImage }}
+    vmImage: 'windows-latest' # todo: solve this back to vmImage: ${{ parameters.vmImage }} when DotNetCoreCLI got fix for external NuGet
   jobs:
   - deployment: Push
     displayName: 'Push package in NuGet'
